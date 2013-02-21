@@ -1,0 +1,82 @@
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+  <HEAD>
+ 
+  <meta charset="utf-8">
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+  <META HTTP-EQUIV="Content-Language" CONTENT="hu">
+  <META HTTP-EQUIV="expires" CONTENT="0">
+  <META HTTP-EQUIV="pragma" CONTENT="no-cache">
+  <META NAME="ROBOTS" CONTENT="INDEX,FOLLOW,NOARCHIVE">
+  <META NAME="author" CONTENT="Kovács András">
+  <META NAME="resource-type" CONTENT="document">
+  <META NAME="revisit-after" CONTENT="1">
+  
+ 
+  <title>CEU Microdata</title>
+  
+  <script src="http://d3js.org/d3.v2.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+  
+  <link media="all" rel="stylesheet" href="main.css" type="text/css">
+  <link media="all" rel="stylesheet" href="cmd_chart.css" type="text/css">
+  <SCRIPT type="text/javascript" src="cmd_chart.js"></SCRIPT>   
+   
+</HEAD>
+ 
+<body>  
+
+<div id = "simpleChartContainer" ></div>
+
+<div id = "buttons">
+  <a href="#" id = "fromplus">[fromplus] </a> 
+  <a href="#" id = "fromminus">[fromminus] </a> 
+  <a href="#" id = "toplus">[toplus] </a> 
+  <a href="#" id = "tominus">[tominus] </a> 
+  <a href="#" id = "reload">[reload] </a> 
+</div>
+
+
+<script type="text/javascript">
+
+      //"http://htsql.coauthors.net/htsql/industry?date>'2010-01-01'/:json";
+      //"datatransmitter.php?timefrom="+dateFrom+"&timeto="+dateTo;
+      //"tempserver.php?timefrom="+dateFrom+"&timeto="+dateTo;
+
+  var settings0 = {
+    "title" : "Temporary Sinus Sum",
+    "query" : function(dateFrom,dateTo,grouping) { return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; },
+    "tableName" : "industry",
+    "serieKey" : "region",
+    "dateKey" : "date",
+    "valueKey" : "growth",
+    "expandKey" : "region",
+    "dateFormat" : d3.time.format("%Y-%m-%d"),
+    "dateFrom" : "2009-01-01" ,
+    "dateTo" : "2013-01-01" ,
+    "valueFrom" : -100,
+    "valueTo" : 100
+  };
+  
+  var settings1 = {
+    "title" : "Temporary Sinus Detail",
+    "query" : function(dateFrom,dateTo,grouping) { return "tempserver1.php?timefrom="+dateFrom+"&timeto="+dateTo+"&grouping="+grouping; },
+    "tableName" : "industry",
+    "serieKey" : "country",
+    "dateKey" : "date",
+    "valueKey" : "growth",
+    "expandKey" : "region",
+    "dateFormat" : d3.time.format("%Y-%m-%d"),
+    "dateFrom" : "2009-01-01" ,
+    "dateTo" : "2013-01-01" ,
+    "valueFrom" : -100,
+    "valueTo" : 100
+  };
+    
+ d3.select("#simpleChartContainer").call(cmd_chart,settings0,settings1);
+
+</script>
+
+</body>
+</html>
