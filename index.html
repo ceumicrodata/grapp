@@ -64,8 +64,8 @@ http://htsql.coauthors.net/htsql/growth/:json
   var settings0 = {
     "title" : "growth (center)",
     "query" : function(dateFrom,dateTo,grouping) { 
-      return "datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-      //return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
+      //return "datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+      return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
       //return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; 
      },
     "tableName" : "growth",
@@ -83,8 +83,8 @@ http://htsql.coauthors.net/htsql/growth/:json
   var settings1 = {
     "title" : "Temporary Sinus Sum",
     "query" : function(dateFrom,dateTo,grouping) { 
-      return "datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-      //return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
+      //return "datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+      return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='periphery'/:json";
       //return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; 
      },
     "tableName" : "growth",
