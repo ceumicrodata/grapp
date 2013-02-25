@@ -19,24 +19,39 @@
   <script src="http://d3js.org/d3.v2.js"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
   
-  <link media="all" rel="stylesheet" href="main.css" type="text/css">
+  <link media="all" rel="stylesheet" href="skin/main.css" type="text/css">
   <link media="all" rel="stylesheet" href="cmd_chart.css" type="text/css">
   <SCRIPT type="text/javascript" src="cmd_chart.js"></SCRIPT>   
    
 </HEAD>
  
 <body>  
+<div id = "centeredContainer" >
+  <img src="skin/ceumicrodata_logo.png" id="ceumicrodata_logo" >
+  <div id = "whiteBox" >
+    <div id = "chartTitle" >
+      <h4>CEU Mcicrodata</h4>
+      <h1>Graphing App</h1>    
+    </div>
 
-<div id = "simpleChartContainer" ></div>
 
-<div id = "buttons">
-  <a href="#" id = "fromplus">[fromplus] </a> 
-  <a href="#" id = "fromminus">[fromminus] </a> 
-  <a href="#" id = "toplus">[toplus] </a> 
-  <a href="#" id = "tominus">[tominus] </a> 
-  <a href="#" id = "reload">[reload] </a> 
+    
+    <div id = "chartContainer" >  </div>
+    <div id = "descriptionContainer" >
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.
+    Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim. 
+    </div>
+  
+  </div>
+  <!--<div id = "buttons">
+    <a href="#" id = "fromplus">[fromplus] </a> 
+    <a href="#" id = "fromminus">[fromminus] </a> 
+    <a href="#" id = "toplus">[toplus] </a> 
+    <a href="#" id = "tominus">[tominus] </a> 
+    <a href="#" id = "reload">[reload] </a> 
+  </div>-->
+
 </div>
-
 
 <script type="text/javascript">
 
@@ -44,37 +59,47 @@
       //"datatransmitter.php?timefrom="+dateFrom+"&timeto="+dateTo;
       //"tempserver.php?timefrom="+dateFrom+"&timeto="+dateTo;
 
+http://htsql.coauthors.net/htsql/growth/:json
+
   var settings0 = {
-    "title" : "Temporary Sinus Sum",
-    "query" : function(dateFrom,dateTo,grouping) { return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; },
-    "tableName" : "industry",
-    "serieKey" : "region",
-    "dateKey" : "date",
-    "valueKey" : "growth",
-    "expandKey" : "region",
-    "dateFormat" : d3.time.format("%Y-%m-%d"),
-    "dateFrom" : "2009-01-01" ,
-    "dateTo" : "2013-01-01" ,
-    "valueFrom" : -100,
-    "valueTo" : 100
-  };
-  
-  var settings1 = {
-    "title" : "Temporary Sinus Detail",
-    "query" : function(dateFrom,dateTo,grouping) { return "tempserver1.php?timefrom="+dateFrom+"&timeto="+dateTo+"&grouping="+grouping; },
-    "tableName" : "industry",
+    "title" : "growth (center)",
+    "query" : function(dateFrom,dateTo,grouping) { 
+      return "datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+      //return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
+      //return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; 
+     },
+    "tableName" : "growth",
     "serieKey" : "country",
     "dateKey" : "date",
     "valueKey" : "growth",
     "expandKey" : "region",
     "dateFormat" : d3.time.format("%Y-%m-%d"),
-    "dateFrom" : "2009-01-01" ,
-    "dateTo" : "2013-01-01" ,
+    "dateFrom" : "2008-01-01" ,
+    "dateTo" : "2012-01-01" ,
+    "valueFrom" : -100,
+    "valueTo" : 100
+  };
+  
+  var settings1 = {
+    "title" : "Temporary Sinus Sum",
+    "query" : function(dateFrom,dateTo,grouping) { 
+      return "datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+      //return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
+      //return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; 
+     },
+    "tableName" : "growth",
+    "serieKey" : "country",
+    "dateKey" : "date",
+    "valueKey" : "growth",
+    "expandKey" : "region",
+    "dateFormat" : d3.time.format("%Y-%m-%d"),
+    "dateFrom" : "2008-01-01" ,
+    "dateTo" : "2012-01-01" ,
     "valueFrom" : -100,
     "valueTo" : 100
   };
     
- d3.select("#simpleChartContainer").call(cmd_chart,settings0,settings1);
+ d3.select("#chartContainer").call(cmd_chart,settings0,settings1);
 
 </script>
 

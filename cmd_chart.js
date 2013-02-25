@@ -98,8 +98,17 @@ function cmd_chart(selection, settings0, settings1 ) {
             series[s].color = d3.hsl(Math.random()*360, 1, 0.5).toString();            
             //adding mouseover and mouseout events
             series[s].path.on("mouseover", function() {
+                var coords = d3.mouse(this);
+                var timex = scalesTime.invert(coords[0]);
+                var valuey = scalesValue.invert(coords[1]);
+                var datex = settings.dateFormat(timex);
+                
+                for ( ss in series ) 
+                  if (series[ss].path.node() == this)
+                     svgInfo.text(ss+" ("+datex+": "+valuey+")");
                 d3.select(this).classed("mouseover", true);
             }).on("mouseout", function() {
+                svgInfo.text("");
                 d3.select(this).classed("mouseover", false);
             });
             
@@ -225,6 +234,15 @@ function cmd_chart(selection, settings0, settings1 ) {
       .style("text-anchor", "end")
       .text(settings.title);
       
+      
+     var svgInfo = svg.append("text")
+      .attr("transform", "translate(" + width + ",20)")
+
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("(move the mouse over a line to see details)");
+
     ///////////////////////////
     
     loadDataAndRedraw();
