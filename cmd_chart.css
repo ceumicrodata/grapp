@@ -14,11 +14,31 @@ path {
 
 .axis path,
 .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
+
+    fill: none;
+    stroke: #eee;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
 }
+/*
+.axisBackground line {
+    fill: none;
+    stroke: #eeeeee;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+.axisBackground path,
+.axisBackground text {
+    display: none;
+}*/
+
 .axis text {
     font-family: sans-serif;
-    font-size: 11px;
+    font-size: 10px;
+    fill: #aaa;
+}
+
+.chartBackground {
+    fill: #fafafa;
 }

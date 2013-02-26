@@ -1,19 +1,43 @@
   
-function cmd_chart(selection, settings0, settings1 ) {
+function cmd_chart(selection, settingLevels ) {
 
-  selection.each(function() { 
+  var chartTitle = selection.select(".chartTitle");
+  var chartDescription = selection.select(".chartDescription");
+  var buttonContainer = selection.select(".chartButtons");
+ 
+  selection.select(".chartContainer").each(function() { 
 
     var series = new Object();
+    
     var speed = 500;
+    var margin = 20;
     
     var currentLevel = 0;
-    var settings = settings0;
+    var settings = settingLevels[0];
 
-    var timeFrom = settings.dateFormat.parse(settings.dateFrom).getTime();
-    var timeTo =   settings.dateFormat.parse(settings.dateTo).getTime();
+    var timeFrom = 0;
+    var timeTo =   100;
+    var valueFrom = 0;
+    var valueTo =   100;
+    
+    function updateRanges() {
+      if (settings.dateFrom)
+        timeFrom = settings.dateFormat.parse(settings.dateFrom).getTime();
+      if (settings.dateTo)
+        timeTo =   settings.dateFormat.parse(settings.dateTo).getTime();
+      if (settings.valueFrom)
+        valueFrom = settings.valueFrom;
+      if (settings.valueTo)
+        valueTo =   settings.valueTo;
+    }  
+    
+    updateRanges();
   
-    var width  = $(this).width(); 
-    var height = $(this).height();
+    var totalWidth  = $(this).width() ; 
+    var totalHeight = $(this).height() ;
+
+    var width  = totalWidth - 2*margin; 
+    var height = totalHeight - 2*margin;
 
     function getTimeScale() {
       return d3.time.scale()
@@ -22,7 +46,7 @@ function cmd_chart(selection, settings0, settings1 ) {
     }
     function getValueScale() {
       return d3.scale.linear()
-        .domain([settings.valueFrom,settings.valueTo])
+        .domain([valueFrom,valueTo])
         .range([height,0]);
     }    
     
@@ -31,25 +55,45 @@ function cmd_chart(selection, settings0, settings1 ) {
  
     var xAxis = d3.svg.axis()
     .scale(scalesTime)
-    .orient("top");
+    .orient("bottom")
+    .tickPadding(6)
+    .tickSize(height);
 
     var yAxis = d3.svg.axis()
     .scale(scalesValue)
-    .orient("right");
+    .orient("left")
+    .tickPadding(3)
+    .tickSize(width);
+
     
+    /*var xAxisBackground = d3.svg.axis()
+    .scale(scalesTime)
+    .orient("top")
+    .ticks(d3.time.years, 1)
+    .tickSubdivide(1)
+    .tickSize(width);
+    
+    var yAxisBackground = d3.svg.axis()
+    .scale(scalesValue)
+    .orient("right")
+    .ticks(5)
+    .tickSubdivide(1)
+    .tickSize(width);*/
+   
     ////////////////
     
     function loadDataAndRedraw(from, to, levelUpFromSerie, levelDownToSerie) { 
       
       if (levelUpFromSerie) {
         currentLevel ++;
-        settings = settings1; //TODO
+        settings = settingLevels[currentLevel]; 
         settings.grouping = levelUpFromSerie;
       }
       else if (levelDownToSerie) {
         currentLevel --;
-        settings = settings0; //TODO
+        settings = settingLevels[currentLevel]; 
       }  
+      updateRanges();
     
       var enlargeInterval = (from != null && to != null);
       if (from == null) from = timeFrom;
@@ -143,6 +187,7 @@ function cmd_chart(selection, settings0, settings1 ) {
     }
     
     function redraw() {
+
       scalesTime = getTimeScale();
       console.log ("Redraw: "+timeFrom+"-"+timeTo+ "  - level:" + currentLevel+" gr:"+ settings.grouping);
       for ( s in series ) 
@@ -159,43 +204,62 @@ function cmd_chart(selection, settings0, settings1 ) {
         else if (series[s].level > currentLevel) {
           series[s].path.transition()
             .duration(speed)
-            .attr("d", line(series[settings1.grouping]))
+            .attr("d", line(series[settingLevels[currentLevel+1].grouping]))
             .remove();
             
           delete series[s];
-            //.each("end",function() { alert(s); delete series[s].path; });
         }
-      svgYaxis.call(yAxis);
+      //svgYaxis.call(yAxis);
+      //svgYaxisBackground.call(yAxisBackground);
       
-      xAxis.scale(scalesTime);
+      /*xAxis.scale(scalesTime)
+        .ticks(d3.time.years, 1)
+        .tickSubdivide(1);
+      yAxis.scale(scalesValue) 
+        .ticks(5)
+        .tickSubdivide(1);*/
+        
+      xAxis.scale(scalesTime)
+        .ticks(settings.timeAxis.unit, settings.timeAxis.unitStep)
+        .tickSubdivide(settings.timeAxis.subdivide);
+      yAxis.scale(scalesValue) 
+        .ticks(settings.valueAxis.tickCount)
+        .tickSubdivide(settings.valueAxis.subdivide);
+      
+      //xAxisBackground.scale(scalesTime);
       svgXaxis.transition().duration(speed).call(xAxis);
+      svgYaxis.transition().duration(speed).call(yAxis);
+      //svgXaxisBackground.transition().duration(speed).call(xAxisBackground);
       
-      svgTitle.text(settings.title);
+      chartTitle.text(settings.title);
+      chartDescription.text(settings.description);
     }
     ///////////////////////////////////////////////
     
-    d3.select("#reload").on("click", function() { 
+    
+    buttonContainer.select(".reload").on("click", function() { 
+      alert("Reloading...");
       loadDataAndRedraw();
     });
     
-    d3.select("#fromplus").on("click", function() { 
+    buttonContainer.select(".fromplus").on("click", function() { 
       timeFrom += 1000*60*60*24*30;
       redraw();
     });
     
-    d3.select("#fromminus").on("click", function() { 
+    buttonContainer.select(".fromminus").on("click", function() { 
       var old = timeFrom;
       timeFrom -= 1000*60*60*24*30;
       loadDataAndRedraw(timeFrom, old);
     });
     
-    d3.select("#toplus").on("click", function() { 
+    buttonContainer.select(".toplus").on("click", function() { 
       var old = timeTo;
       timeTo += 1000*60*60*24*30;
       loadDataAndRedraw(old, timeTo);
     });
     
-    d3.select("#tominus").on("click", function() { 
+    buttonContainer.select(".tominus").on("click", function() { 
       timeTo -= 1000*60*60*24*30;
       redraw();
     });
@@ -208,40 +272,60 @@ function cmd_chart(selection, settings0, settings1 ) {
   
  
     //svg init
-    var svg = selection.append("svg:svg");
-    svg.attr("width", width).attr("height",height);
+    var svg = d3.select(this).append("svg:svg")
+      .attr("width", totalWidth)
+      .attr("height",totalHeight);
+      //.style("background-color","#fafafa");
     
     var line = d3.svg.line()
-      .x(function(dataRecord) { return scalesTime(dataRecord["date"]); })
-      .y(function(dataRecord) { return scalesValue(dataRecord["value"]);});  
+      .x(function(dataRecord) { return margin + scalesTime(dataRecord["date"]); })
+      .y(function(dataRecord) { return margin + scalesValue(dataRecord["value"]);});  
 
        
     ////////////////
     
+    svg.append("rect")
+      .attr("class", "chartBackground")
+      .attr("width", width + "px")
+      .attr("height", height + "px")
+      .attr("x", margin + "px")
+      .attr("y", margin + "px");
+      
+    /*var svgXaxisBackground = svg.append("g")
+      .attr("class", "xaxisBackground axisBackground")
+      .attr("transform", "translate("+margin+"," + (totalHeight-margin) + ")");
+
+    var svgYaxisBackground = svg.append("g")
+      .attr("class", "yaxisBackground axisBackground")
+      .attr("transform", "translate("+margin+","+ margin+")");
+    */  
+    
     var svgXaxis = svg.append("g")
       .attr("class", "xaxis axis")
-      .attr("transform", "translate(0," + height + ")");
+      .attr("transform", "translate("+margin+"," + margin + ")");
 
     var svgYaxis = svg.append("g")
-      .attr("class", "yaxis axis");
+      .attr("class", "yaxis axis")
+      .attr("transform", "translate("+(width + margin)+","+ margin +")");
     
-    var svgTitle = svg.append("text")
+
+    /*var svgTitle = svg.append("text")
       .attr("transform", "translate(" + width + ",0)")
 
       //.attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text(settings.title);
+      .text(settings.title);*/
       
       
      var svgInfo = svg.append("text")
-      .attr("transform", "translate(" + width + ",20)")
+      .attr("transform", "translate(" + (width + margin) + ",0)")
 
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("(move the mouse over a line to see details)");
+      .text("");
 
     ///////////////////////////
     

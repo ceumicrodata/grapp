@@ -28,78 +28,117 @@
 <body>  
 <div id = "centeredContainer" >
   <img src="skin/ceumicrodata_logo.png" id="ceumicrodata_logo" >
-  <div id = "whiteBox" >
-    <div id = "chartTitle" >
+  <div id = "chart1" class="whiteBox" >
+    <div class = "mainTitle" >
       <h4>CEU Mcicrodata</h4>
       <h1>Graphing App</h1>    
+      <h3 class = "chartTitle"></h3>    
     </div>
-
-
     
-    <div id = "chartContainer" >  </div>
-    <div id = "descriptionContainer" >
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.
-    Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim. 
-    </div>
+    <div class = "chartContainer" ></div>
+    <div class = "chartDescription" ></div>
   
+    <div class = "chartButtons"> Dev. tools:
+      <a href="#" class = "fromplus">[<]</a> 
+      <a href="#" class = "fromminus">[>]</a> -  
+      <a href="#" class = "toplus">[<]</a> 
+      <a href="#" class = "tominus">[>]</a> 
+      <a href="#" class = "reload">[R]</a> 
+    </div>
   </div>
-  <!--<div id = "buttons">
-    <a href="#" id = "fromplus">[fromplus] </a> 
-    <a href="#" id = "fromminus">[fromminus] </a> 
-    <a href="#" id = "toplus">[toplus] </a> 
-    <a href="#" id = "tominus">[tominus] </a> 
-    <a href="#" id = "reload">[reload] </a> 
-  </div>-->
+
 
 </div>
 
 <script type="text/javascript">
-
-      //"http://htsql.coauthors.net/htsql/industry?date>'2010-01-01'/:json";
-      //"datatransmitter.php?timefrom="+dateFrom+"&timeto="+dateTo;
-      //"tempserver.php?timefrom="+dateFrom+"&timeto="+dateTo;
-
-http://htsql.coauthors.net/htsql/growth/:json
-
-  var settings0 = {
-    "title" : "growth (center)",
+  
+  d3.select("#chart1").call(cmd_chart, [
+  {
+    ///////////////////////
+    //initial settings
+    ///////////////////////
+    
+    // chart title and desctiption
+    "title" : "Industrial growth (center)",
+    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.",
+    
+    // the ajax query 
     "query" : function(dateFrom,dateTo,grouping) { 
+      // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
+      // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
+      // grouping: on an upper level, grouping is the ID of the previously clicked serie
       //return "datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
       return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
-      //return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; 
      },
-    "tableName" : "growth",
-    "serieKey" : "country",
-    "dateKey" : "date",
-    "valueKey" : "growth",
-    "expandKey" : "region",
-    "dateFormat" : d3.time.format("%Y-%m-%d"),
-    "dateFrom" : "2008-01-01" ,
-    "dateTo" : "2012-01-01" ,
+     
+    // query result
+    "tableName" : "growth", //the main json object
+    "serieKey" : "country", //the ID of the serie
+    "dateKey" : "date",     //value on the X axis
+    "valueKey" : "growth",  //value on the Y axis
+    "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
+    
+    // the time and value extents
+    "dateFrom" : "2008-01-01" , //formatted based on the "dateFormat" settings
+    "dateTo" : "2012-01-01" ,   //formatted based on the "dateFormat" settings
     "valueFrom" : -100,
-    "valueTo" : 100
-  };
-  
-  var settings1 = {
-    "title" : "Temporary Sinus Sum",
+    "valueTo" : 100,
+    
+    // formatting of axes
+    "timeAxis" : {
+      "unit": d3.time.years, 
+      "unitStep": 1,    
+      "subdivide" : 1   //number of "subticks" between main ticks
+    }, 
+    "valueAxis" : {
+      "tickCount  ": 5, //number of main ticks on the y axis
+      "subdivide" : 1   //number of "subticks" between main ticks
+    } 
+
+  },
+  {
+    ///////////////////////
+    //second level settings
+    ///////////////////////
+
+    // chart title and desctiption
+    "title" : "Industrial growth (periphery)",
+    "description" : "Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim.",
+
+    // the ajax query 
     "query" : function(dateFrom,dateTo,grouping) { 
+      // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
+      // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
+      // grouping: on an upper level, grouping is the ID of the previously clicked serie
       //return "datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
       return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='periphery'/:json";
-      //return "tempserver0.php?timefrom="+dateFrom+"&timeto="+dateTo; 
      },
-    "tableName" : "growth",
-    "serieKey" : "country",
-    "dateKey" : "date",
-    "valueKey" : "growth",
-    "expandKey" : "region",
-    "dateFormat" : d3.time.format("%Y-%m-%d"),
-    "dateFrom" : "2008-01-01" ,
-    "dateTo" : "2012-01-01" ,
-    "valueFrom" : -100,
-    "valueTo" : 100
-  };
+        
+    // query result
+    "tableName" : "growth", //the main json object
+    "serieKey" : "country", //the ID of the serie
+    "dateKey" : "date",     //value on the X axis
+    "valueKey" : "growth",  //value on the Y axis
+    "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
     
- d3.select("#chartContainer").call(cmd_chart,settings0,settings1);
+    // the time and value extents
+    "dateFrom" :  null, //do no reset reset the time scale on this level
+    "dateTo" :    null, //do no reset reset the time scale on this level
+    "valueFrom" : null, //do no reset reset the value scale on this level
+    "valueTo" :   null,  //do no reset reset the value scale on this level
+    
+    // formatting of axes
+    "timeAxis" : {
+      "unit": d3.time.months, 
+      "unitStep": 6,    
+      "subdivide" : 0   //number of "subticks" between main ticks
+    },
+    "valueAxis" : {
+      "tickCount": 11,       //number of main ticks on the y axis
+      "subdivide" : 0   //number of "subticks" between main ticks
+    } 
+  }
+ ]);
 
 </script>
 
