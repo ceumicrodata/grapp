@@ -236,6 +236,7 @@ function cmd_chart(selection, settingLevels ) {
     }
     ///////////////////////////////////////////////
     
+    var DEV_TIMEOFFSET = 1000*60*60*24*365;
     
     buttonContainer.select(".reload").on("click", function() { 
       alert("Reloading...");
@@ -243,24 +244,24 @@ function cmd_chart(selection, settingLevels ) {
     });
     
     buttonContainer.select(".fromplus").on("click", function() { 
-      timeFrom += 1000*60*60*24*30;
+      timeFrom += DEV_TIMEOFFSET;
       redraw();
     });
     
     buttonContainer.select(".fromminus").on("click", function() { 
       var old = timeFrom;
-      timeFrom -= 1000*60*60*24*30;
+      timeFrom -= DEV_TIMEOFFSET;
       loadDataAndRedraw(timeFrom, old);
     });
     
     buttonContainer.select(".toplus").on("click", function() { 
       var old = timeTo;
-      timeTo += 1000*60*60*24*30;
+      timeTo += DEV_TIMEOFFSET;
       loadDataAndRedraw(old, timeTo);
     });
     
     buttonContainer.select(".tominus").on("click", function() { 
-      timeTo -= 1000*60*60*24*30;
+      timeTo -= DEV_TIMEOFFSET;
       redraw();
     });
        
