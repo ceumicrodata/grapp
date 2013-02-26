@@ -88,12 +88,13 @@ function cmd_chart(selection, settingLevels ) {
         currentLevel ++;
         settings = settingLevels[currentLevel]; 
         settings.grouping = levelUpFromSerie;
+        updateRanges();
       }
       else if (levelDownToSerie) {
         currentLevel --;
         settings = settingLevels[currentLevel]; 
+        updateRanges();
       }  
-      updateRanges();
     
       var enlargeInterval = (from != null && to != null);
       if (from == null) from = timeFrom;
