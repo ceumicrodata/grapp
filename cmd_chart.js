@@ -135,7 +135,7 @@ function cmd_chart(selection, settingLevels ) {
           series[s].sort(function(a,b) { return a.date - b.date; } );
           if (!series[s].path) {
 
-            series[s].path = svg.append("svg:path")
+            series[s].path = clippedArea.append("svg:path")
                                 .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
                                 .style("stroke", d3.rgb(255,255,255).toString());
                            
@@ -290,6 +290,19 @@ function cmd_chart(selection, settingLevels ) {
       .attr("height", height + "px")
       .attr("x", margin + "px")
       .attr("y", margin + "px");
+      
+      
+    var clipRect = svg.append("svg:clipPath")
+        .attr("id", "clipRect")
+        .append("svg:rect")
+        .attr("width", width + "px")
+        .attr("height", height + "px")
+        .attr("x", margin + "px")
+        .attr("y", margin + "px");
+
+        
+    var clippedArea = svg.append("g")
+        .attr("clip-path", "url(#clipRect)");
       
     /*var svgXaxisBackground = svg.append("g")
       .attr("class", "xaxisBackground axisBackground")
