@@ -1,5 +1,5 @@
   
-function cmd_chart(selection, settingLevels ) {
+function cmd_chart(selection, metaData ) {
 
   var chartTitle = selection.select(".chartTitle");
   var chartDescription = selection.select(".chartDescription");
@@ -13,25 +13,7 @@ function cmd_chart(selection, settingLevels ) {
     var margin = 20;
     
     var currentLevel = 0;
-    var settings = settingLevels[0];
-
-    var timeFrom = 0;
-    var timeTo =   100;
-    var valueFrom = 0;
-    var valueTo =   100;
-    
-    function updateRanges() {
-      if (settings.dateFrom)
-        timeFrom = settings.dateFormat.parse(settings.dateFrom).getTime();
-      if (settings.dateTo)
-        timeTo =   settings.dateFormat.parse(settings.dateTo).getTime();
-      if (settings.valueFrom)
-        valueFrom = settings.valueFrom;
-      if (settings.valueTo)
-        valueTo =   settings.valueTo;
-    }  
-    
-    updateRanges();
+    var settings = metaData.levels[0]; 
   
     var totalWidth  = $(this).width() ; 
     var totalHeight = $(this).height() ;
@@ -39,69 +21,49 @@ function cmd_chart(selection, settingLevels ) {
     var width  = totalWidth - 2*margin; 
     var height = totalHeight - 2*margin;
 
-    function getTimeScale() {
-      return d3.time.scale()
-        .domain([timeFrom,timeTo])
-        .range([0,width]);
-    }
-    function getValueScale() {
-      return d3.scale.linear()
-        .domain([valueFrom,valueTo])
-        .range([height,0]);
-    }    
+    var timeFrom = settings.dateFormat.parse(metaData.dateFrom).getTime();
+    var timeTo =   settings.dateFormat.parse(metaData.dateTo).getTime();
+    var valueFrom = metaData.valueFrom;
+    var valueTo =   metaData.valueTo;
     
-    var scalesTime = getTimeScale();
-    var scalesValue = getValueScale();
+    var scalesTime = d3.time.scale()
+      .range([0,width])
+      .domain([timeFrom,timeTo]);
+    var scalesValue = d3.scale.linear()
+      .range([height,0])
+      .domain([valueFrom,valueTo]);
  
     var xAxis = d3.svg.axis()
-    .scale(scalesTime)
-    .orient("bottom")
-    .tickPadding(6)
-    .tickSize(height);
+      .scale(scalesTime)
+      .orient("bottom")
+      .tickPadding(6)
+      .tickSize(height);
 
     var yAxis = d3.svg.axis()
-    .scale(scalesValue)
-    .orient("left")
-    .tickPadding(3)
-    .tickSize(width);
-
-    
-    /*var xAxisBackground = d3.svg.axis()
-    .scale(scalesTime)
-    .orient("top")
-    .ticks(d3.time.years, 1)
-    .tickSubdivide(1)
-    .tickSize(width);
-    
-    var yAxisBackground = d3.svg.axis()
-    .scale(scalesValue)
-    .orient("right")
-    .ticks(5)
-    .tickSubdivide(1)
-    .tickSize(width);*/
-   
+      .scale(scalesValue)
+      .orient("left")
+      .tickPadding(3)
+      .tickSize(width);
+  
     ////////////////
     
-    function loadDataAndRedraw(from, to, levelUpFromSerie, levelDownToSerie) { 
+    function loadDataAndRedraw(instant, levelUpFromSerie, levelDownToSerie) { 
+      
+      zoomTimer = false;
       
       if (levelUpFromSerie) {
         currentLevel ++;
-        settings = settingLevels[currentLevel]; 
+        settings = metaData.levels[currentLevel]; 
         settings.grouping = levelUpFromSerie;
-        updateRanges();
       }
       else if (levelDownToSerie) {
         currentLevel --;
-        settings = settingLevels[currentLevel]; 
-        updateRanges();
+        settings = metaData.levels[currentLevel]; 
       }  
-    
-      var enlargeInterval = (from != null && to != null);
-      if (from == null) from = timeFrom;
-      if (to == null) to = timeTo;
-      
-      var dateFrom = settings.dateFormat(new Date(from));
-      var dateTo =   settings.dateFormat(new Date(to));
+         
+      var timeDomain = scalesTime.domain();
+      var dateFrom = settings.dateFormat(new Date(timeDomain[0]));
+      var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
       var query =    settings.query(dateFrom, dateTo, settings.grouping);
      
       console.log ("AJAX Query: "+query);
@@ -141,7 +103,7 @@ function cmd_chart(selection, settingLevels ) {
                                 .style("stroke", d3.rgb(255,255,255).toString());
                            
             series[s].color = d3.hsl(Math.random()*360, 1, 0.5).toString();            
-            //adding mouseover and mouseout events
+            
             series[s].path.on("mouseover", function() {
                 var coords = d3.mouse(this);
                 var timex = scalesTime.invert(coords[0]);
@@ -160,7 +122,7 @@ function cmd_chart(selection, settingLevels ) {
             series[s].path.on("click", function() {
             
               if (currentLevel > 0)
-                loadDataAndRedraw(null,null,null,settings.grouping);
+                loadDataAndRedraw(false,null,settings.grouping);
               else {
                 var clickedSerie = null;
                 for ( ss in series ) 
@@ -172,100 +134,97 @@ function cmd_chart(selection, settingLevels ) {
                   series[clickedSerie].path.classed("clicked", true);
                   console.log ("Clicked serie: "+clickedSerie);
 
-                  loadDataAndRedraw(null,null,clickedSerie);
+                  loadDataAndRedraw(false,clickedSerie);
                 }
               }
                            
             });
             
           }
-          if (enlargeInterval)
-            series[s].path.attr("d", line(series[s]));
         }   
           
-        redraw();
+        xAxis.scale(scalesTime)
+          .ticks(metaData.timeAxis.unit, metaData.timeAxis.unitStep)
+          .tickSubdivide(metaData.timeAxis.subdivide);
+        yAxis.scale(scalesValue) 
+          .ticks(metaData.valueAxis.tickCount)
+          .tickSubdivide(metaData.valueAxis.subdivide);
+        
+        redraw(instant);
+        
+        if (zoomTimer)
+          clearTimeout(zoomTimer);
+        zoomTimer = null;
+
       });
     }
     
-    function redraw() {
+    function redraw(instant) {
 
-      scalesTime = getTimeScale();
-      console.log ("Redraw: "+timeFrom+"-"+timeTo+ "  - level:" + currentLevel+" gr:"+ settings.grouping);
-      for ( s in series ) 
-        if (series[s].level == currentLevel)
-          series[s].path.classed("clicked", false).transition()
-            .duration(speed)
-            .attr("d", line(series[s]))
-            .style("stroke", series[s].color );
-        else if (series[s].level < currentLevel)
-          series[s].path.transition()
-            .duration(speed)
-            .attr("d", line(series[s]))
-            .style("stroke", d3.rgb(240,240,240).toString());   
-        else if (series[s].level > currentLevel) {
-          series[s].path.transition()
-            .duration(speed)
-            .attr("d", line(series[settingLevels[currentLevel+1].grouping]))
-            .remove();
-            
-          delete series[s];
+      if (instant) 
+      {
+        for ( s in series ) 
+          series[s].path.attr("d", line(series[s]));
+      }
+      else {
+        for ( s in series ) {
+          if (series[s].level == currentLevel)
+            series[s].path.classed("clicked", false).transition()
+              .duration(speed)
+              .attr("d", line(series[s]))
+              .style("stroke", series[s].color );
+          else if (series[s].level < currentLevel)
+            series[s].path.transition()
+              .duration(speed)
+              .attr("d", line(series[s]))
+              .style("stroke", d3.rgb(240,240,240).toString());   
+          else if (series[s].level > currentLevel) {
+            series[s].path.transition()
+              .duration(speed)
+              .attr("d", line(series[metaData.levels[currentLevel+1].grouping]))
+              .remove();
+              
+            delete series[s];
+          }
         }
-      //svgYaxis.call(yAxis);
-      //svgYaxisBackground.call(yAxisBackground);
-      
-      /*xAxis.scale(scalesTime)
-        .ticks(d3.time.years, 1)
-        .tickSubdivide(1);
-      yAxis.scale(scalesValue) 
-        .ticks(5)
-        .tickSubdivide(1);*/
+      }
         
-      xAxis.scale(scalesTime)
-        .ticks(settings.timeAxis.unit, settings.timeAxis.unitStep)
-        .tickSubdivide(settings.timeAxis.subdivide);
-      yAxis.scale(scalesValue) 
-        .ticks(settings.valueAxis.tickCount)
-        .tickSubdivide(settings.valueAxis.subdivide);
-      
-      //xAxisBackground.scale(scalesTime);
-      svgXaxis.transition().duration(speed).call(xAxis);
-      svgYaxis.transition().duration(speed).call(yAxis);
-      //svgXaxisBackground.transition().duration(speed).call(xAxisBackground);
-      
-      chartTitle.text(settings.title);
-      chartDescription.text(settings.description);
+      if (instant) {
+        svgXaxis.call(xAxis);
+        svgYaxis.call(yAxis);
+      }
+      else {      
+        svgXaxis.transition().duration(speed).call(xAxis);
+        svgYaxis.transition().duration(speed).call(yAxis);
+        
+        chartTitle.text(settings.title);
+        chartDescription.text(settings.description);
+      }
     }
-    ///////////////////////////////////////////////
     
-    var DEV_TIMEOFFSET = 1000*60*60*24*365;
+    ///////////////////////////////
+    //
+    // TIMER FOR ZOOMING
+    //
+    ///////////////////////////////
     
-    buttonContainer.select(".reload").on("click", function() { 
-      alert("Reloading...");
-      loadDataAndRedraw();
-    });
+    var zoomTimer = null;
+    var zoomTimeout = 300;
     
-    buttonContainer.select(".fromplus").on("click", function() { 
-      timeFrom += DEV_TIMEOFFSET;
-      redraw();
-    });
+    function onZoomTimer() {
+      console.log("onZoomTimer");
+      zoomTimer = null;
+      loadDataAndRedraw(true);
+    }
+    function zoomStart() {
+      if (zoomTimer === false)
+        return;
     
-    buttonContainer.select(".fromminus").on("click", function() { 
-      var old = timeFrom;
-      timeFrom -= DEV_TIMEOFFSET;
-      loadDataAndRedraw(timeFrom, old);
-    });
-    
-    buttonContainer.select(".toplus").on("click", function() { 
-      var old = timeTo;
-      timeTo += DEV_TIMEOFFSET;
-      loadDataAndRedraw(old, timeTo);
-    });
-    
-    buttonContainer.select(".tominus").on("click", function() { 
-      timeTo -= DEV_TIMEOFFSET;
-      redraw();
-    });
-       
+      if (zoomTimer)
+        clearTimeout(zoomTimer);
+      zoomTimer = setTimeout(function(){ onZoomTimer(); },zoomTimeout);
+    } 
+               
     ///////////////////////////////
     //
     // INIT
@@ -277,7 +236,6 @@ function cmd_chart(selection, settingLevels ) {
     var svg = d3.select(this).append("svg:svg")
       .attr("width", totalWidth)
       .attr("height",totalHeight);
-      //.style("background-color","#fafafa");
     
     var line = d3.svg.line()
       .x(function(dataRecord) { return margin + scalesTime(dataRecord["date"]); })
@@ -293,6 +251,22 @@ function cmd_chart(selection, settingLevels ) {
       .attr("x", margin + "px")
       .attr("y", margin + "px");
       
+    svg.call(d3.behavior.zoom()
+      .x(scalesTime)
+     // .y(scalesValue)
+      .scaleExtent([0.25, 4])
+      .on("zoom", function() { 
+        redraw(true);
+        zoomStart();
+      }));
+      
+    var svgXaxis = svg.append("g")
+      .attr("class", "xaxis axis")
+      .attr("transform", "translate("+margin+"," + margin + ")");
+
+    var svgYaxis = svg.append("g")
+      .attr("class", "yaxis axis")
+      .attr("transform", "translate("+(width + margin)+","+ margin +")");
       
     var clipRect = svg.append("svg:clipPath")
         .attr("id", "clipRect")
@@ -301,42 +275,13 @@ function cmd_chart(selection, settingLevels ) {
         .attr("height", height + "px")
         .attr("x", margin + "px")
         .attr("y", margin + "px");
-
         
     var clippedArea = svg.append("g")
         .attr("clip-path", "url(#clipRect)");
-      
-    /*var svgXaxisBackground = svg.append("g")
-      .attr("class", "xaxisBackground axisBackground")
-      .attr("transform", "translate("+margin+"," + (totalHeight-margin) + ")");
-
-    var svgYaxisBackground = svg.append("g")
-      .attr("class", "yaxisBackground axisBackground")
-      .attr("transform", "translate("+margin+","+ margin+")");
-    */  
+          
     
-    var svgXaxis = svg.append("g")
-      .attr("class", "xaxis axis")
-      .attr("transform", "translate("+margin+"," + margin + ")");
-
-    var svgYaxis = svg.append("g")
-      .attr("class", "yaxis axis")
-      .attr("transform", "translate("+(width + margin)+","+ margin +")");
-    
-
-    /*var svgTitle = svg.append("text")
-      .attr("transform", "translate(" + width + ",0)")
-
-      //.attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text(settings.title);*/
-      
-      
-     var svgInfo = svg.append("text")
+    var svgInfo = svg.append("text")
       .attr("transform", "translate(" + (width + margin) + ",0)")
-
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
@@ -344,7 +289,7 @@ function cmd_chart(selection, settingLevels ) {
 
     ///////////////////////////
     
-    loadDataAndRedraw();
+    loadDataAndRedraw(false);
 
   });
     

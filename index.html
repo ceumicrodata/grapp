@@ -9,10 +9,9 @@
   <META HTTP-EQUIV="expires" CONTENT="0">
   <META HTTP-EQUIV="pragma" CONTENT="no-cache">
   <META NAME="ROBOTS" CONTENT="INDEX,FOLLOW,NOARCHIVE">
-  <META NAME="author" CONTENT="Kovács András">
+  <META NAME="author" CONTENT="CEU Microdata">
   <META NAME="resource-type" CONTENT="document">
   <META NAME="revisit-after" CONTENT="1">
-  
  
   <title>CEU Microdata</title>
   
@@ -38,107 +37,15 @@
     <div class = "chartContainer" ></div>
     <div class = "chartDescription" ></div>
   
-    <div class = "chartButtons"> Dev. tools:
-      <a href="#" class = "fromplus">[<]</a> 
-      <a href="#" class = "fromminus">[>]</a> -  
-      <a href="#" class = "toplus">[<]</a> 
-      <a href="#" class = "tominus">[>]</a> 
-      <a href="#" class = "reload">[R]</a> 
-    </div>
   </div>
-
-
 </div>
 
 <script type="text/javascript">
-  
-  d3.select("#chart1").call(cmd_chart, [
-  {
-    ///////////////////////
-    //initial settings
-    ///////////////////////
-    
-    // chart title and desctiption
-    "title" : "Industrial growth (center)",
-    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.",
-    
-    // the ajax query 
-    "query" : function(dateFrom,dateTo,grouping) { 
-      // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
-      // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
-      // grouping: on an upper level, grouping is the ID of the previously clicked serie
-      //return "datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-      return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
-     },
-     
-    // query result
-    "tableName" : "growth", //the main json object
-    "serieKey" : "country", //the ID of the serie
-    "dateKey" : "date",     //value on the X axis
-    "valueKey" : "growth",  //value on the Y axis
-    "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
-    
-    // the time and value extents
-    "dateFrom" : "2008-01-01" , //formatted based on the "dateFormat" settings
-    "dateTo" : "2012-01-01" ,   //formatted based on the "dateFormat" settings
-    "valueFrom" : -100,
-    "valueTo" : 100,
-    
-    // formatting of axes
-    "timeAxis" : {
-      "unit": d3.time.years, 
-      "unitStep": 1,    
-      "subdivide" : 1   //number of "subticks" between main ticks
-    }, 
-    "valueAxis" : {
-      "tickCount": 5, //number of main ticks on the y axis
-      "subdivide" : 1   //number of "subticks" between main ticks
-    } 
 
-  },
-  {
-    ///////////////////////
-    //second level settings
-    ///////////////////////
-
-    // chart title and desctiption
-    "title" : "Industrial growth (periphery)",
-    "description" : "Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim.",
-
-    // the ajax query 
-    "query" : function(dateFrom,dateTo,grouping) { 
-      // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
-      // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
-      // grouping: on an upper level, grouping is the ID of the previously clicked serie
-      //return "datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-      return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='periphery'/:json";
-     },
-        
-    // query result
-    "tableName" : "growth", //the main json object
-    "serieKey" : "country", //the ID of the serie
-    "dateKey" : "date",     //value on the X axis
-    "valueKey" : "growth",  //value on the Y axis
-    "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
-    
-    // the time and value extents
-    "dateFrom" :  null, //do no reset reset the time scale on this level
-    "dateTo" :    null, //do no reset reset the time scale on this level
-    "valueFrom" : null, //do no reset reset the value scale on this level
-    "valueTo" :   null,  //do no reset reset the value scale on this level
-    
-    // formatting of axes
-    "timeAxis" : {
-      "unit": d3.time.months, 
-      "unitStep": 6,    
-      "subdivide" : 0   //number of "subticks" between main ticks
-    },
-    "valueAxis" : {
-      "tickCount": 11,       //number of main ticks on the y axis
-      "subdivide" : 0   //number of "subticks" between main ticks
-    } 
-  }
- ]);
+  d3.text("chart1_metadata.json", function(metaDataText) {
+     eval("var metaDataObj = "+ metaDataText +";"); //cannot use JSON.parse here... object has functions, too
+     d3.select("#chart1").call(cmd_chart, metaDataObj);
+  });
 
 </script>
 

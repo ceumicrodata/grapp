@@ -20,18 +20,6 @@ path {
     stroke-width: 1px;
     shape-rendering: crispEdges;
 }
-/*
-.axisBackground line {
-    fill: none;
-    stroke: #eeeeee;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-}
-
-.axisBackground path,
-.axisBackground text {
-    display: none;
-}*/
 
 .axis text {
     font-family: sans-serif;
