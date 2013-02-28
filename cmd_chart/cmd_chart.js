@@ -83,7 +83,7 @@ function cmd_chart(selection, metaData ) {
   
             }
               
-            var date = settings.queries[q].dateFormat.parse( table[i][settings.queries[q].dateKey] ).getTime();
+            var date = settings.dateFormat.parse( table[i][settings.queries[q].dateKey] ).getTime();
             var value = table[i][settings.queries[q].valueKey];
             
             var foundExisting = false;
