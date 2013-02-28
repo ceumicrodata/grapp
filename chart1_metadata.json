@@ -12,13 +12,14 @@
   
   // formatting of axes
   "timeAxis" : {
-    "unit": d3.time.years, 
-    "unitStep": 1,    
-    "subdivide" : 1   //number of "subticks" between main ticks
+    "tickCount": 8, //number of main ticks on the x axis
+    "subdivide" : 0,   //number of "subticks" between main ticks
+    "tickFormat": function(date) { return d3.time.format( date.getMonth() ? "%b" : "%Y")(date); }
   }, 
   "valueAxis" : {
     "tickCount": 5, //number of main ticks on the y axis
-    "subdivide" : 1   //number of "subticks" between main ticks
+    "subdivide" : 1,   //number of "subticks" between main ticks
+    "tickFormat": d3.format("g") 
   }, 
   
   // view levels
@@ -37,8 +38,7 @@
         // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
         // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
         // grouping: on an upper level, grouping is the ID of the previously clicked serie
-        
-        //return "datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+        //return "datatransmitter/datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
         return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='center'/:json";
        },
        
@@ -65,8 +65,7 @@
         // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
         // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
         // grouping: on an upper level, grouping is the ID of the previously clicked serie
-        
-        //return "datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+        //return "datatransmitter/datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
         return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='periphery'/:json";
        },
           

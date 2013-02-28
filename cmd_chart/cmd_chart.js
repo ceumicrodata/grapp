@@ -142,14 +142,7 @@ function cmd_chart(selection, metaData ) {
             
           }
         }   
-          
-        xAxis.scale(scalesTime)
-          .ticks(metaData.timeAxis.unit, metaData.timeAxis.unitStep)
-          .tickSubdivide(metaData.timeAxis.subdivide);
-        yAxis.scale(scalesValue) 
-          .ticks(metaData.valueAxis.tickCount)
-          .tickSubdivide(metaData.valueAxis.subdivide);
-        
+                 
         redraw(instant);
         
         if (zoomTimer)
@@ -288,7 +281,18 @@ function cmd_chart(selection, metaData ) {
       .text("");
 
     ///////////////////////////
-    
+   
+    xAxis.scale(scalesTime)
+      .ticks(metaData.timeAxis.tickCount)
+      .tickFormat(metaData.timeAxis.tickFormat)
+      .tickSubdivide(metaData.timeAxis.subdivide);
+    yAxis.scale(scalesValue) 
+      .ticks(metaData.valueAxis.tickCount)
+      .tickFormat(metaData.valueAxis.tickFormat)
+      .tickSubdivide(metaData.valueAxis.subdivide);
+
+    ///////////////////////////
+
     loadDataAndRedraw(false);
 
   });
