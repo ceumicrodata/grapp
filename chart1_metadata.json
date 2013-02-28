@@ -29,7 +29,7 @@
     ///////////////////////
     {
       // chart title and desctiption
-      "title" : "Industrial growth (center)",
+      "title" : "Industrial growth (region)",
       "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.",
       
       // the ajax query 
@@ -56,7 +56,7 @@
     {
 
       // chart title and desctiption
-      "title" : "Industrial growth (periphery)",
+      "title" : "Industrial growth (countries of the selected region)",
       "description" : "Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim.",
 
       // the ajax query 
