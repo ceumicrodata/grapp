@@ -64,92 +64,96 @@ function cmd_chart(selection, metaData ) {
       var timeDomain = scalesTime.domain();
       var dateFrom = settings.dateFormat(new Date(timeDomain[0]));
       var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
-      var query =    settings.query(dateFrom, dateTo, settings.grouping);
-     
-      console.log ("AJAX Query: "+query);
-      d3.json(query, function(data) {
-          
-        var table = data[settings.tableName];
-        var newSeries = new Object();
-        for (var i=0; i<table.length; i++) {
-          var key = table[i][settings.serieKey];
-          if (!series[key]) {
-            series[key] = new Array();
-            series[key].level = currentLevel;
-            console.log ("Serie added:"+key);
-
-          }
+      
+      for (q=0; q<1 /*settings.queries.length*/; q++) {
+  
+        var query = settings.queries[q].url(dateFrom, dateTo, settings.grouping);
+       
+        console.log ("AJAX Query: "+query);
+        d3.json(query, function(data) {
             
-          var date = settings.dateFormat.parse( table[i][settings.dateKey] ).getTime();
-          var value = table[i][settings.valueKey];
-          
-          var foundExisting = false;
-          for (d in series[key]) 
-            if (series[key][d].date == date) {
-              series[key][d].value = value;
-              foundExisting = true;
-              break;
+          var table = data[settings.queries[q].tableName];
+          var newSeries = new Object();
+          for (var i=0; i<table.length; i++) {
+            var key = table[i][settings.queries[q].serieKey];
+            if (!series[key]) {
+              series[key] = new Array();
+              series[key].level = currentLevel;
+              console.log ("Serie added:"+key);
+  
             }
-          if (!foundExisting)
-            series[key].push( { "date" : date, "value": value } );
-        }
-         
-        for ( s in series ) {
-          series[s].sort(function(a,b) { return a.date - b.date; } );
-          if (!series[s].path) {
-
-            series[s].path = clippedArea.append("svg:path")
-                                .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
-                                .style("stroke", d3.rgb(255,255,255).toString());
-                           
-            series[s].color = d3.hsl(Math.random()*360, 1, 0.5).toString();            
+              
+            var date = settings.queries[q].dateFormat.parse( table[i][settings.queries[q].dateKey] ).getTime();
+            var value = table[i][settings.queries[q].valueKey];
             
-            series[s].path.on("mouseover", function() {
-                var coords = d3.mouse(this);
-                var timex = scalesTime.invert(coords[0]);
-                var valuey = scalesValue.invert(coords[1]);
-                var datex = settings.dateFormat(timex);
-                
-                for ( ss in series ) 
-                  if (series[ss].path.node() == this)
-                     svgInfo.text(ss+" ("+datex+": "+valuey+")");
-                d3.select(this).classed("mouseover", true);
-            }).on("mouseout", function() {
-                svgInfo.text("");
-                d3.select(this).classed("mouseover", false);
-            });
-            
-            series[s].path.on("click", function() {
-            
-              if (currentLevel > 0)
-                loadDataAndRedraw(false,null,settings.grouping);
-              else {
-                var clickedSerie = null;
-                for ( ss in series ) 
-                  if (series[ss].path.node() == this) 
-                    clickedSerie = ss;
-                    
-                
-                if (clickedSerie) {
-                  series[clickedSerie].path.classed("clicked", true);
-                  console.log ("Clicked serie: "+clickedSerie);
-
-                  loadDataAndRedraw(false,clickedSerie);
-                }
+            var foundExisting = false;
+            for (d in series[key]) 
+              if (series[key][d].date == date) {
+                series[key][d].value = value;
+                foundExisting = true;
+                break;
               }
-                           
-            });
-            
+            if (!foundExisting)
+              series[key].push( { "date" : date, "value": value } );
           }
-        }   
-                 
-        redraw(instant);
-        
-        if (zoomTimer)
-          clearTimeout(zoomTimer);
-        zoomTimer = null;
-
-      });
+           
+          for ( s in series ) {
+            series[s].sort(function(a,b) { return a.date - b.date; } );
+            if (!series[s].path) {
+  
+              series[s].path = clippedArea.append("svg:path")
+                                  .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
+                                  .style("stroke", d3.rgb(255,255,255).toString());
+                             
+              series[s].color = d3.hsl(Math.random()*360, 1, 0.5).toString();            
+              
+              series[s].path.on("mouseover", function() {
+                  var coords = d3.mouse(this);
+                  var timex = scalesTime.invert(coords[0]);
+                  var valuey = scalesValue.invert(coords[1]);
+                  var datex = settings.dateFormat(timex);
+                  
+                  for ( ss in series ) 
+                    if (series[ss].path.node() == this)
+                       svgInfo.text(ss+" ("+datex+": "+valuey+")");
+                  d3.select(this).classed("mouseover", true);
+              }).on("mouseout", function() {
+                  svgInfo.text("");
+                  d3.select(this).classed("mouseover", false);
+              });
+              
+              series[s].path.on("click", function() {
+              
+                if (currentLevel > 0)
+                  loadDataAndRedraw(false,null,settings.queries[q].grouping);
+                else {
+                  var clickedSerie = null;
+                  for ( ss in series ) 
+                    if (series[ss].path.node() == this) 
+                      clickedSerie = ss;
+                      
+                  
+                  if (clickedSerie) {
+                    series[clickedSerie].path.classed("clicked", true);
+                    console.log ("Clicked serie: "+clickedSerie);
+  
+                    loadDataAndRedraw(false,clickedSerie);
+                  }
+                }
+                             
+              });
+              
+            }
+          }   
+                   
+          redraw(instant);
+          
+          if (zoomTimer)
+            clearTimeout(zoomTimer);
+          zoomTimer = null;
+  
+        });
+      }
     }
     
     function redraw(instant) {
