@@ -32,7 +32,7 @@
       "title" : "Industrial growth (region)",
       "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.",
       
-      "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
+      "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
 
       // the ajax queries 
       "queries" : [
@@ -45,7 +45,7 @@
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
           "color" : "#aaaaaa",    //color of the line
-          "onClick" : +1,         //go to next level on click
+          "onClick" : +1          //go to next level on click
         },
         {
           "url"  : function(dateFrom,dateTo,grouping) { 
@@ -56,7 +56,7 @@
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
           "color" : "#ff0000",    //color of the line
-          "onClick" : 0,          //not clickable
+          "onClick" : 0           //not clickable
         }
       ]
     },
@@ -70,7 +70,7 @@
       "title" : "Industrial growth (countries of the selected region)",
       "description" : "Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim.",
 
-      "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
+      "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
 
       // the ajax queries 
       "queries" : [
@@ -83,7 +83,7 @@
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
           "color" : "#00ff00",    //color of the line
-          "onClick" : -1,         //go to previous level on click
+          "onClick" : -1         //go to previous level on click
         }
       ]
     }
