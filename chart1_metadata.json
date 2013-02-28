@@ -32,22 +32,33 @@
       "title" : "Industrial growth (region)",
       "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.",
       
-      // the ajax query 
-      "query" : function(dateFrom,dateTo,grouping) { 
-        // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
-        // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
-        // grouping: on an upper level, grouping is the ID of the previously clicked serie
-        //return "datatransmitter/datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-        return "http://htsql.coauthors.net/htsql/region?date>='"+dateFrom+"'&date<='"+dateTo+"'/:json";
-       },
-       
-      // query result
-      "tableName" : "region", //the main json object
-      "serieKey" : "region", //the ID of the serie
-      "dateKey" : "date",     //value on the X axis
-      "valueKey" : "growth",  //value on the Y axis
-      "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
-
+      // the ajax queries 
+      "queries" : [
+        {
+          "url" : function(dateFrom,dateTo,grouping) { 
+            return "http://htsql.coauthors.net/htsql/region?date>='"+dateFrom+"'&date<='"+dateTo+"'/:json";
+           },
+          "tableName" : "region", //the main json object
+          "serieKey" : "region", //the ID of the serie
+          "dateKey" : "date",     //value on the X axis
+          "valueKey" : "growth",  //value on the Y axis
+          "color" : "#aaaaaa",    //color of the line
+          "onClick" : +1,         //go to next level on click
+          "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
+        },
+        {
+          "url"  : function(dateFrom,dateTo,grouping) { 
+            return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&country='hungary'/:json";
+          },
+          "tableName" : "growth", //the main json object
+          "serieKey" : "country", //the ID of the serie
+          "dateKey" : "date",     //value on the X axis
+          "valueKey" : "growth",  //value on the Y axis
+          "color" : "#ff0000",    //color of the line
+          "onClick" : 0,          //not clickable
+          "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
+        }
+      ]
     },
     
     ///////////////////////
@@ -58,23 +69,30 @@
       // chart title and desctiption
       "title" : "Industrial growth (countries of the selected region)",
       "description" : "Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim.",
-
-      // the ajax query 
-      "query" : function(dateFrom,dateTo,grouping) { 
-        // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
-        // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
-        // grouping: on an upper level, grouping is the ID of the previously clicked serie
-        //return "datatransmitter/datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-        return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='"+grouping+"'/:json";
-       },
-          
-      // query result
-      "tableName" : "growth", //the main json object
-      "serieKey" : "country", //the ID of the serie
-      "dateKey" : "date",     //value on the X axis
-      "valueKey" : "growth",  //value on the Y axis
-      "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
-         
+ 
+      // the ajax queries 
+      "queries" : [
+        {
+          "url"  : function(dateFrom,dateTo,grouping) { 
+            return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='"+grouping+"'/:json";
+          },
+          "tableName" : "growth", //the main json object
+          "serieKey" : "country", //the ID of the serie
+          "dateKey" : "date",     //value on the X axis
+          "valueKey" : "growth",  //value on the Y axis
+          "color" : "#00ff00",    //color of the line
+          "onClick" : -1,         //go to previous level on click
+          "dateFormat" : d3.time.format("%Y-%m-%d") // see https://github.com/mbostock/d3/wiki/Time-Formatting
+        }
+      ]
     }
   ] //end of levels
 }
+
+// dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
+// dateTo: end of the time interval (formatted based on the "dateFormat" settings)
+// grouping: on an upper level, grouping is the ID of the previously clicked serie
+
+//return "datatransmitter/datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+//return "datatransmitter/datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
+  
