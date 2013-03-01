@@ -130,11 +130,15 @@ function cmd_chart(selection, metaData ) {
             }
           }   
                    
-          redraw(instant);
-          
-          if (zoomTimer)
-            clearTimeout(zoomTimer);
-          zoomTimer = null;
+          if (numOfQueriesToPerform > 0)
+            numOfQueriesToPerform--;
+          else {
+            redraw(instant);
+            
+            if (zoomTimer)
+              clearTimeout(zoomTimer);
+            zoomTimer = null;
+          }
   
         });
       }
@@ -157,7 +161,8 @@ function cmd_chart(selection, metaData ) {
       var dateFrom = settings.dateFormat(new Date(timeDomain[0]));
       var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
       
-      for (q=0; q<1 /*settings.queries.length*/; q++) {
+      var numOfQueriesToPerform = settings.queries.length;
+      for (q=0; q<settings.queries.length; q++) {
         queryAndDraw(settings.queries[q], dateFrom, dateTo );
       }
     }
