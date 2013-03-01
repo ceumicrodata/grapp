@@ -55,7 +55,7 @@
           "serieKey" : "country", //the ID of the serie
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
-          "color" : "#ff0000",    //color of the line
+          "color" : null,         //color of the line (null: random)
           "onClick" : 0           //not clickable
         }
       ]
