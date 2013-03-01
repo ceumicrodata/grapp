@@ -100,10 +100,13 @@ function cmd_chart(selection, metaData ) {
                   for ( ss in series ) 
                     if (series[ss].path.node() == this)
                        svgInfo.text(ss+" ("+datex+": "+valuey+")");
-                  d3.select(this).classed("mouseover", true);
+                  
+                  if (query.onClick != 0)
+                    d3.select(this).classed("mouseover", true);
               }).on("mouseout", function() {
                   svgInfo.text("");
-                  d3.select(this).classed("mouseover", false);
+                  if (query.onClick != 0)
+                    d3.select(this).classed("mouseover", false);
               });
               
               if (query.onClick != 0)
