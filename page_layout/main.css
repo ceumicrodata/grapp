@@ -37,6 +37,7 @@ div {
   font-size: 22pt;
   font-weight: 300;
   margin: 0px;
+  margin-top: -5pt;
 }
 .mainTitle h4{  /* CEU Microdata */
   font-size: 11pt;
