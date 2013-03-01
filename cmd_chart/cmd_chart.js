@@ -46,36 +46,17 @@ function cmd_chart(selection, metaData ) {
       .tickSize(width);
   
     ////////////////
-    
-    function loadDataAndRedraw(instant, levelUpFromSerie, levelDownToSerie) { 
-      
-      zoomTimer = false;
-      
-      if (levelUpFromSerie) {
-        currentLevel ++;
-        settings = metaData.levels[currentLevel]; 
-        settings.grouping = levelUpFromSerie;
-      }
-      else if (levelDownToSerie) {
-        currentLevel --;
-        settings = metaData.levels[currentLevel]; 
-      }  
-         
-      var timeDomain = scalesTime.domain();
-      var dateFrom = settings.dateFormat(new Date(timeDomain[0]));
-      var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
-      
-      for (q=0; q<1 /*settings.queries.length*/; q++) {
-  
-        var query = settings.queries[q].url(dateFrom, dateTo, settings.grouping);
+    function queryAndDraw(query) {
+        
+        var url = query.url(dateFrom, dateTo, settings.grouping);
        
-        console.log ("AJAX Query: "+query);
-        d3.json(query, function(data) {
+        console.log ("AJAX Query: "+url);
+        d3.json(url, function(data) {
             
-          var table = data[settings.queries[q].tableName];
+          var table = data[query.tableName];
           var newSeries = new Object();
           for (var i=0; i<table.length; i++) {
-            var key = table[i][settings.queries[q].serieKey];
+            var key = table[i][query.serieKey];
             if (!series[key]) {
               series[key] = new Array();
               series[key].level = currentLevel;
@@ -83,8 +64,8 @@ function cmd_chart(selection, metaData ) {
   
             }
               
-            var date = settings.dateFormat.parse( table[i][settings.queries[q].dateKey] ).getTime();
-            var value = table[i][settings.queries[q].valueKey];
+            var date = settings.dateFormat.parse( table[i][query.dateKey] ).getTime();
+            var value = table[i][query.valueKey];
             
             var foundExisting = false;
             for (d in series[key]) 
@@ -105,7 +86,7 @@ function cmd_chart(selection, metaData ) {
                                   .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
                                   .style("stroke", d3.rgb(255,255,255).toString());
                              
-              series[s].color = d3.hsl(Math.random()*360, 1, 0.5).toString();            
+              series[s].color = query.color ? query.color : d3.hsl(Math.random()*360, 1, 0.5).toString();            
               
               series[s].path.on("mouseover", function() {
                   var coords = d3.mouse(this);
@@ -125,7 +106,7 @@ function cmd_chart(selection, metaData ) {
               series[s].path.on("click", function() {
               
                 if (currentLevel > 0)
-                  loadDataAndRedraw(false,null,settings.queries[q].grouping);
+                  loadDataAndRedraw(false,null,query.grouping);
                 else {
                   var clickedSerie = null;
                   for ( ss in series ) 
@@ -153,6 +134,27 @@ function cmd_chart(selection, metaData ) {
           zoomTimer = null;
   
         });
+    }
+    function loadDataAndRedraw(instant, levelUpFromSerie, levelDownToSerie) { 
+      
+      zoomTimer = false;
+      
+      if (levelUpFromSerie) {
+        currentLevel ++;
+        settings = metaData.levels[currentLevel]; 
+        settings.grouping = levelUpFromSerie;
+      }
+      else if (levelDownToSerie) {
+        currentLevel --;
+        settings = metaData.levels[currentLevel]; 
+      }  
+         
+      var timeDomain = scalesTime.domain();
+      var dateFrom = settings.dateFormat(new Date(timeDomain[0]));
+      var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
+      
+      for (q=0; q<1 /*settings.queries.length*/; q++) {
+        queryAndDraw(settings.queries[q]);
       }
     }
     
