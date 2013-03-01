@@ -31,15 +31,16 @@ div {
 .mainTitle {
   position: absolute;
   top: 20px;
-  left: 40px;
+  left: 60px;
 }
 .mainTitle h1{ /* Graphing App */
   font-size: 30pt;
-  font-weight: lighter;
+  font-weight: 300;
   margin: 0px;
 }
 .mainTitle h4{  /* CEU Microdata */
   font-size: 14pt;
+  font-weight: 400;
   margin: 0px;
 }
 
