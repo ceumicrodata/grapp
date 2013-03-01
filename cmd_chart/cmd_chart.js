@@ -84,14 +84,14 @@ function cmd_chart(selection, metaData ) {
           for ( s in series ) {
             series[s].sort(function(a,b) { return a.date - b.date; } );
             if (!series[s].path) {
-  
+
+              series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
+              series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
+
               series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
                                   .classed( series[s].styleName, true )
                                   .style("stroke", d3.rgb(255,255,255).toString());
-                             
-              series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
-              series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
         
               series[s].path.on("mouseover", function() {
                   var coords = d3.mouse(this);
