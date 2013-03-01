@@ -90,7 +90,7 @@ function cmd_chart(selection, metaData ) {
                                   .style("stroke", d3.rgb(255,255,255).toString());
                              
               series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
-              series[s].thickness = (typeof(query.thickness) == "function") ? query.thickness(s) : query.thickness;
+              series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
         
               series[s].path.on("mouseover", function() {
                   var coords = d3.mouse(this);
@@ -184,7 +184,7 @@ function cmd_chart(selection, metaData ) {
             series[s].path.classed("clicked", false).transition()
               .duration(speed)
               .attr("d", line(series[s]))
-              .style("stroke-width", series[s].thickness )
+              .classed( series[s].styleName, true )
               .style("stroke", series[s].color );
           else if (series[s].level < currentLevel)
             series[s].path.transition()
