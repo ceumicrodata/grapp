@@ -109,7 +109,7 @@ function cmd_chart(selection, metaData ) {
               series[s].path.on("click", function() {
               
                 if (currentLevel > 0)
-                  loadDataAndRedraw(false,null,query.grouping);
+                  loadDataAndRedraw(false,null,settings.grouping);
                 else {
                   var clickedSerie = null;
                   for ( ss in series ) 
