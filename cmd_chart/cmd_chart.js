@@ -1,16 +1,15 @@
   
 function cmd_chart(selection, metaData ) {
 
-  var chartTitle = selection.select(".chartTitle");
   var chartDescription = selection.select(".chartDescription");
-  var buttonContainer = selection.select(".chartButtons");
+  //var buttonContainer = selection.select(".chartButtons");
  
   selection.select(".chartContainer").each(function() { 
 
     var series = new Object();
     
     var speed = 500;
-    var margin = 20;
+    var margin = 40;
     
     var currentLevel = 0;
     var settings = metaData.levels[0]; 
@@ -210,7 +209,7 @@ function cmd_chart(selection, metaData ) {
         svgXaxis.transition().duration(speed).call(xAxis);
         svgYaxis.transition().duration(speed).call(yAxis);
         
-        chartTitle.text(settings.title);
+        svgTitle.text(settings.title);
         chartDescription.text(settings.description);
       }
     }
@@ -298,6 +297,11 @@ function cmd_chart(selection, metaData ) {
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
+      .text("");
+      
+    var svgTitle = svg.append("text")
+      .attr("transform", "translate(" + (margin) + ",0)")
+      .classed("chartTitle", true)
       .text("");
 
     ///////////////////////////
