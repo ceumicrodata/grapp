@@ -1,7 +1,7 @@
 body { 
-  font-size: 12px;
+  font-size: 12pt;
   font-family: 'Open Sans', sans-serif;
-  color: #000000;
+  color: #505050;
   background-color: #bbbbbb; 
   background-image: url('ceumicrodata_background.png');
   background-position:center top;
@@ -25,19 +25,37 @@ div {
   position: absolute;
   width: 100%;
   height: 456px;
-  background-color: #ffffff;   
+  background-color: #F9F9F9;   
 }
 .mainTitle {
   position: absolute;
   top: 20px;
   left: 40px;
 }
+.mainTitle h1{ /* Graphing App */
+  font-size: 30pt;
+  font-weight: lighter;
+  margin: 0px;
+}
+.mainTitle h3{ /* Chart title */
+  font-size: 14pt;
+  font-weight: bold;
+  color: #006D9E;
+  margin: 0px;
+}
+.mainTitle h4{  /* CEU Microdata */
+  font-size: 14pt;
+  margin: 0px;
+}
+
+
 .chartContainer {
   position: absolute;
   width: 500px;
   height: 300px;
   left: 20px;
   bottom: 20px;
+  background-color: #FFFFFF;
 }
 .chartDescription {
   position: absolute;
