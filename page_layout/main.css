@@ -1,5 +1,5 @@
 body { 
-  font-size: 12pt;
+  font-size: 10pt;
   font-weight: 400;
   font-family: 'Open Sans', sans-serif;
   color: #505050;
@@ -34,12 +34,12 @@ div {
   left: 60px;
 }
 .mainTitle h1{ /* Graphing App */
-  font-size: 30pt;
+  font-size: 22pt;
   font-weight: 300;
   margin: 0px;
 }
 .mainTitle h4{  /* CEU Microdata */
-  font-size: 14pt;
+  font-size: 11pt;
   font-weight: 400;
   margin: 0px;
 }
@@ -47,7 +47,7 @@ div {
 
 .chartContainer {
   position: absolute;
-  width: 500px;
+  right: 190px;
   height: 300px;
   left: 20px;
   bottom: 20px;
@@ -57,7 +57,7 @@ div {
   position: absolute;
   overflow: auto;
   width: 170px;
-  height: 280px;
+  height: 260px;
   right: 20px;
   bottom: 20px;
 }
