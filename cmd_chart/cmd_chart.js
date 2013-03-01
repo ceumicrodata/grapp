@@ -87,6 +87,7 @@ function cmd_chart(selection, metaData ) {
   
               series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
+                                  .classed( series[s].styleName, true )
                                   .style("stroke", d3.rgb(255,255,255).toString());
                              
               series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
@@ -184,7 +185,6 @@ function cmd_chart(selection, metaData ) {
             series[s].path.classed("clicked", false).transition()
               .duration(speed)
               .attr("d", line(series[s]))
-              .classed( series[s].styleName, true )
               .style("stroke", series[s].color );
           else if (series[s].level < currentLevel)
             series[s].path.transition()
