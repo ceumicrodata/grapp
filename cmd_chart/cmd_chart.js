@@ -130,7 +130,7 @@ function cmd_chart(selection, metaData ) {
             }
           }   
                    
-          if (numOfQueriesToPerform > 0)
+          if (numOfQueriesToPerform > 1)
             numOfQueriesToPerform--;
           else {
             redraw(instant);
