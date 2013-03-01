@@ -1,4 +1,4 @@
-.chartTitle text {
+.chartTitle {
   font-size: 14pt;
   font-weight: bold;
   fill: #006D9E;
@@ -33,7 +33,7 @@ path {
 }
 
 .chartBackground {
-    fill: #9Fe9F9;
+    fill: #F9F9F9;
 }
 
 .regionLine {
