@@ -89,8 +89,9 @@ function cmd_chart(selection, metaData ) {
                                   .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
                                   .style("stroke", d3.rgb(255,255,255).toString());
                              
-              series[s].color = query.color ? query.color : d3.hsl(Math.random()*360, 1, 0.5).toString();            
-              
+              series[s].color = typeOf(query.color) == "function" ? query.color(s) : query.color;
+              series[s].thickness = typeOf(query.thickness) == "function" ? query.thickness(s) : query.thickness;
+        
               series[s].path.on("mouseover", function() {
                   var coords = d3.mouse(this);
                   var timex = scalesTime.invert(coords[0]);
@@ -183,6 +184,7 @@ function cmd_chart(selection, metaData ) {
             series[s].path.classed("clicked", false).transition()
               .duration(speed)
               .attr("d", line(series[s]))
+              .style("stroke-width", series[s].thickness )
               .style("stroke", series[s].color );
           else if (series[s].level < currentLevel)
             series[s].path.transition()
