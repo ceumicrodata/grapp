@@ -46,7 +46,7 @@ function cmd_chart(selection, metaData ) {
       .tickSize(width);
   
     ////////////////
-    function queryAndDraw(query) {
+    function queryAndDraw(query, dateFrom, dateTo) {
         
         var url = query.url(dateFrom, dateTo, settings.grouping);
        
@@ -154,7 +154,7 @@ function cmd_chart(selection, metaData ) {
       var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
       
       for (q=0; q<1 /*settings.queries.length*/; q++) {
-        queryAndDraw(settings.queries[q]);
+        queryAndDraw(settings.queries[q], dateFrom, dateTo );
       }
     }
     
