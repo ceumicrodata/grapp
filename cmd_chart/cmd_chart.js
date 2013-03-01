@@ -106,24 +106,24 @@ function cmd_chart(selection, metaData ) {
                   d3.select(this).classed("mouseover", false);
               });
               
-              series[s].path.on("click", function() {
+              if (query.onClick != 0)
+                series[s].path.on("click", function() {
               
-                if (currentLevel > 0)
-                  loadDataAndRedraw(false,null,settings.grouping);
-                else {
-                  var clickedSerie = null;
-                  for ( ss in series ) 
-                    if (series[ss].path.node() == this) 
-                      clickedSerie = ss;
-                      
-                  
-                  if (clickedSerie) {
-                    series[clickedSerie].path.classed("clicked", true);
-                    console.log ("Clicked serie: "+clickedSerie);
-  
-                    loadDataAndRedraw(false,clickedSerie);
+                  if (query.onClick < 0)
+                    loadDataAndRedraw(false,null,settings.grouping);
+                  else if (query.onClick > 0){
+                    var clickedSerie = null;
+                    for ( ss in series ) 
+                      if (series[ss].path.node() == this) 
+                        clickedSerie = ss;
+                    
+                    if (clickedSerie) {
+                      series[clickedSerie].path.classed("clicked", true);
+                      console.log ("Clicked serie: "+clickedSerie);
+    
+                      loadDataAndRedraw(false,clickedSerie);
+                    }
                   }
-                }
                              
               });
               
