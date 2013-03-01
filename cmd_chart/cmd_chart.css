@@ -1,3 +1,9 @@
+.chartTitle text {
+  font-size: 14pt;
+  font-weight: bold;
+  fill: #006D9E;
+}
+
 path {
     stroke: steelblue;
     stroke-width: 2;
@@ -16,19 +22,18 @@ path {
 .axis line {
 
     fill: none;
-    stroke: #eee;
+    stroke: #E1E1E1;
     stroke-width: 1px;
     shape-rendering: crispEdges;
 }
 
 .axis text {
-    font-family: sans-serif;
-    font-size: 10px;
-    fill: #aaa;
+    font-size: 11px;
+    fill: #818181;
 }
 
 .chartBackground {
-    fill: #fafafa;
+    fill: #9Fe9F9;
 }
 
 .regionLine {
