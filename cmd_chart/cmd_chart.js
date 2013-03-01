@@ -300,7 +300,7 @@ function cmd_chart(selection, metaData ) {
       .text("");
       
     var svgTitle = svg.append("text")
-      .attr("transform", "translate(" + (margin) + ",0)")
+      .attr("transform", "translate(" + (margin) + ",25)")
       .classed("chartTitle", true)
       .text("");
 
