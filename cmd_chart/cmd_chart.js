@@ -89,8 +89,8 @@ function cmd_chart(selection, metaData ) {
                                   .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
                                   .style("stroke", d3.rgb(255,255,255).toString());
                              
-              series[s].color = typeOf(query.color) == "function" ? query.color(s) : query.color;
-              series[s].thickness = typeOf(query.thickness) == "function" ? query.thickness(s) : query.thickness;
+              series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
+              series[s].thickness = (typeof(query.thickness) == "function") ? query.thickness(s) : query.thickness;
         
               series[s].path.on("mouseover", function() {
                   var coords = d3.mouse(this);
