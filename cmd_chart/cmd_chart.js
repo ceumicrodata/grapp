@@ -46,7 +46,10 @@ function cmd_chart(selection, metaData ) {
       .tickSize(width);
   
     ////////////////
-    function queryAndDraw(query, dateFrom, dateTo) {
+
+    function loadDataAndRedraw(instant, levelUpFromSerie, levelDownToSerie) { 
+      
+      function queryAndDraw(query) {
         
         var url = query.url(dateFrom, dateTo, settings.grouping);
        
@@ -134,8 +137,9 @@ function cmd_chart(selection, metaData ) {
           zoomTimer = null;
   
         });
-    }
-    function loadDataAndRedraw(instant, levelUpFromSerie, levelDownToSerie) { 
+      }
+      
+      ///////////////////
       
       zoomTimer = false;
       
