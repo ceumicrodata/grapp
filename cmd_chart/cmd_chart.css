@@ -30,3 +30,13 @@ path {
 .chartBackground {
     fill: #fafafa;
 }
+
+.regionLine {
+    stroke-width: 2;
+}
+.referenceCountryLine {
+    stroke-width: 4;
+}
+.countryLine {
+    stroke-width: 1;
+}
