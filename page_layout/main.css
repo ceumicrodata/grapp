@@ -13,8 +13,8 @@ div {
 
 #centeredContainer {
   position: absolute;
-  width: 710px;
-  margin-left: -355px;
+  width: 700pt;
+  margin-left: -350pt;
   top: 0px;
   left: 50%;
 }
@@ -47,8 +47,8 @@ div {
 
 .chartContainer {
   position: absolute;
-  right: 190px;
-  height: 300px;
+  right: 210px;
+  height: 400px;
   left: 20px;
   bottom: 20px;
   background-color: #FFFFFF;
