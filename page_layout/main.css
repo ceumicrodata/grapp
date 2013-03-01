@@ -48,7 +48,7 @@ div {
 .chartContainer {
   position: absolute;
   right: 210px;
-  top: 180px;
+  top: 90px;
   left: 20px;
   bottom: 20px;
   background-color: #FFFFFF;
@@ -57,7 +57,7 @@ div {
   position: absolute;
   overflow: auto;
   width: 170px;
-  height: 260px;
+  top: 130px;
   right: 20px;
   bottom: 20px;
 }
