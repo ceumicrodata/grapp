@@ -1,5 +1,6 @@
 body { 
   font-size: 12pt;
+  font-weight: 400;
   font-family: 'Open Sans', sans-serif;
   color: #505050;
   background-color: #bbbbbb; 
@@ -35,12 +36,6 @@ div {
 .mainTitle h1{ /* Graphing App */
   font-size: 30pt;
   font-weight: lighter;
-  margin: 0px;
-}
-.mainTitle h3{ /* Chart title */
-  font-size: 14pt;
-  font-weight: bold;
-  color: #006D9E;
   margin: 0px;
 }
 .mainTitle h4{  /* CEU Microdata */
