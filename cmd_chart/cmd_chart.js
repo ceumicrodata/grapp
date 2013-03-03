@@ -118,6 +118,7 @@ function cmd_chart(selection, metaData ) {
                     d3.select(this).classed("mouseover", true);
               }).on("mouseout", function() {
                   svgInfoText.text("");
+                  svgInfoMark.style("display","none" );
                   if (query.onClick != 0)
                     d3.select(this).classed("mouseover", false);
               });
@@ -333,6 +334,16 @@ function cmd_chart(selection, metaData ) {
       //.call (initHairCross);
     
     
+    var svgInfoText = svg.append("text")
+        .classed("infoText",true)
+        .attr("transform", "translate(" + (width + margin) + ",35)")
+        .style("text-anchor", "end");
+ 
+      
+    var svgTitle = svg.append("text")
+      .attr("transform", "translate(" + (margin) + ",25)")
+      .classed("chartTitle", true)
+      .text("");
       
     svg.call(d3.behavior.zoom()
       .x(scalesTime)
@@ -350,7 +361,13 @@ function cmd_chart(selection, metaData ) {
     var svgYaxis = svg.append("g")
       .attr("class", "yaxis axis")
       .attr("transform", "translate("+(width + margin)+","+ margin +")");
-      
+  
+    var svgInfoMark = svg.append("circle")
+        .classed("infoMark",true)
+        .attr("r", 4)
+        .style("display","none" );
+     // .text("");
+
     var clipRect = svg.append("svg:clipPath")
         .attr("id", "clipRect")
         .append("svg:rect")
@@ -362,23 +379,6 @@ function cmd_chart(selection, metaData ) {
     var clippedArea = svg.append("g")
         .attr("clip-path", "url(#clipRect)");
           
-    
-    var svgInfoText = svg.append("text")
-        .classed("infoText",true)
-        .attr("transform", "translate(" + (width + margin) + ",0)")
-        .style("text-anchor", "end");
- 
-    var svgInfoMark = svg.append("circle")
-        .classed("infoMark",true)
-        .attr("r", 4);
-
-     // .text("");
-      
-    var svgTitle = svg.append("text")
-      .attr("transform", "translate(" + (margin) + ",25)")
-      .classed("chartTitle", true)
-      .text("");
-
     ///////////////////////////
    
     xAxis.scale(scalesTime)
