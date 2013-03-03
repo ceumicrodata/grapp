@@ -80,19 +80,9 @@ function cmd_chart(selection, metaData ) {
               series[key].push( { "date" : date, "value": value } );
           }
            
-          for ( s in series ) {
-            series[s].sort(function(a,b) { return a.date - b.date; } );
-            if (!series[s].path) {
-
-              series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
-              series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
-
-              series[s].path = clippedArea.append("svg:path")
-                                  .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
-                                  .classed( series[s].styleName, true )
-                                  .style("stroke", d3.rgb(255,255,255).toString());
-        
-              series[s].path.on("mouseover", function() {
+           
+          function bindEvents(serie) {
+              serie.path.on("mouseover", function() {
                   /*
                   var coords = d3.mouse(this);
                   var timex = scalesTime.invert(coords[0]);
@@ -113,25 +103,40 @@ function cmd_chart(selection, metaData ) {
               });
               
               if (query.onClick != 0)
-                series[s].path.on("click", function() {
+                serie.path.on("click", function() {
               
                   if (query.onClick < 0)
                     loadDataAndRedraw(false,null,settings.grouping);
                   else if (query.onClick > 0){
-                    var clickedSerie = null;
+                    /*var clickedSerie = null;
                     for ( ss in series ) 
                       if (series[ss].path.node() == this) 
                         clickedSerie = ss;
-                    
-                    if (clickedSerie) {
-                      series[clickedSerie].path.classed("clicked", true);
-                      console.log ("Clicked serie: "+clickedSerie);
+                    /*/
+                    //if (clickedSerie) {
+                      series[serie].path.classed("clicked", true);
+                      console.log ("Clicked serie: "+serie);
     
-                      loadDataAndRedraw(false,clickedSerie);
-                    }
+                      loadDataAndRedraw(false,serie);
+                    //}
                   }
                              
               });
+          } 
+           
+          for ( s in series ) {
+            series[s].sort(function(a,b) { return a.date - b.date; } );
+            if (!series[s].path) {
+
+              series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
+              series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
+
+              series[s].path = clippedArea.append("svg:path")
+                                  .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
+                                  .classed( series[s].styleName, true )
+                                  .style("stroke", d3.rgb(255,255,255).toString());
+                    
+              bindEvents (series[s]);
               
             }
           }   
@@ -241,7 +246,7 @@ function cmd_chart(selection, metaData ) {
         
     //////////////////////////
     
-    function initHairCross (parent) {
+    /*function initHairCross (parent) {
       var verticalLine = null;
       var horizontalLine = null;
        
@@ -267,7 +272,7 @@ function cmd_chart(selection, metaData ) {
       });
       parent.on("mouseout", function() {
         svg.remove(horizontalLine);
-        scg.remove(verticalLine);
+        svg.remove(verticalLine);
         horizontalLine = null;
         verticalLine = null;
       });
@@ -286,7 +291,7 @@ function cmd_chart(selection, metaData ) {
           .attr("y2", y+h);    
         }
       });
-    }  
+    }  */
             
     ///////////////////////////////
     //
@@ -312,8 +317,8 @@ function cmd_chart(selection, metaData ) {
       .attr("width", width + "px")
       .attr("height", height + "px")
       .attr("x", margin + "px")
-      .attr("y", margin + "px")
-      .call (initHairCross);
+      .attr("y", margin + "px");
+      //.call (initHairCross);
     
     
       
