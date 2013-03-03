@@ -94,7 +94,7 @@ function cmd_chart(selection, metaData ) {
           }
            
           function bindEvents(ss) {
-              series[ss].path.on("mouseover", function() {
+              series[ss].path.on("mousemove", function() {
                   
                   var coords = d3.mouse(this);
                   var currentDate = scalesTime.invert(coords[0]);
@@ -104,8 +104,9 @@ function cmd_chart(selection, metaData ) {
                   var nearest = getNearestData(series[ss], currentDate);
                   if (nearest) {
                     var dateFormatted = settings.dateFormat(new Date(nearest.date));  
+                    var cdateFormatted = settings.dateFormat(new Date(currentDate));  
              
-                    svgInfo.text(ss+" ("+dateFormatted+": "+nearest.value+")");
+                    svgInfo.text(ss+" ("+dateFormatted+": "+nearest.value+")" +cdateFormatted);
                   }
                     
  
