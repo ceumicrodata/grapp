@@ -107,7 +107,7 @@ function cmd_chart(selection, metaData ) {
                     
                     svgInfoText.text(ss+" ("+dateFormatted+": "+nearest.value+")");
                     svgInfoMark
-                      .style("display","block" );
+                      .style("display","block" )
                       .attr("cx", px + margin )
                       .attr("cy", py + margin )
                       .style("stroke", series[ss].color)
