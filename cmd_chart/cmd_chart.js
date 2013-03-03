@@ -96,8 +96,8 @@ function cmd_chart(selection, metaData ) {
           function bindEvents(ss) {
               series[ss].path.on("mousemove", function() {
                   
-                  var coords = d3.mouse(this);
-                  var currentDate = scalesTime.invert(coords[0]);
+                  var coords = d3.mouse(svg);
+                  var currentDate = scalesTime.invert(coords[0]-margin);
                   //var valuey = scalesValue.invert(coords[1]);
                   //var datex = settings.dateFormat(timex);
                   
