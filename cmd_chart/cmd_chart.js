@@ -245,10 +245,10 @@ function cmd_chart(selection, metaData ) {
       var verticalLine = null;
       var horizontalLine = null;
        
-      var w = parent.attr("width");
-      var h = parent.attr("height");
-      var x = parent.attr("x");
-      var y = parent.attr("y");
+      var w = width;
+      var h = height;
+      var x = margin;
+      var y = margin;
 
       parent.on("mouseover", function() {      
         var coords = d3.mouse(this);
