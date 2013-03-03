@@ -105,15 +105,19 @@ function cmd_chart(selection, metaData ) {
                     var px = scalesTime(nearest.date);
                     var py = scalesValue(nearest.value);
                     
-                    svgInfo.text(ss+" ("+dateFormatted+": "+nearest.value+")")
-                    .attr("transform", "translate(" + (px + margin) + ","+ (py + margin) +")");
+                    svgInfoText.text(ss+" ("+dateFormatted+": "+nearest.value+")");
+                    svgInfoMark
+                      .attr("cx", px + margin )
+                      .attr("cy", py + margin )
+                      .style("stroke", series[ss].color)
+                      .style("fill", series[ss].color);
                   }
                     
  
                   if (query.onClick != 0)
                     d3.select(this).classed("mouseover", true);
               }).on("mouseout", function() {
-                  svgInfo.text("");
+                  svgInfoText.text("");
                   if (query.onClick != 0)
                     d3.select(this).classed("mouseover", false);
               });
@@ -124,17 +128,9 @@ function cmd_chart(selection, metaData ) {
                   if (query.onClick < 0)
                     loadDataAndRedraw(false,null,settings.grouping);
                   else if (query.onClick > 0){
-                    /*var clickedSerie = null;
-                    for ( ss in series ) 
-                      if (series[ss].path.node() == this) 
-                        clickedSerie = ss;
-                    /*/
-                    //if (clickedSerie) {
-                      series[ss].path.classed("clicked", true);
-                      console.log ("Clicked serie: "+ss);
-    
-                      loadDataAndRedraw(false,ss);
-                    //}
+                    series[ss].path.classed("clicked", true);
+                    console.log ("Clicked serie: "+ss);
+                    loadDataAndRedraw(false,ss);
                   }
                              
               });
@@ -367,9 +363,15 @@ function cmd_chart(selection, metaData ) {
         .attr("clip-path", "url(#clipRect)");
           
     
-    var svgInfo = svg.append("text");
-      //.attr("transform", "translate(" + (width + margin) + ",0)")
-   //   .style("text-anchor", "end")
+    var svgInfoText = svg.append("text")
+        .classed("infoText",true)
+        .attr("transform", "translate(" + (width + margin) + ",0)")
+        .style("text-anchor", "end");
+ 
+    var svgInfoMark = svg.append("circle")
+        .classed("infoMark",true)
+        .attr("r", 4);
+
      // .text("");
       
     var svgTitle = svg.append("text")
