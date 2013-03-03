@@ -81,8 +81,8 @@ function cmd_chart(selection, metaData ) {
           }
            
            
-          function bindEvents(serie) {
-              serie.path.on("mouseover", function() {
+          function bindEvents(ss) {
+              series[ss].path.on("mouseover", function() {
                   /*
                   var coords = d3.mouse(this);
                   var timex = scalesTime.invert(coords[0]);
@@ -103,7 +103,7 @@ function cmd_chart(selection, metaData ) {
               });
               
               if (query.onClick != 0)
-                serie.path.on("click", function() {
+                series[ss].path.on("click", function() {
               
                   if (query.onClick < 0)
                     loadDataAndRedraw(false,null,settings.grouping);
@@ -114,10 +114,10 @@ function cmd_chart(selection, metaData ) {
                         clickedSerie = ss;
                     /*/
                     //if (clickedSerie) {
-                      series[serie].path.classed("clicked", true);
-                      console.log ("Clicked serie: "+serie);
+                      series[ss].path.classed("clicked", true);
+                      console.log ("Clicked serie: "+ss);
     
-                      loadDataAndRedraw(false,serie);
+                      loadDataAndRedraw(false,ss);
                     //}
                   }
                              
@@ -136,7 +136,7 @@ function cmd_chart(selection, metaData ) {
                                   .classed( series[s].styleName, true )
                                   .style("stroke", d3.rgb(255,255,255).toString());
                     
-              bindEvents (series[s]);
+              bindEvents (s);
               
             }
           }   
