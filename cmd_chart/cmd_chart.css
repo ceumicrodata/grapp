@@ -5,7 +5,6 @@
 }
 
 path {
-    stroke: steelblue;
     stroke-width: 2;
     fill: none;
 }
@@ -35,6 +34,13 @@ path {
 .chartBackground {
     fill: #F9F9F9;
 }
+.haircross {
+    fill: none;
+    stroke: #006D9E;
+    stroke-width: 1px;
+    shape-rendering: crispEdges; 
+}
+
 
 .regionLine {
  
