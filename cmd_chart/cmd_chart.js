@@ -244,27 +244,30 @@ function cmd_chart(selection, metaData ) {
     function initHairCross (parent) {
       var verticalLine = null;
       var horizontalLine = null;
-      var parentWidth  = $(parent.node()).width() ; 
-      var parentHeight = $(parent.node()).height() ;
+       
+      var w = parent.attr("width");
+      var h = parent.attr("height");
+      var x = parent.attr("x");
+      var y = parent.attr("y");
 
       parent.on("mouseover", function() {      
         var coords = d3.mouse(this);
-        horizontalLine = parent.append("line")
-          .attr("x1", 0)
-          .attr("y1", coords[1])
-          .attr("x2", parentWidth-1)
-          .attr("y2", coords[1])
+        horizontalLine = svg.append("line")
+          .attr("x1", x+0)
+          .attr("y1", y+coords[1])
+          .attr("x2", x+w)
+          .attr("y2", y+coords[1])
           .classed("hairCross", true);
-        verticalLine = parent.append("line")
-          .attr("x1", coords[0])
-          .attr("y1", 0)
-          .attr("x2", coords[0])
-          .attr("y2", parentHeight-1)
+        verticalLine = svg.append("line")
+          .attr("x1", x+coords[0])
+          .attr("y1", y+0)
+          .attr("x2", x+coords[0])
+          .attr("y2", y+h)
           .classed("hairCross", true);             
       });
       parent.on("mouseout", function() {
-        parent.remove(horizontalLine);
-        parent.remove(verticalLine);
+        svg.remove(horizontalLine);
+        scg.remove(verticalLine);
         horizontalLine = null;
         verticalLine = null;
       });
@@ -272,15 +275,15 @@ function cmd_chart(selection, metaData ) {
         if (verticalLine && horizontalLine) {
           var coords = d3.mouse(this);
           horizontalLine 
-          .attr("x1", 0)
-          .attr("y1", coords[1])
-          .attr("x2", parentWidth-1)
-          .attr("y2", coords[1]);
+          .attr("x1", x+0)
+          .attr("y1", y+coords[1])
+          .attr("x2", x+w)
+          .attr("y2", y+coords[1]);
           verticalLine 
-          .attr("x1", coords[0])
-          .attr("y1", 0)
-          .attr("x2", coords[0])
-          .attr("y2", parentHeight-1);    
+          .attr("x1", x+coords[0])
+          .attr("y1", y+0)
+          .attr("x2", x+coords[0])
+          .attr("y2", y+h);    
         }
       });
     }  
