@@ -247,7 +247,7 @@ function cmd_chart(selection, metaData ) {
       var parentWidth  = $(parent.node()).width() ; 
       var parentHeight = $(parent.node()).height() ;
 
-      parent.on("mouseover") = function() {      
+      parent.on("mouseover", function() {      
         var coords = d3.mouse(this);
         horizontalLine = parent.append("line")
           .attr("x1", 0)
@@ -261,15 +261,16 @@ function cmd_chart(selection, metaData ) {
           .attr("x2", coords[0])
           .attr("y2", parentHeight-1)
           .claseed("hairCross", true);             
-      };
-      parent.on("mouseout") = function() {
+      });
+      parent.on("mouseout", function() {
         parent.remove(horizontalLine);
         parent.remove(verticalLine);
         horizontalLine = null;
         verticalLine = null;
-      };
-      parent.on("mousemove") = function() {
+      });
+      parent.on("mousemove", function() {
         if (verticalLine && horizontalLine) {
+          var coords = d3.mouse(this);
           horizontalLine 
           .attr("x1", 0)
           .attr("y1", coords[1])
@@ -281,7 +282,7 @@ function cmd_chart(selection, metaData ) {
           .attr("x2", coords[0])
           .attr("y2", parentHeight-1);    
         }
-      };
+      });
     }  
             
     ///////////////////////////////
