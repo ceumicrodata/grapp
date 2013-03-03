@@ -102,8 +102,11 @@ function cmd_chart(selection, metaData ) {
                   //var datex = settings.dateFormat(timex);
                   
                   var nearest = getNearestData(series[ss], currentDate);
-                  if (nearest)
-                    svgInfo.text(ss+" ("+settings.dateFormat(nearest.date)+": "+nearest.value+")");
+                  if (nearest) {
+                    var dateFormatted = settings.dateFormat(new Date(nearest.date));  
+             
+                    svgInfo.text(ss+" ("+dateFormatted+": "+nearest.value+")");
+                  }
                     
  
                   if (query.onClick != 0)
