@@ -41,7 +41,13 @@ path {
     shape-rendering: crispEdges; 
 }
 
-
+.infoText {
+    font-size: 9pt;
+    fill: #818181;
+}
+.infoMark {
+  
+}
 .regionLine {
  
 }
@@ -49,5 +55,5 @@ path {
     stroke-width: 4;
 }
 .countryLine {
-
+    
 }
