@@ -244,8 +244,8 @@ function cmd_chart(selection, metaData ) {
     function initHairCross (parent) {
       var verticalLine = null;
       var horizontalLine = null;
-      var parentWidth  = $(parent).width() ; 
-      var parentHeight = $(parent).height() ;
+      var parentWidth  = $(parent.node).width() ; 
+      var parentHeight = $(parent.node).height() ;
 
       parent.on("mouseover") = function() {      
         var coords = d3.mouse(this);
