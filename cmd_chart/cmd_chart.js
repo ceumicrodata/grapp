@@ -254,13 +254,13 @@ function cmd_chart(selection, metaData ) {
           .attr("y1", coords[1])
           .attr("x2", parentWidth-1)
           .attr("y2", coords[1])
-          .claseed("hairCross", true);
+          .classed("hairCross", true);
         verticalLine = parent.append("line")
           .attr("x1", coords[0])
           .attr("y1", 0)
           .attr("x2", coords[0])
           .attr("y2", parentHeight-1)
-          .claseed("hairCross", true);             
+          .classed("hairCross", true);             
       });
       parent.on("mouseout", function() {
         parent.remove(horizontalLine);
