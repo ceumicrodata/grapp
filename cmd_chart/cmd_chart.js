@@ -79,21 +79,33 @@ function cmd_chart(selection, metaData ) {
             if (!foundExisting)
               series[key].push( { "date" : date, "value": value } );
           }
-           
+          
+          function getNearestData(serie, currentDate) {
+            var minDist = 1000 * 60 * 60 * 24 * 365;
+            var re = null;
+            for (i = 0; i < serie.length; i++ ) {
+              var dist = Math.abs(serie[i].date - currentDate);
+              if (dist < minDist) {
+                re = serie[i];
+                minDist = dist;
+              }
+            }
+            return re;
+          }
            
           function bindEvents(ss) {
               series[ss].path.on("mouseover", function() {
-                  /*
+                  
                   var coords = d3.mouse(this);
-                  var timex = scalesTime.invert(coords[0]);
-                  var valuey = scalesValue.invert(coords[1]);
-                  var datex = settings.dateFormat(timex);
+                  var currentDate = scalesTime.invert(coords[0]);
+                  //var valuey = scalesValue.invert(coords[1]);
+                  //var datex = settings.dateFormat(timex);
                   
-                  for ( ss in series ) 
-                    if (series[ss].path.node() == this)
-                       svgInfo.text(ss+" ("+datex+": "+valuey+")");
-                  */
-                  
+                  var nearest = getNearestData(series[ss], currentDate);
+                  if (nearest)
+                    svgInfo.text(ss+" ("+settings.dateFormat(nearest.date)+": "+nearest.value+")");
+                    
+ 
                   if (query.onClick != 0)
                     d3.select(this).classed("mouseover", true);
               }).on("mouseout", function() {
