@@ -93,6 +93,7 @@ function cmd_chart(selection, metaData ) {
                                   .style("stroke", d3.rgb(255,255,255).toString());
         
               series[s].path.on("mouseover", function() {
+                  /*
                   var coords = d3.mouse(this);
                   var timex = scalesTime.invert(coords[0]);
                   var valuey = scalesValue.invert(coords[1]);
@@ -101,6 +102,7 @@ function cmd_chart(selection, metaData ) {
                   for ( ss in series ) 
                     if (series[ss].path.node() == this)
                        svgInfo.text(ss+" ("+datex+": "+valuey+")");
+                  */
                   
                   if (query.onClick != 0)
                     d3.select(this).classed("mouseover", true);
@@ -236,7 +238,52 @@ function cmd_chart(selection, metaData ) {
         clearTimeout(zoomTimer);
       zoomTimer = setTimeout(function(){ onZoomTimer(); },zoomTimeout);
     } 
-               
+        
+    //////////////////////////
+    
+    function initHairCross (parent) {
+      var verticalLine = null;
+      var horizontalLine = null;
+      var parentWidth  = $(this).width() ; 
+      var parentHeight = $(this).height() ;
+
+      parent.on("mouseover") = function() {      
+        var coords = d3.mouse(this);
+        horizontalLine = parent.append("line")
+          .attr("x1", 0)
+          .attr("y1", coords[1])
+          .attr("x2", parentWidth-1)
+          .attr("y2", coords[1])
+          .claseed("hairCross", true);
+        verticalLine = parent.append("line")
+          .attr("x1", coords[0])
+          .attr("y1", 0)
+          .attr("x2", coords[0])
+          .attr("y2", parentHeight-1)
+          .claseed("hairCross", true);             
+      };
+      parent.on("mouseout") = function() {
+        parent.remove(horizontalLine);
+        parent.remove(verticalLine);
+        horizontalLine = null;
+        verticalLine = null;
+      };
+      parent.on("mousemove") = function() {
+        if (verticalLine && horizontalLine) {
+          horizontalLine 
+          .attr("x1", 0)
+          .attr("y1", coords[1])
+          .attr("x2", parentWidth-1)
+          .attr("y2", coords[1]);
+          verticalLine 
+          .attr("x1", coords[0])
+          .attr("y1", 0)
+          .attr("x2", coords[0])
+          .attr("y2", parentHeight-1);    
+        }
+      };
+    }  
+            
     ///////////////////////////////
     //
     // INIT
@@ -261,7 +308,10 @@ function cmd_chart(selection, metaData ) {
       .attr("width", width + "px")
       .attr("height", height + "px")
       .attr("x", margin + "px")
-      .attr("y", margin + "px");
+      .attr("y", margin + "px")
+      .call (initHairCross);
+    
+    
       
     svg.call(d3.behavior.zoom()
       .x(scalesTime)
