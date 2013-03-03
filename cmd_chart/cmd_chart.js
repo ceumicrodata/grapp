@@ -98,15 +98,15 @@ function cmd_chart(selection, metaData ) {
                   
                   var coords = d3.mouse(svg.node());
                   var currentDate = scalesTime.invert(coords[0]-margin);
-                  //var valuey = scalesValue.invert(coords[1]);
-                  //var datex = settings.dateFormat(timex);
                   
                   var nearest = getNearestData(series[ss], currentDate);
                   if (nearest) {
                     var dateFormatted = settings.dateFormat(new Date(nearest.date));  
-                    var cdateFormatted = settings.dateFormat(new Date(currentDate));  
-             
-                    svgInfo.text(ss+" ("+dateFormatted+": "+nearest.value+")" +cdateFormatted);
+                    var px = scalesTime(nearest.date);
+                    var py = scalesValue(nearest.value);
+                    
+                    svgInfo.text(ss+" ("+dateFormatted+": "+nearest.value+")")
+                    .attr("transform", "translate(" + (px + margin) + ","+ (py + margin) +")");
                   }
                     
  
@@ -367,12 +367,10 @@ function cmd_chart(selection, metaData ) {
         .attr("clip-path", "url(#clipRect)");
           
     
-    var svgInfo = svg.append("text")
-      .attr("transform", "translate(" + (width + margin) + ",0)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("");
+    var svgInfo = svg.append("text");
+      //.attr("transform", "translate(" + (width + margin) + ",0)")
+   //   .style("text-anchor", "end")
+     // .text("");
       
     var svgTitle = svg.append("text")
       .attr("transform", "translate(" + (margin) + ",25)")
