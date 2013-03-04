@@ -5,7 +5,7 @@
 
   // the initialtime and value extents
   "dateFrom" : "2010-01-01" , //formatted based on the "dateFormat" settings
-  "dateTo" : "2012-03-01" ,   //formatted based on the "dateFormat" settings
+  "dateTo" : "2013-03-01" ,   //formatted based on the "dateFormat" settings
   "valueFrom" : -100,
   "valueTo" : 100,
   
