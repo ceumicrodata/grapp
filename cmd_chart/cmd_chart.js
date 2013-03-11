@@ -391,8 +391,9 @@ function cmd_chart(selection, metaData ) {
     var svgShadedIntervals = new Array();
     for (si = 0; si < metaData.shadedIntervals.length; si++) {
        svgShadedIntervals[si] = svg.append("rect")
+        .classed("shadedIntervals",true)
         .style("fill", metaData.shadedIntervals[si].color)
-        .attr("y", margin + "px");
+        .attr("y", margin + "px")
         .attr("height", height + "px");
     }
           
