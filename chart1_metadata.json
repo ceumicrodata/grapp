@@ -21,6 +21,21 @@
     "tickFormat": d3.format("g") 
   }, 
   
+  "shadedIntervals" : [
+    {
+      "caption" :  "shade1" ,     // caption of the area
+      "dateFrom" : "2010-01-01" , // formatted based on the "dateFormat" settings
+      "dateTo" :   "2010-05-01" , // formatted based on the "dateFormat" settings
+      "color" :    "#dddddd"      // color of the area
+    },
+    {
+      "caption" :  "shade2" ,     // caption of the area
+      "dateFrom" : "2011-01-01" , // formatted based on the "dateFormat" settings
+      "dateTo" :   "2011-05-01" , // formatted based on the "dateFormat" settings
+      "color" :    "#dddddd"      // color of the area
+    }
+  ], 
+  
   // view levels
   "levels": [
   

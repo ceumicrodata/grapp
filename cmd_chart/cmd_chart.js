@@ -7,7 +7,7 @@ function cmd_chart(selection, metaData ) {
   selection.select(".chartContainer").each(function() { 
 
     var series = new Object();
-    
+
     var speed = 500;
     var margin = 40;
     
@@ -222,6 +222,14 @@ function cmd_chart(selection, metaData ) {
         }
       }
         
+      for (si = 0; si < metaData.shadedIntervals.length; si++) {
+        var timeFrom = settings.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
+        var timeTo =   settings.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
+        svgShadedIntervals[si]
+        .attr("x",  (scalesTime(timeFrom) + margin) + "px")
+        .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
+      }
+        
       if (instant) {
         svgXaxis.call(xAxis);
         svgYaxis.call(yAxis);
@@ -333,8 +341,7 @@ function cmd_chart(selection, metaData ) {
       .attr("x", margin + "px")
       .attr("y", margin + "px");
       //.call (initHairCross);
-    
-    
+        
     var svgInfoText = svg.append("text")
         .classed("infoText",true)
         .attr("transform", "translate(" + (width + margin) + ",35)")
@@ -379,6 +386,15 @@ function cmd_chart(selection, metaData ) {
         
     var clippedArea = svg.append("g")
         .attr("clip-path", "url(#clipRect)");
+        
+           
+    var svgShadedIntervals = new Array();
+    for (si = 0; si < metaData.shadedIntervals.length; si++) {
+       svgShadedIntervals[si] = svg.append("rect")
+        .style("fill", metaData.shadedIntervals[si].color)
+        .attr("y", margin + "px");
+        .attr("height", height + "px");
+    }
           
     ///////////////////////////
    
