@@ -77,7 +77,7 @@ function cmd_chart(selection, metaData ) {
               series[key].push( { "date" : date, "value": value } );
           }
           
-          function getNearestData(serie, currentDate) {
+          /*function getNearestData(serie, currentDate) {
             var minDist = 1000 * 60 * 60 * 24 * 365;
             var re = null;
             for (i = 0; i < serie.length; i++ ) {
@@ -88,13 +88,16 @@ function cmd_chart(selection, metaData ) {
               }
             }
             return re;
-          }
+          }*/
            
           function bindEvents(ss) {
               series[ss].path.on("mousemove", function() {
+                onMouseMove();
+              }
+              /*series[ss].path.on("mousemove", function() {
                   
-                  var coords = d3.mouse(svg.node());
-                  var currentDate = scalesTime.invert(coords[0]-margin);
+                  var coords = d3.mouse(clippedArea.node());
+                  var currentDate = scalesTime.invert(coords[0]);
                   
                   var nearest = getNearestData(series[ss], currentDate);
                   if (nearest) {
@@ -105,8 +108,8 @@ function cmd_chart(selection, metaData ) {
                     svgInfoText.text(ss+" ("+dateFormatted+": "+nearest.value+")");
                     svgInfoMark
                       .style("display","block" )
-                      .attr("cx", px + margin )
-                      .attr("cy", py + margin )
+                      .attr("cx", px +"px")
+                      .attr("cy", py +"px")
                       .style("stroke", series[ss].color)
                       .style("fill", series[ss].color);
                   }
@@ -119,7 +122,7 @@ function cmd_chart(selection, metaData ) {
                   svgInfoMark.style("display","none" );
                   if (query.onClick != 0)
                     d3.select(this).classed("mouseover", false);
-              });
+              });*/
               
               if (query.onClick != 0)
                 series[ss].path.on("click", function() {
@@ -236,7 +239,7 @@ function cmd_chart(selection, metaData ) {
         var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
         var timeTo =   metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
         svgShadedIntervals[si]
-        .attr("x",  (scalesTime(timeFrom) + margin) + "px")
+        .attr("x",  (scalesTime(timeFrom)) + "px")
         .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
       }
         
@@ -253,6 +256,43 @@ function cmd_chart(selection, metaData ) {
       }
     }
     
+    function onMouseMove() {
+  
+      var coords = d3.mouse(clippedArea.node());
+      var currentTime  = scalesTime.invert(coords[0]);
+      var currentValue = scalesValue.invert(coords[1]);
+    
+      var lowestDistance = (metaData.valueMax - metaData.valueMin) * 2;
+      var nearestSerie = null;
+       
+      for ( s in series ) {
+         if (series[s].level == currentLevelIndex) {
+         
+            var pos = -1;
+            for (var i = 0; i < series[s].length; i++ ) {
+              if (currentTime < series[s][i].date) {
+                pos = i-1;
+                break;
+              }
+            }  
+            if (pos>=0) {
+              var f = (currentTime - series[s][pos]) / (series[s][pos+1] - series[s][pos]);
+              var v = series[s][pos] * (1-f) + series[s][pos+1] * f;
+              
+              var currentDistance = Math.abs(v - currentValue);
+              if (currentDistance < lowestDistance ) {
+                lowestDistance = currentDistance;
+                nearestSerie = s;
+              }
+            }
+         }
+      }
+      
+      if (nearestSerie) {
+         for ( s in series ) 
+            series[s].path.classed("mouseover", (s==nearestSerie));
+      } 
+    }
     ///////////////////////////////
     //
     // TIMER FOR ZOOMING
@@ -338,8 +378,8 @@ function cmd_chart(selection, metaData ) {
       .attr("height",totalHeight);
     
     var line = d3.svg.line()
-      .x(function(dataRecord) { return margin + scalesTime(dataRecord["date"]); })
-      .y(function(dataRecord) { return margin + scalesValue(dataRecord["value"]);})
+      .x(function(dataRecord) { return scalesTime(dataRecord["date"]); })
+      .y(function(dataRecord) { return scalesValue(dataRecord["value"]);})
       .defined(function(dataRecord) { 
           var domain = scalesTime.domain(); 
           return dataRecord["date"] >= domain[0] 
@@ -354,9 +394,9 @@ function cmd_chart(selection, metaData ) {
       .attr("width", width + "px")
       .attr("height", height + "px")
       .attr("x", margin + "px")
-      .attr("y", margin + "px");
-      //.call (initHairCross);
-        
+      .attr("y", margin + "px")
+      .on("mousemove", function() { onMouseMove(); } );
+              }
     var svgInfoText = svg.append("text")
         .classed("infoText",true)
         .attr("transform", "translate(" + (width + margin) + ",35)")
@@ -394,6 +434,7 @@ function cmd_chart(selection, metaData ) {
         .attr("y", margin + "px");
         
     var clippedArea = svg.append("g")
+        .attr("transform", "translate("+margin+","+margin+")");
         .attr("clip-path", "url(#clipRect)");
         
            
@@ -402,8 +443,9 @@ function cmd_chart(selection, metaData ) {
        svgShadedIntervals[si] = clippedArea.append("rect")
         .classed("shadedIntervals",true)
         .style("fill", metaData.shadedIntervals[si].color)
-        .attr("y", margin + "px")
-        .attr("height", height + "px");
+        .attr("y", "0px")
+        .attr("height", height + "px")
+        .on("mousemove", function() { onMouseMove(); } );
     }
 
     var svgInfoMark = clippedArea.append("circle")
