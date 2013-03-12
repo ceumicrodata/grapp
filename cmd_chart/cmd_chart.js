@@ -194,13 +194,20 @@ function cmd_chart(selection, metaData ) {
     function redraw(instant) {
     
       var timeDomain = scalesTime.domain();
-      if (timeDomain[0] < timeMin)
-          timeDomain[0] = timeMin;
-      if (timeDomain[1] > timeMax)
-          timeDomain[1] = timeMax;
+      var restricted = false;
+      if (timeDomain[0] < timeMin) {
+        restricted = true;
+        timeDomain[0] = timeMin;
+      }
+      if (timeDomain[1] > timeMax) {
+        restricted = true;
+        timeDomain[1] = timeMax;
+      }
+      if (restricted)
+        scalesTime.domain(timeDomain);
       
-      console.log(d3.event.scale);
-      console.log(d3.event.translate);
+      //console.log(d3.event.scale);
+      //console.log(d3.event.translate);
 
       if (instant) 
       {
