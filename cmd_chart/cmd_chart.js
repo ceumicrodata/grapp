@@ -396,7 +396,7 @@ function cmd_chart(selection, metaData ) {
       .attr("x", margin + "px")
       .attr("y", margin + "px")
       .on("mousemove", function() { onMouseMove(); } );
-              }
+              
     var svgInfoText = svg.append("text")
         .classed("infoText",true)
         .attr("transform", "translate(" + (width + margin) + ",35)")
