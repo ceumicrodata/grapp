@@ -93,7 +93,7 @@ function cmd_chart(selection, metaData ) {
           function bindEvents(ss) {
               series[ss].path.on("mousemove", function() {
                 onMouseMove();
-              }
+              });
               /*series[ss].path.on("mousemove", function() {
                   
                   var coords = d3.mouse(clippedArea.node());
