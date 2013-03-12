@@ -3,11 +3,18 @@
   //"chart-global" metadata
   //////////////////////////
 
-  // the initialtime and value extents
-  "dateFrom" : "2010-01-01" , //formatted based on the "dateFormat" settings
-  "dateTo" : "2013-03-01" ,   //formatted based on the "dateFormat" settings
-  "valueFrom" : -100,
-  "valueTo" : 100,
+  // date format
+  "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
+
+  // time and value extenrs
+  "dateMin"  : "2006-01-01" ,   //formatted based on the "dateFormat" settings
+  "dateMax"  : "2013-03-01" ,   //formatted based on the "dateFormat" settings
+  "valueMin" : -100,
+  "valueMax" : 100,
+
+  // the initially visible time interval
+  "dateFrom" : "2010-01-01" ,   //formatted based on the "dateFormat" settings
+  "dateTo"   : "2013-03-01" ,   //formatted based on the "dateFormat" settings
   
   // formatting of axes
   "timeAxis" : {
@@ -23,13 +30,13 @@
   
   "shadedIntervals" : [
     {
-      "caption" :  "shade1" ,     // caption of the area
+      "label" :    "shade1" ,     // label of the area
       "dateFrom" : "2010-01-01" , // formatted based on the "dateFormat" settings
       "dateTo" :   "2010-05-01" , // formatted based on the "dateFormat" settings
       "color" :    "#dddddd"      // color of the area
     },
     {
-      "caption" :  "shade2" ,     // caption of the area
+      "label" :    "shade2" ,     // label of the area
       "dateFrom" : "2011-01-01" , // formatted based on the "dateFormat" settings
       "dateTo" :   "2011-05-01" , // formatted based on the "dateFormat" settings
       "color" :    "#dddddd"      // color of the area
@@ -46,12 +53,13 @@
       // chart title and desctiption
       "title" : "Industrial growth (region)",
       "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed malesuada turpis suscipit magna interdum sodales.",
-      
-      "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
 
       // the ajax queries 
       "queries" : [
         {
+          // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
+          // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
+          // grouping: on an upper level, grouping is the ID of the previously clicked serie
           "url" : function(dateFrom,dateTo,grouping) { 
             return "http://htsql.coauthors.net/htsql/region?date>='"+dateFrom+"'&date<='"+dateTo+"'/:json";
            },
@@ -64,6 +72,9 @@
           "onClick" : +1          //go to next level on click
         },
         {
+          // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
+          // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
+          // grouping: on an upper level, grouping is the ID of the previously clicked serie
           "url"  : function(dateFrom,dateTo,grouping) { 
             return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&country='hungary'/:json";
           },
@@ -87,11 +98,12 @@
       "title" : "Industrial growth (countries of the selected region)",
       "description" : "Suspendisse non elit justo. Pellentesque eget tellus a eros vestibulum dignissim.",
 
-      "dateFormat" : d3.time.format("%Y-%m-%d"), // see https://github.com/mbostock/d3/wiki/Time-Formatting
-
       // the ajax queries 
       "queries" : [
         {
+          // dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
+          // dateTo: end of the time interval (formatted based on the "dateFormat" settings)
+          // grouping: on an upper level, grouping is the ID of the previously clicked serie
           "url"  : function(dateFrom,dateTo,grouping) { 
             return "http://htsql.coauthors.net/htsql/growth?date>='"+dateFrom+"'&date<='"+dateTo+"'&region='"+grouping+"'/:json";
           },
@@ -106,12 +118,4 @@
       ]
     }
   ] //end of levels
-}
-
-// dateFrom: beginnig of the time interval (formatted based on the "dateFormat" settings)
-// dateTo: end of the time interval (formatted based on the "dateFormat" settings)
-// grouping: on an upper level, grouping is the ID of the previously clicked serie
-
-//return "datatransmitter/datatransmitter0.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-//return "datatransmitter/datatransmitter1.php?dateFrom="+dateFrom+"&dateTo="+dateTo;
-  
+}  

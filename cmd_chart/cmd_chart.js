@@ -2,7 +2,6 @@
 function cmd_chart(selection, metaData ) {
 
   var chartDescription = selection.select(".chartDescription");
-  //var buttonContainer = selection.select(".chartButtons");
  
   selection.select(".chartContainer").each(function() { 
 
@@ -12,7 +11,7 @@ function cmd_chart(selection, metaData ) {
     var margin = 40;
     
     var currentLevel = 0;
-    var settings = metaData.levels[0]; 
+    var currentLevel = metaData.levels[0]; 
   
     var totalWidth  = $(this).width() ; 
     var totalHeight = $(this).height() ;
@@ -20,17 +19,17 @@ function cmd_chart(selection, metaData ) {
     var width  = totalWidth - 2*margin; 
     var height = totalHeight - 2*margin;
 
-    var timeFrom = settings.dateFormat.parse(metaData.dateFrom).getTime();
-    var timeTo =   settings.dateFormat.parse(metaData.dateTo).getTime();
-    var valueFrom = metaData.valueFrom;
-    var valueTo =   metaData.valueTo;
+    var timeFrom = metaData.dateFormat.parse(metaData.dateFrom).getTime();
+    var timeTo   = metaData.dateFormat.parse(metaData.dateTo).getTime();
+    var timeMin = metaData.dateFormat.parse(metaData.dateMin).getTime();
+    var timeMax = metaData.dateFormat.parse(metaData.dateMax).getTime();
     
     var scalesTime = d3.time.scale()
       .range([0,width])
       .domain([timeFrom,timeTo]);
     var scalesValue = d3.scale.linear()
       .range([height,0])
-      .domain([valueFrom,valueTo]);
+      .domain([metaData.valueMin,metaData.valueMax]);
  
     var xAxis = d3.svg.axis()
       .scale(scalesTime)
@@ -50,7 +49,7 @@ function cmd_chart(selection, metaData ) {
       
       function queryAndDraw(query) {
         
-        var url = query.url(dateFrom, dateTo, settings.grouping);
+        var url = query.url(dateFrom, dateTo, currentLevel.grouping);
        
         console.log ("AJAX Query: "+url);
         d3.json(url, function(data) {
@@ -66,7 +65,7 @@ function cmd_chart(selection, metaData ) {
   
             }
               
-            var date = settings.dateFormat.parse( table[i][query.dateKey] ).getTime();
+            var date = metaData.dateFormat.parse( table[i][query.dateKey] ).getTime();
             var value = table[i][query.valueKey];
             
             var foundExisting = false;
@@ -101,7 +100,7 @@ function cmd_chart(selection, metaData ) {
                   
                   var nearest = getNearestData(series[ss], currentDate);
                   if (nearest) {
-                    var dateFormatted = settings.dateFormat(new Date(nearest.date));  
+                    var dateFormatted = metaData.dateFormat(new Date(nearest.date));  
                     var px = scalesTime(nearest.date);
                     var py = scalesValue(nearest.value);
                     
@@ -128,7 +127,7 @@ function cmd_chart(selection, metaData ) {
                 series[ss].path.on("click", function() {
               
                   if (query.onClick < 0)
-                    loadDataAndRedraw(false,null,settings.grouping);
+                    loadDataAndRedraw(false,null,currentLevel.grouping);
                   else if (query.onClick > 0){
                     series[ss].path.classed("clicked", true);
                     console.log ("Clicked serie: "+ss);
@@ -174,25 +173,34 @@ function cmd_chart(selection, metaData ) {
       
       if (levelUpFromSerie) {
         currentLevel ++;
-        settings = metaData.levels[currentLevel]; 
-        settings.grouping = levelUpFromSerie;
+        currentLevel = metaData.levels[currentLevel]; 
+        currentLevel.grouping = levelUpFromSerie;
       }
       else if (levelDownToSerie) {
         currentLevel --;
-        settings = metaData.levels[currentLevel]; 
+        currentLevel = metaData.levels[currentLevel]; 
       }  
          
       var timeDomain = scalesTime.domain();
-      var dateFrom = settings.dateFormat(new Date(timeDomain[0]));
-      var dateTo =   settings.dateFormat(new Date(timeDomain[1]));
+      var dateFrom = metaData.dateFormat(new Date(timeDomain[0]));
+      var dateTo =   metaData.dateFormat(new Date(timeDomain[1]));
       
-      var numOfQueriesToPerform = settings.queries.length;
-      for (q=0; q<settings.queries.length; q++) {
-        queryAndDraw(settings.queries[q], dateFrom, dateTo );
+      var numOfQueriesToPerform = currentLevel.queries.length;
+      for (q=0; q<currentLevel.queries.length; q++) {
+        queryAndDraw(currentLevel.queries[q], dateFrom, dateTo );
       }
     }
     
     function redraw(instant) {
+    
+      var timeDomain = scalesTime.domain();
+      if (timeDomain[0] < timeMin)
+          timeDomain[0] = timeMin;
+      if (timeDomain[1] > timeMax)
+          timeDomain[1] = timeMax;
+      
+      console.log(d3.event.scale);
+      console.log(d3.event.translate);
 
       if (instant) 
       {
@@ -223,8 +231,8 @@ function cmd_chart(selection, metaData ) {
       }
         
       for (si = 0; si < metaData.shadedIntervals.length; si++) {
-        var timeFrom = settings.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
-        var timeTo =   settings.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
+        var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
+        var timeTo =   metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
         svgShadedIntervals[si]
         .attr("x",  (scalesTime(timeFrom) + margin) + "px")
         .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
@@ -238,8 +246,8 @@ function cmd_chart(selection, metaData ) {
         svgXaxis.transition().duration(speed).call(xAxis);
         svgYaxis.transition().duration(speed).call(yAxis);
         
-        svgTitle.text(settings.title);
-        chartDescription.text(settings.description);
+        svgTitle.text(currentLevel.title);
+        chartDescription.text(currentLevel.description);
       }
     }
     
@@ -370,12 +378,6 @@ function cmd_chart(selection, metaData ) {
       .attr("class", "yaxis axis")
       .attr("transform", "translate("+(width + margin)+","+ margin +")");
   
-    var svgInfoMark = svg.append("circle")
-        .classed("infoMark",true)
-        .attr("r", 4)
-        .style("display","none" );
-     // .text("");
-
     var clipRect = svg.append("svg:clipPath")
         .attr("id", "clipRect")
         .append("svg:rect")
@@ -396,7 +398,12 @@ function cmd_chart(selection, metaData ) {
         .attr("y", margin + "px")
         .attr("height", height + "px");
     }
-          
+
+    var svgInfoMark = clippedArea.append("circle")
+        .classed("infoMark",true)
+        .attr("r", 4)
+        .style("display","none" );
+               
     ///////////////////////////
    
     xAxis.scale(scalesTime)
