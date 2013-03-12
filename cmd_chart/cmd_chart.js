@@ -430,8 +430,8 @@ function cmd_chart(selection, metaData ) {
         .append("svg:rect")
         .attr("width", width + "px")
         .attr("height", height + "px")
-        .attr("x", margin + "px")
-        .attr("y", margin + "px");
+        .attr("x", "0px")
+        .attr("y", "0px");
         
     var clippedArea = svg.append("g")
         .attr("transform", "translate("+margin+","+margin+")")
