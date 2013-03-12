@@ -276,8 +276,8 @@ function cmd_chart(selection, metaData ) {
               }
             }  
             if (pos>=0) {
-              var f = (currentTime - series[s][pos]) / (series[s][pos+1] - series[s][pos]);
-              var v = series[s][pos] * (1-f) + series[s][pos+1] * f;
+              var f = (currentTime - series[s][pos].date) / (series[s][pos+1].date - series[s][pos].date);
+              var v = series[s][pos].value * (1-f) + series[s][pos+1].value * f;
               
               var currentDistance = Math.abs(v - currentValue);
               if (currentDistance < lowestDistance ) {
