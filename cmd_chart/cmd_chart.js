@@ -19,14 +19,12 @@ function cmd_chart(selection, metaData ) {
     var width  = totalWidth - 2*margin; 
     var height = totalHeight - 2*margin;
 
-    var timeFrom = metaData.dateFormat.parse(metaData.dateFrom).getTime();
-    var timeTo   = metaData.dateFormat.parse(metaData.dateTo).getTime();
     var timeMin = metaData.dateFormat.parse(metaData.dateMin).getTime();
     var timeMax = metaData.dateFormat.parse(metaData.dateMax).getTime();
     
     var scalesTime = d3.time.scale()
       .range([0,width])
-      .domain([timeFrom,timeTo]);
+      .domain([metaData.dateFormat.parse(metaData.dateFrom).getTime(),metaData.dateFormat.parse(metaData.dateTo).getTime()]);
     var scalesValue = d3.scale.linear()
       .range([height,0])
       .domain([metaData.valueMin,metaData.valueMax]);
@@ -218,15 +216,15 @@ function cmd_chart(selection, metaData ) {
               .duration(speed)
               .attr("d", line(series[s]))
               .style("stroke", series[s].color );
-          else if (series[s].level < currentLevel)
+          else if (series[s].level < currentLevelIndex)
             series[s].path.transition()
               .duration(speed)
               .attr("d", line(series[s]))
               .style("stroke", d3.rgb(240,240,240).toString());   
-          else if (series[s].level > currentLevel) {
+          else if (series[s].level > currentLevelIndex) {
             series[s].path.transition()
               .duration(speed)
-              .attr("d", line(series[metaData.levels[currentLevel+1].grouping]))
+              .attr("d", line(series[metaData.levels[currentLevelIndex+1].grouping]))
               .remove();
               
             delete series[s];
@@ -342,7 +340,11 @@ function cmd_chart(selection, metaData ) {
     var line = d3.svg.line()
       .x(function(dataRecord) { return margin + scalesTime(dataRecord["date"]); })
       .y(function(dataRecord) { return margin + scalesValue(dataRecord["value"]);})
-      .defined(function(dataRecord) { return dataRecord["date"] >= timeFrom && dataRecord["date"] <= timeTo;});
+      .defined(function(dataRecord) { 
+          var domain = scalesTime.domain(); 
+          return dataRecord["date"] >= domain[0] 
+               && dataRecord["date"] <= domain[1];
+       });
 
        
     ////////////////
