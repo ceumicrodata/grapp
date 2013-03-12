@@ -434,7 +434,7 @@ function cmd_chart(selection, metaData ) {
         .attr("y", margin + "px");
         
     var clippedArea = svg.append("g")
-        .attr("transform", "translate("+margin+","+margin+")");
+        .attr("transform", "translate("+margin+","+margin+")")
         .attr("clip-path", "url(#clipRect)");
         
            
