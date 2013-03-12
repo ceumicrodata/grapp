@@ -10,8 +10,8 @@ function cmd_chart(selection, metaData ) {
     var speed = 500;
     var margin = 40;
     
-    var currentLevel = 0;
-    var currentLevel = metaData.levels[0]; 
+    var currentLevelIndex = 0;
+    var currentLevel = metaData.levels[currentLevelIndex]; 
   
     var totalWidth  = $(this).width() ; 
     var totalHeight = $(this).height() ;
@@ -60,7 +60,7 @@ function cmd_chart(selection, metaData ) {
             var key = table[i][query.serieKey];
             if (!series[key]) {
               series[key] = new Array();
-              series[key].level = currentLevel;
+              series[key].level = currentLevelIndex;
               console.log ("Serie added:"+key);
   
             }
@@ -147,7 +147,7 @@ function cmd_chart(selection, metaData ) {
               series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
                                   .classed( series[s].styleName, true )
-                                  .style("stroke", d3.rgb(255,255,255).toString());
+                                  .style("stroke", levelUpFromSerie ? series[s].color : d3.rgb(255,255,255).toString());
                     
               bindEvents (s);
               
@@ -172,13 +172,13 @@ function cmd_chart(selection, metaData ) {
       zoomTimer = false;
       
       if (levelUpFromSerie) {
-        currentLevel ++;
-        currentLevel = metaData.levels[currentLevel]; 
+        currentLevelIndex ++;
+        currentLevel = metaData.levels[currentLevelIndex]; 
         currentLevel.grouping = levelUpFromSerie;
       }
       else if (levelDownToSerie) {
-        currentLevel --;
-        currentLevel = metaData.levels[currentLevel]; 
+        currentLevelIndex --;
+        currentLevel = metaData.levels[currentLevelIndex]; 
       }  
          
       var timeDomain = scalesTime.domain();
@@ -206,9 +206,6 @@ function cmd_chart(selection, metaData ) {
       if (restricted)
         scalesTime.domain(timeDomain);
       
-      //console.log(d3.event.scale);
-      //console.log(d3.event.translate);
-
       if (instant) 
       {
         for ( s in series ) 
@@ -216,7 +213,7 @@ function cmd_chart(selection, metaData ) {
       }
       else {
         for ( s in series ) {
-          if (series[s].level == currentLevel)
+          if (series[s].level == currentLevelIndex)
             series[s].path.classed("clicked", false).transition()
               .duration(speed)
               .attr("d", line(series[s]))
@@ -344,7 +341,8 @@ function cmd_chart(selection, metaData ) {
     
     var line = d3.svg.line()
       .x(function(dataRecord) { return margin + scalesTime(dataRecord["date"]); })
-      .y(function(dataRecord) { return margin + scalesValue(dataRecord["value"]);});  
+      .y(function(dataRecord) { return margin + scalesValue(dataRecord["value"]);})
+      .defined(function(dataRecord) { return dataRecord["date"] >= timeFrom && dataRecord["date"] <= timeTo;});
 
        
     ////////////////
