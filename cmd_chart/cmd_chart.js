@@ -168,7 +168,6 @@ function cmd_chart(selection, metaData, appSettings ) {
               clearTimeout(zoomTimer);
             zoomTimer = null;
             
-            onMouseMove();
           }
   
         });
