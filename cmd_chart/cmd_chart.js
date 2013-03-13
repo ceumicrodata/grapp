@@ -56,7 +56,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             if (!series[key]) {
               series[key] = new Array();
               series[key].level = currentLevelIndex;
-              series[key].onclick = query.onclick;
+              series[key].onClick = query.onClick;
               console.log ("Serie added:"+key);
   
             }
@@ -92,7 +92,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[ss].path.on("mousemove", function() {
                 onMouseMove();
               });
-              series[ss].path.on("mousemove", function() {
+              series[ss].path.on("click", function() {
                 onClick();
               });
               /*series[ss].path.on("mousemove", function() {
@@ -300,10 +300,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       if (zoomTimer !== null)
         return;
       var nearestSerie = getNearestSerie();
-      if (nearestSerie) {
-         for ( s in series ) 
-            series[s].path.classed("mouseover", (s==nearestSerie));
-      } 
+      for ( s in series ) 
+        series[s].path.classed("mouseover", (s==nearestSerie));
     }
     function onClick() {
       var nearestSerie = getNearestSerie();
