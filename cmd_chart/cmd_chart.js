@@ -95,6 +95,9 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[ss].path.on("click", function() {
                 onClick();
               });
+              series[ss].path.on("mouseout", function() {
+                onMouseOut();
+              });
               /*series[ss].path.on("mousemove", function() {
                   
                   var coords = d3.mouse(clippedArea.node());
@@ -259,11 +262,15 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
     }
     
+    //////////////////////////////////
+    //
+    // Event handling
+    //
+    //////////////////////////////////
     
     function getNearestSerie() {
       var coords = d3.mouse(clippedArea.node());
-      if (coords[0] < 0 || coords[0] > width
-       || coords[1] < 0 || coords[1] > height)
+      if (coords[0] < 0 || coords[0] > width || coords[1] < 0 || coords[1] > height)
         return false;
       
       var currentTime  = scalesTime.invert(coords[0]);
@@ -315,6 +322,13 @@ function cmd_chart(selection, metaData, appSettings ) {
         }
       } 
     } 
+    function onMouseOut() {
+      var coords = d3.mouse(clippedArea.node());
+      if (coords[0] < 0 || coords[0] >= width || coords[1] < 0 || coords[1] >= height) 
+        for ( s in series ) 
+          series[s].path.classed("mouseover", false);   
+    }
+    
     ///////////////////////////////
     //
     // TIMER FOR ZOOMING
@@ -418,7 +432,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       .attr("y", appSettings.margin + "px")
       .on("mousemove", function() { onMouseMove(); } )
       .on("click", function() { onClick(); } )
-      
+      .on("mouseout", function() { onMouseOut(); } );
+     
               
     var svgInfoText = svg.append("text")
         .classed("infoText",true)
