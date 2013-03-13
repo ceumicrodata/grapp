@@ -65,7 +65,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             var value = table[i][query.valueKey];
             
             var foundExisting = false;
-            for (d in series[key]) 
+            for (var d = 0; d < series[key].length; d++) 
               if (series[key][d].date == date) {
                 series[key][d].value = value;
                 foundExisting = true;
