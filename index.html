@@ -44,7 +44,11 @@
 
   d3.text("chart1_metadata.json", function(metaDataText) {
      eval("var metaDataObj = "+ metaDataText +";"); //cannot use JSON.parse here... object has functions, too
-     d3.select("#chart1").call(cmd_chart, metaDataObj);
+     d3.select("#chart1").call(cmd_chart, metaDataObj, {
+          "transitionSpeed"   : 500,  //in msec
+          "lineSenitiveWidth" : 10,   //in pixels,
+          "margin"            : 40   //chart margin for axes - in pixels
+     });
   });
 
 </script>

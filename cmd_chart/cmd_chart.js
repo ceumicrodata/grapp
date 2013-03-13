@@ -1,5 +1,5 @@
   
-function cmd_chart(selection, metaData ) {
+function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
  
@@ -7,17 +7,14 @@ function cmd_chart(selection, metaData ) {
 
     var series = new Object();
 
-    var speed = 500;
-    var margin = 40;
-    
     var currentLevelIndex = 0;
     var currentLevel = metaData.levels[currentLevelIndex]; 
   
     var totalWidth  = $(this).width() ; 
     var totalHeight = $(this).height() ;
 
-    var width  = totalWidth - 2*margin; 
-    var height = totalHeight - 2*margin;
+    var width  = totalWidth - 2*appSettings.margin; 
+    var height = totalHeight - 2*appSettings.margin;
 
     var timeMin = metaData.dateFormat.parse(metaData.dateMin).getTime();
     var timeMax = metaData.dateFormat.parse(metaData.dateMax).getTime();
@@ -59,6 +56,7 @@ function cmd_chart(selection, metaData ) {
             if (!series[key]) {
               series[key] = new Array();
               series[key].level = currentLevelIndex;
+              series[key].onclick = query.onclick;
               console.log ("Serie added:"+key);
   
             }
@@ -94,6 +92,9 @@ function cmd_chart(selection, metaData ) {
               series[ss].path.on("mousemove", function() {
                 onMouseMove();
               });
+              series[ss].path.on("mousemove", function() {
+                onClick();
+              });
               /*series[ss].path.on("mousemove", function() {
                   
                   var coords = d3.mouse(clippedArea.node());
@@ -124,7 +125,7 @@ function cmd_chart(selection, metaData ) {
                     d3.select(this).classed("mouseover", false);
               });*/
               
-              if (query.onClick != 0)
+              /*if (query.onClick != 0)
                 series[ss].path.on("click", function() {
               
                   if (query.onClick < 0)
@@ -135,7 +136,7 @@ function cmd_chart(selection, metaData ) {
                     loadDataAndRedraw(false,ss);
                   }
                              
-              });
+              });*/
           } 
            
           for ( s in series ) {
@@ -163,6 +164,8 @@ function cmd_chart(selection, metaData ) {
             if (zoomTimer)
               clearTimeout(zoomTimer);
             zoomTimer = null;
+            
+            onMouseMove();
           }
   
         });
@@ -216,17 +219,17 @@ function cmd_chart(selection, metaData ) {
         for ( s in series ) {
           if (series[s].level == currentLevelIndex)
             series[s].path.classed("clicked", false).transition()
-              .duration(speed)
+              .duration(appSettings.transitionSpeed)
               .attr("d", line(series[s]))
               .style("stroke", series[s].color );
           else if (series[s].level < currentLevelIndex)
             series[s].path.transition()
-              .duration(speed)
+              .duration(appSettings.transitionSpeed)
               .attr("d", line(series[s]))
               .style("stroke", d3.rgb(240,240,240).toString());   
           else if (series[s].level > currentLevelIndex) {
             series[s].path.transition()
-              .duration(speed)
+              .duration(appSettings.transitionSpeed)
               .attr("d", line(series[metaData.levels[currentLevelIndex+1].grouping]))
               .remove();
               
@@ -248,22 +251,26 @@ function cmd_chart(selection, metaData ) {
         svgYaxis.call(yAxis);
       }
       else {      
-        svgXaxis.transition().duration(speed).call(xAxis);
-        svgYaxis.transition().duration(speed).call(yAxis);
+        svgXaxis.transition().duration(appSettings.transitionSpeed).call(xAxis);
+        svgYaxis.transition().duration(appSettings.transitionSpeed).call(yAxis);
         
         svgTitle.text(currentLevel.title);
         chartDescription.text(currentLevel.description);
       }
     }
     
-    function onMouseMove() {
-  
+    
+    function getNearestSerie() {
       var coords = d3.mouse(clippedArea.node());
+      if (coords[0] < 0 || coords[0] > width
+       || coords[1] < 0 || coords[1] > height)
+        return false;
+      
       var currentTime  = scalesTime.invert(coords[0]);
       var currentValue = scalesValue.invert(coords[1]);
     
-      var lowestDistance = (metaData.valueMax - metaData.valueMin) * 2;
-      var nearestSerie = null;
+      var lowestDistance = (metaData.valueMax - metaData.valueMin) * appSettings.lineSenitiveWidth / width ;
+      var nearestSerie = false;
        
       for ( s in series ) {
          if (series[s].level == currentLevelIndex) {
@@ -287,12 +294,29 @@ function cmd_chart(selection, metaData ) {
             }
          }
       }
-      
+      return nearestSerie;
+    }
+    function onMouseMove() {
+      if (zoomTimer !== null)
+        return;
+      var nearestSerie = getNearestSerie();
       if (nearestSerie) {
          for ( s in series ) 
             series[s].path.classed("mouseover", (s==nearestSerie));
       } 
     }
+    function onClick() {
+      var nearestSerie = getNearestSerie();
+      if (nearestSerie) {
+        if (series[nearestSerie].onClick < 0)
+          loadDataAndRedraw(false,null,currentLevel.grouping);
+        else if (series[nearestSerie].onClick > 0){
+          series[nearestSerie].path.classed("clicked", true);
+          console.log ("Clicked serie: "+nearestSerie);
+          loadDataAndRedraw(false,nearestSerie);
+        }
+      } 
+    } 
     ///////////////////////////////
     //
     // TIMER FOR ZOOMING
@@ -303,7 +327,6 @@ function cmd_chart(selection, metaData ) {
     var zoomTimeout = 300;
     
     function onZoomTimer() {
-      console.log("onZoomTimer");
       zoomTimer = null;
       loadDataAndRedraw(true);
     }
@@ -324,8 +347,8 @@ function cmd_chart(selection, metaData ) {
        
       var w = width;
       var h = height;
-      var x = margin;
-      var y = margin;
+      var x = appSettings.margin;
+      var y = appSettings.margin;
 
       parent.on("mouseover", function() {      
         var coords = d3.mouse(this);
@@ -393,24 +416,25 @@ function cmd_chart(selection, metaData ) {
       .attr("class", "chartBackground")
       .attr("width", width + "px")
       .attr("height", height + "px")
-      .attr("x", margin + "px")
-      .attr("y", margin + "px")
-      .on("mousemove", function() { onMouseMove(); } );
+      .attr("x", appSettings.margin + "px")
+      .attr("y", appSettings.margin + "px")
+      .on("mousemove", function() { onMouseMove(); } )
+      .on("click", function() { onClick(); } )
+      
               
     var svgInfoText = svg.append("text")
         .classed("infoText",true)
-        .attr("transform", "translate(" + (width + margin) + ",35)")
+        .attr("transform", "translate(" + (width + appSettings.margin) + ",35)")
         .style("text-anchor", "end");
  
       
     var svgTitle = svg.append("text")
-      .attr("transform", "translate(" + (margin) + ",25)")
+      .attr("transform", "translate(" + (appSettings.margin) + ",25)")
       .classed("chartTitle", true)
       .text("");
       
     svg.call(d3.behavior.zoom()
       .x(scalesTime)
-     // .y(scalesValue)
       .scaleExtent([0.25, 4])
       .on("zoom", function() { 
         redraw(true);
@@ -419,11 +443,11 @@ function cmd_chart(selection, metaData ) {
       
     var svgXaxis = svg.append("g")
       .attr("class", "xaxis axis")
-      .attr("transform", "translate("+margin+"," + margin + ")");
+      .attr("transform", "translate("+appSettings.margin+"," + appSettings.margin + ")");
 
     var svgYaxis = svg.append("g")
       .attr("class", "yaxis axis")
-      .attr("transform", "translate("+(width + margin)+","+ margin +")");
+      .attr("transform", "translate("+(width + appSettings.margin)+","+ appSettings.margin +")");
   
     var clipRect = svg.append("svg:clipPath")
         .attr("id", "clipRect")
@@ -434,7 +458,7 @@ function cmd_chart(selection, metaData ) {
         .attr("y", "0px");
         
     var clippedArea = svg.append("g")
-        .attr("transform", "translate("+margin+","+margin+")")
+        .attr("transform", "translate("+appSettings.margin+","+appSettings.margin+")")
         .attr("clip-path", "url(#clipRect)");
         
            
