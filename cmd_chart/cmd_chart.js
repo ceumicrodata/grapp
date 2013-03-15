@@ -267,7 +267,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     //
     //////////////////////////////////
     
-    function getNearestSerie() {
+    function getNearestSerie(tooltipInfo) {
       var coords = d3.mouse(clippedArea.node());
       if (coords[0] < 0 || coords[0] > width || coords[1] < 0 || coords[1] > height)
         return false;
@@ -277,7 +277,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     
       var lowestDistance = (metaData.valueMax - metaData.valueMin) * appSettings.lineSenitiveWidth / width ;
       var nearestSerie = false;
-       
+         
       for ( s in series ) {
          if (series[s].level == currentLevelIndex) {
          
@@ -296,6 +296,11 @@ function cmd_chart(selection, metaData, appSettings ) {
               if (currentDistance < lowestDistance ) {
                 lowestDistance = currentDistance;
                 nearestSerie = s;
+                
+                if (tooltipInfo) {
+                  tooltipInfo.tooltipDate  = (f > 0.5) ? series[s][pos+1].date  : series[s][pos].date;
+                  tooltipInfo.tooltipValue = (f > 0.5) ? series[s][pos+1].value : series[s][pos].value;
+                }
               }
             }
          }
@@ -305,9 +310,30 @@ function cmd_chart(selection, metaData, appSettings ) {
     function onMouseMove() {
       if (zoomTimer !== null)
         return;
-      var nearestSerie = getNearestSerie();
+      var tooltipInfo = new Object();
+      var nearestSerie = getNearestSerie(tooltipInfo);
       for ( s in series ) 
         series[s].path.classed("mouseover", (s==nearestSerie));
+        
+      if (nearestSerie) {
+        
+        var px = scalesTime(tooltipInfo.tooltipDate);
+        var py = scalesValue(tooltipInfo.tooltipValue);
+        svgTooltipDot.style("display","block" )
+          .attr("cx", px +"px")
+          .attr("cy", py +"px")
+          .style("stroke", series[nearestSerie].color)
+          .style("fill", series[nearestSerie].color);
+          
+        svgTooltipText.text(ss+" ("+dateFormatted+": "+nearest.value+")")
+          .style("display","block" )
+          .attr("cx", px +"px")
+          .attr("cy", py +"px")
+      }
+      else {
+        svgTooltipDot.style("display","none" );
+        svgTooltipText.style("display","none" );
+      }
     }
     function onClick() {
       var nearestSerie = getNearestSerie();
@@ -350,54 +376,6 @@ function cmd_chart(selection, metaData, appSettings ) {
       zoomTimer = setTimeout(function(){ onZoomTimer(); },zoomTimeout);
     } 
         
-    //////////////////////////
-    
-    /*function initHairCross (parent) {
-      var verticalLine = null;
-      var horizontalLine = null;
-       
-      var w = width;
-      var h = height;
-      var x = appSettings.margin;
-      var y = appSettings.margin;
-
-      parent.on("mouseover", function() {      
-        var coords = d3.mouse(this);
-        horizontalLine = svg.append("line")
-          .attr("x1", x+0)
-          .attr("y1", y+coords[1])
-          .attr("x2", x+w)
-          .attr("y2", y+coords[1])
-          .classed("hairCross", true);
-        verticalLine = svg.append("line")
-          .attr("x1", x+coords[0])
-          .attr("y1", y+0)
-          .attr("x2", x+coords[0])
-          .attr("y2", y+h)
-          .classed("hairCross", true);             
-      });
-      parent.on("mouseout", function() {
-        svg.remove(horizontalLine);
-        svg.remove(verticalLine);
-        horizontalLine = null;
-        verticalLine = null;
-      });
-      parent.on("mousemove", function() {
-        if (verticalLine && horizontalLine) {
-          var coords = d3.mouse(this);
-          horizontalLine 
-          .attr("x1", x+0)
-          .attr("y1", y+coords[1])
-          .attr("x2", x+w)
-          .attr("y2", y+coords[1]);
-          verticalLine 
-          .attr("x1", x+coords[0])
-          .attr("y1", y+0)
-          .attr("x2", x+coords[0])
-          .attr("y2", y+h);    
-        }
-      });
-    }  */
             
     ///////////////////////////////
     //
@@ -432,14 +410,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .on("mousemove", function() { onMouseMove(); } )
       .on("click", function() { onClick(); } )
       .on("mouseout", function() { onMouseOut(); } );
-     
-              
-    var svgInfoText = svg.append("text")
-        .classed("infoText",true)
-        .attr("transform", "translate(" + (width + appSettings.margin) + ",35)")
-        .style("text-anchor", "end");
- 
-      
+                 
     var svgTitle = svg.append("text")
       .attr("transform", "translate(" + (appSettings.margin) + ",25)")
       .classed("chartTitle", true)
@@ -484,10 +455,15 @@ function cmd_chart(selection, metaData, appSettings ) {
         .on("mousemove", function() { onMouseMove(); } );
     }
 
-    var svgInfoMark = clippedArea.append("circle")
-        .classed("infoMark",true)
+    var svgTooltipDot = clippedArea.append("circle")
+        .classed("tooltipDot",true)
         .attr("r", 4)
         .style("display","none" );
+        
+
+    var svgTooltipText = svg.append("text")
+        .classed("tooltipText",true)
+        .style("text-anchor", "end");
                
     ///////////////////////////
    
