@@ -406,7 +406,7 @@ function cmd_chart(selection, metaData, appSettings ) {
         .style("display","none" );
         
 
-    var svgTooltipText = svg.append("text")
+    var svgTooltipText = clippedArea.append("text")
         .classed("tooltipText",true)
         .style("text-anchor", "end");
                
