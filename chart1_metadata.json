@@ -28,15 +28,22 @@
     "tickFormat": d3.format("g") 
   }, 
   
+  //tooltip
+  "tooltipText" : function(serieName, time, value) 
+      { return "<b>" + serieName + "</b><br>" + d3.time.format("%Y-%m-%d")(time)+ "<br>" + value; },
+    
+  //shaded intervals
   "shadedIntervals" : [
     {
       "label" :    "shade1" ,     // label of the area
+      "tooltip" :  "shade1" ,     // tooltip of the area
       "dateFrom" : "2010-01-01" , // formatted based on the "dateFormat" settings
       "dateTo" :   "2010-05-01" , // formatted based on the "dateFormat" settings
       "color" :    "#dddddd"      // color of the area
     },
     {
       "label" :    "shade2" ,     // label of the area
+      "tooltip" :  "shade2" ,     // tooltip of the area
       "dateFrom" : "2011-01-01" , // formatted based on the "dateFormat" settings
       "dateTo" :   "2011-05-01" , // formatted based on the "dateFormat" settings
       "color" :    "#dddddd"      // color of the area
