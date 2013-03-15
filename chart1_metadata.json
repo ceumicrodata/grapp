@@ -30,8 +30,8 @@
   
   //tooltip
   "tooltipText" : function(serieName, tooltipTime, tooltipValue) 
-      { return "<tspan x=0>" + serieName + "</tspan>" 
-               "<tspan x=0 dy=12>" + d3.time.format("%Y-%m-%d")(new Date(tooltipTime))+ "</tspan>" 
+      { return "<tspan x=0>" + serieName + "</tspan>" +
+               "<tspan x=0 dy=12>" + d3.time.format("%Y-%m-%d")(new Date(tooltipTime))+ "</tspan>" +
                "<tspan x=0 dy=12>" + tooltipValue + "</tspan>" ; },
 
   //shaded intervals
