@@ -325,7 +325,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           .style("stroke", series[nearestSerie].color)
           .style("fill", series[nearestSerie].color);
           
-        svgTooltipText.text(ss+" ("+dateFormatted+": "+nearest.value+")")
+        svgTooltipText.text(metadata.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue))
           .style("display","block" )
           .attr("cx", px +"px")
           .attr("cy", py +"px")
