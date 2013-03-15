@@ -30,11 +30,11 @@
   
   //tooltip
   "tooltipText" : function(serieName, tooltipTime, tooltipValue) 
-      { return "<b>" + serieName + "</b><br>" 
-                     + d3.time.format("%Y-%m-%d")(new Date(tooltipTime))+ "<br>" 
-                     + tooltipValue; },
-    
-  //shaded intervals
+      { return "<tspan x=0>" + serieName + "</tspan>" 
+               "<tspan x=0 dy=12>" + d3.time.format("%Y-%m-%d")(new Date(tooltipTime))+ "</tspan>" 
+               "<tspan x=0 dy=12>" + tooltipValue + "</tspan>" ;
+
+//shaded intervals
   "shadedIntervals" : [
     {
       "label" :    "shade1" ,     // label of the area
