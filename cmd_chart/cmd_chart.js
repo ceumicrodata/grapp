@@ -272,10 +272,11 @@ function cmd_chart(selection, metaData, appSettings ) {
           
         svgTooltipText.text(metaData.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue))
           .style("display","block" )
-          .attr("x", px +"px")
-          .attr("y", py +"px");
+          .attr("x", margin + px +"px")
+          .attr("y", margin + py +"px")
+          .style("text-anchor", px > width/2 ? "end" : "start");
+
           
-          svgTitle.text(metaData.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue));
       }
       else {
         svgTooltipDot.style("display","none" );
@@ -408,9 +409,8 @@ function cmd_chart(selection, metaData, appSettings ) {
         .style("display","none" );
         
 
-    var svgTooltipText = clippedArea.append("text")
-        .classed("tooltipText",true)
-        .style("text-anchor", "end");
+    var svgTooltipText = svg.append("text")
+        .classed("tooltipText",true);
                
     ///////////////////////////
    
