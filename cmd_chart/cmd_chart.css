@@ -40,14 +40,21 @@ path {
     stroke-width: 1px;
     shape-rendering: crispEdges; 
 }
-
-.infoText {
+.tooltipRect {
+    fill: #ffffff; 
+    stroke: #818181;
+}
+.tooltipText {
     font-size: 9pt;
     fill: #818181;
 }
+
+
+
 .infoMark {
   
 }
+
 .regionLine {
  
 }
