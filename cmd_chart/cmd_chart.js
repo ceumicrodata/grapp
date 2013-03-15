@@ -272,8 +272,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           
         svgTooltipText.text(metaData.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue))
           .style("display","block" )
-          .attr("x", margin + px +"px")
-          .attr("y", margin + py +"px")
+          .attr("x", px +"px")
+          .attr("y", py +"px")
           .style("text-anchor", px > width/2 ? "end" : "start");
 
           
@@ -409,7 +409,7 @@ function cmd_chart(selection, metaData, appSettings ) {
         .style("display","none" );
         
 
-    var svgTooltipText = svg.append("text")
+    var svgTooltipText = clippedArea.append("text")
         .classed("tooltipText",true);
                
     ///////////////////////////
