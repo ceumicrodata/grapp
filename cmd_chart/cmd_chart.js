@@ -74,20 +74,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             if (!foundExisting)
               series[key].push( { "date" : date, "value": value } );
           }
-          
-          /*function getNearestData(serie, currentDate) {
-            var minDist = 1000 * 60 * 60 * 24 * 365;
-            var re = null;
-            for (i = 0; i < serie.length; i++ ) {
-              var dist = Math.abs(serie[i].date - currentDate);
-              if (dist < minDist) {
-                re = serie[i];
-                minDist = dist;
-              }
-            }
-            return re;
-          }*/
-           
+                   
           function bindEvents(ss) {
               series[ss].path.on("mousemove", function() {
                 onMouseMove();
@@ -98,48 +85,6 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[ss].path.on("mouseout", function() {
                 onMouseOut();
               });
-              /*series[ss].path.on("mousemove", function() {
-                  
-                  var coords = d3.mouse(clippedArea.node());
-                  var currentDate = scalesTime.invert(coords[0]);
-                  
-                  var nearest = getNearestData(series[ss], currentDate);
-                  if (nearest) {
-                    var dateFormatted = metaData.dateFormat(new Date(nearest.date));  
-                    var px = scalesTime(nearest.date);
-                    var py = scalesValue(nearest.value);
-                    
-                    svgInfoText.text(ss+" ("+dateFormatted+": "+nearest.value+")");
-                    svgInfoMark
-                      .style("display","block" )
-                      .attr("cx", px +"px")
-                      .attr("cy", py +"px")
-                      .style("stroke", series[ss].color)
-                      .style("fill", series[ss].color);
-                  }
-                    
- 
-                  if (query.onClick != 0)
-                    d3.select(this).classed("mouseover", true);
-              }).on("mouseout", function() {
-                  svgInfoText.text("");
-                  svgInfoMark.style("display","none" );
-                  if (query.onClick != 0)
-                    d3.select(this).classed("mouseover", false);
-              });*/
-              
-              /*if (query.onClick != 0)
-                series[ss].path.on("click", function() {
-              
-                  if (query.onClick < 0)
-                    loadDataAndRedraw(false,null,currentLevel.grouping);
-                  else if (query.onClick > 0){
-                    series[ss].path.classed("clicked", true);
-                    console.log ("Clicked serie: "+ss);
-                    loadDataAndRedraw(false,ss);
-                  }
-                             
-              });*/
           } 
            
           for ( s in series ) {
@@ -325,7 +270,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           .style("stroke", series[nearestSerie].color)
           .style("fill", series[nearestSerie].color);
           
-        svgTooltipText.text(metadata.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue))
+        svgTooltipText.text(metaData.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue))
           .style("display","block" )
           .attr("cx", px +"px")
           .attr("cy", py +"px")
