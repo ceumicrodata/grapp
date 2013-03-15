@@ -29,8 +29,10 @@
   }, 
   
   //tooltip
-  "tooltipText" : function(serieName, time, value) 
-      { return "<b>" + serieName + "</b><br>" + d3.time.format("%Y-%m-%d")(time)+ "<br>" + value; },
+  "tooltipText" : function(serieName, tooltipTime, tooltipValue) 
+      { return "<b>" + serieName + "</b><br>" 
+                     + d3.time.format("%Y-%m-%d")(new Date(tooltipTime))+ "<br>" 
+                     + tooltipValue; },
     
   //shaded intervals
   "shadedIntervals" : [
