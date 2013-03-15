@@ -273,7 +273,9 @@ function cmd_chart(selection, metaData, appSettings ) {
         svgTooltipText.text(metaData.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue))
           .style("display","block" )
           .attr("cx", px +"px")
-          .attr("cy", py +"px")
+          .attr("cy", py +"px");
+          
+          svgTitle.text(metaData.tooltipText(nearestSerie,tooltipInfo.tooltipDate,tooltipInfo.tooltipValue));
       }
       else {
         svgTooltipDot.style("display","none" );
