@@ -14,7 +14,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
       var state = History.getState(); // Note: We are using History.getState() instead of event.state
       console.log("History state changed: "+ state.title);
-      loadDataAndRedraw(false, state.levelIndex);
+      loadDataAndRedraw(false, state.data.levelIndex);
     });
 
     /////////////////////////////////////
