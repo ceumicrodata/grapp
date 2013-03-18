@@ -320,7 +320,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             series[nearestSerie].path.classed("clicked", true);
             metaData.levels[nextLevelIndex].grouping = nearestSerie;
             console.log ("Clicked serie: "+nearestSerie);
-            goToLevel(previousLevelIndex);
+            goToLevel(nextLevelIndex);
           }
           else
             console.log ("Error: Cannot access level: "+nextLevelIndex);
