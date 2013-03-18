@@ -297,16 +297,20 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
     }
     function onClick() {
+    
+      function goToLevel(level) {
+        if (isHistoryEnabled)
+          History.pushState( {"levelIndex" : level} , "Level: "+level , "?level="+level ); 
+        else
+          loadDataAndRedraw(false,level);
+      }
+      
       var nearestSerie = getNearestSerie();
       if (nearestSerie) {
         if (series[nearestSerie].onClick < 0) {
           var previousLevelIndex = currentLevelIndex-1;
-          if (previousLevelIndex >= 0) {
-            if (isHistoryEnabled)
-              History.pushState( {"levelindex" : previousLevelIndex} , "Level: "+previousLevelIndex , "?level="+previousLevelIndex ); 
-            else
-              loadDataAndRedraw(false,previousLevelIndex);
-          }
+          if (previousLevelIndex >= 0) 
+            goToLevel(previousLevelIndex);
           else
             console.log ("Error: Cannot access level: "+previousLevelIndex);          
         }  
@@ -316,10 +320,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             series[nearestSerie].path.classed("clicked", true);
             metaData.levels[nextLevelIndex].grouping = nearestSerie;
             console.log ("Clicked serie: "+nearestSerie);
-            if (isHistoryEnabled)
-              History.pushState( {"levelindex" : nextLevelIndex} , "Level: "+nextLevelIndex , "?level="+nextLevelIndex ); 
-            else
-              loadDataAndRedraw(false,nextLevelIndex);
+            goToLevel(previousLevelIndex);
           }
           else
             console.log ("Error: Cannot access level: "+nextLevelIndex);
