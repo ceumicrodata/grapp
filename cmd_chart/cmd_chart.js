@@ -14,7 +14,8 @@ function cmd_chart(selection, metaData, appSettings ) {
     History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
       var state = History.getState(); // Note: We are using History.getState() instead of event.state
       console.log("History state changed: "+ state.title);
-      loadDataAndRedraw(false, state.data.levelIndex);
+      
+      loadDataAndRedraw(false, state.data.levelIndex ? state.data.levelIndex : 0);
     });
 
     /////////////////////////////////////
@@ -137,12 +138,12 @@ function cmd_chart(selection, metaData, appSettings ) {
       zoomTimer = false;
            
       if (levelIndex != currentLevelIndex) {
-        if (levelIndex >= 0 && levelIndex < metaData.levels.length) {
-          currentLevelIndex = levelIndex;
-          currentLevel = metaData.levels[currentLevelIndex];     
-        } 
-        else 
+        if (levelIndex < 0 && levelIndex >= metaData.levels.length) {
           console.log("Invalid level: "+levelIndex);
+          levelIndex = 0;
+        }
+        currentLevelIndex = levelIndex;
+        currentLevel = metaData.levels[currentLevelIndex];             
       }
                   
       var timeDomain = scalesTime.domain();
