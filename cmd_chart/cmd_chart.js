@@ -442,7 +442,10 @@ function cmd_chart(selection, metaData, appSettings ) {
         
 
     var svgTooltipText = clippedArea.append("text")
-        .classed("tooltipText",true);
+        .classed("tooltipText",true)
+        .on("mousemove", function() { onMouseMove(); } )
+        .on("click", function() { onClick(); } )
+        .on("mouseout", function() { onMouseOut(); } );
                
     ///////////////////////////
    
