@@ -4,6 +4,22 @@ function cmd_chart(selection, metaData, appSettings ) {
   var chartDescription = selection.select(".chartDescription");
  
   selection.select(".chartContainer").each(function() { 
+  
+    // Prepare HIstory.js
+    var History = window.History; // Note: We are using a capital H instead of a lower h
+    var isHistoryEnabled = History.enabled;
+    if (!isHistoryEnabled) {
+      alert("Browser not supported.");
+      retrun false;
+    }
+    History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
+        var state = History.getState(); // Note: We are using History.getState() instead of event.state
+        History.log(State.data, State.title, State.url);
+    });
+
+    //Change our States
+    //History.pushState(1, "State 1", "?state=1"); // logs {state:1}, "State 1", "?state=1"
+    //History.pushState(2, "State 2", "?state=2"); // logs {state:2}, "State 2", "?state=2"
 
     var series = new Object();
 
@@ -40,7 +56,7 @@ function cmd_chart(selection, metaData, appSettings ) {
   
     ////////////////
 
-    function loadDataAndRedraw(instant, levelUpFromSerie, levelDownToSerie) { 
+    function loadDataAndRedraw(instant, levelIndex) { 
       
       function queryAndDraw(query) {
         
@@ -95,9 +111,9 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
 
               series[s].path = clippedArea.append("svg:path")
-                                  .attr("d", line(series[levelUpFromSerie ? levelUpFromSerie : s]))
+                                  .attr("d", line(series[currentLevel.grouping ? currentLevel.grouping : s]))
                                   .classed( series[s].styleName, true )
-                                  .style("stroke", levelUpFromSerie ? series[s].color : d3.rgb(255,255,255).toString());
+                                  .style("stroke", currentLevel.grouping ? series[s].color : d3.rgb(255,255,255).toString());
                     
               bindEvents (s);
               
@@ -118,20 +134,15 @@ function cmd_chart(selection, metaData, appSettings ) {
         });
       }
       
-      ///////////////////
+      ////////////////////////////////////////////////////////////////
       
       zoomTimer = false;
-      
-      if (levelUpFromSerie) {
-        currentLevelIndex ++;
+           
+      if (levelIndex != currentLevelIndex) {
+        currentLevelIndex = levelIndex;
         currentLevel = metaData.levels[currentLevelIndex]; 
-        currentLevel.grouping = levelUpFromSerie;
       }
-      else if (levelDownToSerie) {
-        currentLevelIndex --;
-        currentLevel = metaData.levels[currentLevelIndex]; 
-      }  
-         
+                  
       var timeDomain = scalesTime.domain();
       var dateFrom = metaData.dateFormat(new Date(timeDomain[0]));
       var dateTo =   metaData.dateFormat(new Date(timeDomain[1]));
@@ -287,11 +298,18 @@ function cmd_chart(selection, metaData, appSettings ) {
       var nearestSerie = getNearestSerie();
       if (nearestSerie) {
         if (series[nearestSerie].onClick < 0)
-          loadDataAndRedraw(false,null,currentLevel.grouping);
+          loadDataAndRedraw(false,currentLevelIndex-1);
         else if (series[nearestSerie].onClick > 0){
-          series[nearestSerie].path.classed("clicked", true);
-          console.log ("Clicked serie: "+nearestSerie);
-          loadDataAndRedraw(false,nearestSerie);
+          var nextLevelIndex = currentLevelIndex+1;
+          if (metaData.levels.length > nextLevelIndex) {
+            series[nearestSerie].path.classed("clicked", true);
+            metaData.levels[nextLevelIndex].grouping = nearestSerie;
+            console.log ("Clicked serie: "+nearestSerie);
+            loadDataAndRedraw(false, nextLevelIndex);
+          }
+          else
+            console.log ("Error: Cannot access level: "+nextLevelIndex);
+
         }
       } 
     } 
@@ -313,7 +331,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     
     function onZoomTimer() {
       zoomTimer = null;
-      loadDataAndRedraw(true);
+      loadDataAndRedraw(true, currentLevelIndex);
     }
     function zoomStart() {
       if (zoomTimer === false)
@@ -425,7 +443,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
     ///////////////////////////
 
-    loadDataAndRedraw(false);
+    loadDataAndRedraw(false, currentLevelIndex);
 
   });
     
