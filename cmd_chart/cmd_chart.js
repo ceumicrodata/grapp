@@ -15,7 +15,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       var state = History.getState(); // Note: We are using History.getState() instead of event.state
       console.log("History state changed: "+ state.title);
       
-      loadDataAndRedraw(false, state.data.levelIndex ? state.data.levelIndex : 0);
+      loadDataAndRedraw(false, state.data);
     });
 
     /////////////////////////////////////
@@ -55,7 +55,7 @@ function cmd_chart(selection, metaData, appSettings ) {
   
     ////////////////
 
-    function loadDataAndRedraw(instant, levelIndex) { 
+    function loadDataAndRedraw(instant, stateData) { 
       
       function queryAndDraw(query) {
         
@@ -136,6 +136,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       ////////////////////////////////////////////////////////////////
       
       zoomTimer = false;
+           
+      var levelIndex = stateData.levelIndex ? stateData.levelIndex : 0;
            
       if (levelIndex != currentLevelIndex) {
         if (levelIndex < 0 && levelIndex >= metaData.levels.length) {
@@ -297,21 +299,22 @@ function cmd_chart(selection, metaData, appSettings ) {
         svgTooltipText.style("display","none" );
       }
     }
-    function onClick() {
     
-      function goToLevel(level) {
-        if (isHistoryEnabled)
-          History.pushState( {"levelIndex" : level} , "Level: "+level , "?level="+level ); 
-        else
-          loadDataAndRedraw(false,level);
-      }
-      
+    function changeState(stateData) {
+      if (isHistoryEnabled)
+        History.pushState(  stateData , "Level: "+stateData.levelIndex , "?level="+stateData.levelIndex ); 
+      else
+        loadDataAndRedraw(false,stateData);
+    }
+    
+    function onClick() {
+
       var nearestSerie = getNearestSerie();
       if (nearestSerie) {
         if (series[nearestSerie].onClick < 0) {
           var previousLevelIndex = currentLevelIndex-1;
           if (previousLevelIndex >= 0) 
-            goToLevel(previousLevelIndex);
+            changeState ( {"levelIndex" : previousLevelIndex , "isZoom" : false} );
           else
             console.log ("Error: Cannot access level: "+previousLevelIndex);          
         }  
@@ -321,7 +324,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             series[nearestSerie].path.classed("clicked", true);
             metaData.levels[nextLevelIndex].grouping = nearestSerie;
             console.log ("Clicked serie: "+nearestSerie);
-            goToLevel(nextLevelIndex);
+            changeState ( {"levelIndex" : nextLevelIndex , "isZoom" : false} );
           }
           else
             console.log ("Error: Cannot access level: "+nextLevelIndex);
@@ -346,7 +349,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     
     function onZoomTimer() {
       zoomTimer = null;
-      loadDataAndRedraw(true, currentLevelIndex);
+      changeState ( {"levelIndex" : currentLevelIndex , "isZoom" : true} );
     }
     function zoomStart() {
       if (zoomTimer === false)
@@ -463,6 +466,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .tickSubdivide(metaData.valueAxis.subdivide);
 
     ///////////////////////////
+
 
     loadDataAndRedraw(false, currentLevelIndex);
 
