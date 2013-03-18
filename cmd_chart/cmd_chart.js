@@ -137,12 +137,12 @@ function cmd_chart(selection, metaData, appSettings ) {
       zoomTimer = false;
            
       if (levelIndex != currentLevelIndex) {
-        if (levelIndex >= 0 && levelIndex < metaData.levels.length-1) {
+        if (levelIndex >= 0 && levelIndex < metaData.levels.length) {
           currentLevelIndex = levelIndex;
           currentLevel = metaData.levels[currentLevelIndex];     
         } 
         else 
-          console.log("ivalid level: "+levelIndex);
+          console.log("Invalid level: "+levelIndex);
       }
                   
       var timeDomain = scalesTime.domain();
@@ -438,7 +438,10 @@ function cmd_chart(selection, metaData, appSettings ) {
     var svgTooltipDot = clippedArea.append("circle")
         .classed("tooltipDot",true)
         .attr("r", 4)
-        .style("display","none" );
+        .style("display","none" ) 
+        .on("mousemove", function() { onMouseMove(); } )
+        .on("click", function() { onClick(); } )
+        .on("mouseout", function() { onMouseOut(); } );
         
 
     var svgTooltipText = clippedArea.append("text")
