@@ -9,18 +9,16 @@ function cmd_chart(selection, metaData, appSettings ) {
     var History = window.History; // Note: We are using a capital H instead of a lower h
     var isHistoryEnabled = History.enabled;
     if (!isHistoryEnabled) {
-      alert("Browser not supported.");
-      return false;
+      console.log("Warning: History.js not supported!");
     }
     History.Adapter.bind(window,'statechange',function(){ // Note: We are using statechange instead of popstate
-        var state = History.getState(); // Note: We are using History.getState() instead of event.state
-        History.log(State.data, State.title, State.url);
+      var state = History.getState(); // Note: We are using History.getState() instead of event.state
+      console.log("History state changed: "+ state.title);
+      loadDataAndRedraw(false, state.levelIndex);
     });
 
-    //Change our States
-    //History.pushState(1, "State 1", "?state=1"); // logs {state:1}, "State 1", "?state=1"
-    //History.pushState(2, "State 2", "?state=2"); // logs {state:2}, "State 2", "?state=2"
-
+    /////////////////////////////////////
+    
     var series = new Object();
 
     var currentLevelIndex = 0;
@@ -139,8 +137,12 @@ function cmd_chart(selection, metaData, appSettings ) {
       zoomTimer = false;
            
       if (levelIndex != currentLevelIndex) {
-        currentLevelIndex = levelIndex;
-        currentLevel = metaData.levels[currentLevelIndex]; 
+        if (levelIndex >= 0 && levelIndex < metaData.levels.length-1) {
+          currentLevelIndex = levelIndex;
+          currentLevel = metaData.levels[currentLevelIndex];     
+        } 
+        else 
+          console.log("ivalid level: "+levelIndex);
       }
                   
       var timeDomain = scalesTime.domain();
@@ -297,19 +299,30 @@ function cmd_chart(selection, metaData, appSettings ) {
     function onClick() {
       var nearestSerie = getNearestSerie();
       if (nearestSerie) {
-        if (series[nearestSerie].onClick < 0)
-          loadDataAndRedraw(false,currentLevelIndex-1);
+        if (series[nearestSerie].onClick < 0) {
+          var previousLevelIndex = currentLevelIndex-1;
+          if (previousLevelIndex >= 0) {
+            if (isHistoryEnabled)
+              History.pushState( {"levelindex" : previousLevelIndex} , "Level: "+previousLevelIndex , "?level="+previousLevelIndex ); 
+            else
+              loadDataAndRedraw(false,previousLevelIndex);
+          }
+          else
+            console.log ("Error: Cannot access level: "+previousLevelIndex);          
+        }  
         else if (series[nearestSerie].onClick > 0){
           var nextLevelIndex = currentLevelIndex+1;
           if (metaData.levels.length > nextLevelIndex) {
             series[nearestSerie].path.classed("clicked", true);
             metaData.levels[nextLevelIndex].grouping = nearestSerie;
             console.log ("Clicked serie: "+nearestSerie);
-            loadDataAndRedraw(false, nextLevelIndex);
+            if (isHistoryEnabled)
+              History.pushState( {"levelindex" : nextLevelIndex} , "Level: "+nextLevelIndex , "?level="+nextLevelIndex ); 
+            else
+              loadDataAndRedraw(false,nextLevelIndex);
           }
           else
             console.log ("Error: Cannot access level: "+nextLevelIndex);
-
         }
       } 
     } 
