@@ -15,11 +15,16 @@ function cmd_chart(selection, metaData, appSettings ) {
       var state = History.getState(); // Note: We are using History.getState() instead of event.state
       console.log("History state changed: "+ state.title);
       
-      loadDataAndRedraw(false, state.data);
+      loadDataAndRedraw(state.data);
     });
 
-    function changeState(stateData) {
+    function changeState(mode) {
       if (isHistoryEnabled) {
+        
+        var stateData = new Object();
+        
+        stateData.keyPath = getKeyPath();
+        stateData.isZoom = (mode == "zoom");
         
         var timeDomain = scalesTime.domain();
         stateData.timeFrom = timeDomain[0];
@@ -27,37 +32,53 @@ function cmd_chart(selection, metaData, appSettings ) {
  
         var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
         var dateTo =   metaData.dateFormat(new Date(stateData.timeTo  )); 
-        var title = "L:"+stateData.levelIndex; 
-        var url = "?level="+stateData.levelIndex + "&dateFrom=""&dateFrom=" + dateFrom + "&dateTo=" + dateTo ); 
+        var title = "L:"+stateData.keyPath; 
+        var url = "?keyPath="+stateData.keyPath + "&dateFrom=" + dateFrom + "&dateTo=" + dateTo ; 
         
         var currentStateData = History.getState().data;
-        if (stateData.isZoom && currentStateData.isZoom && stateData.levelIndex == currentStateData.levelIndex) //zooms can be rodded back in one step
+        var doReplace = (mode == "initial") || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
+        if (doReplace)
           History.replaceState( stateData, title, url); 
         else
           History.pushState( stateData, title, url);
           
       }
       else
-        loadDataAndRedraw(false,stateData);
+        loadDataAndRedraw(stateData);
     }
     
     /////////////////////////////////////
        
     var expandedKeys = new Array();
+    var keyPathDelimiter = "/";
+    
     function getLastKey() {
       if (expandedKeys.length > 0)
-        return path[expandedKeys.length-1];
+        return expandedKeys[expandedKeys.length-1];
       else
-        return "";
+        return false;
+    }
+    function getLastKeyOfPath(keyPath) {
+      var keys = keyPath.split(keyPathDelimiter);
+      if (keys.length > 0)
+        return path[keys.length-1];
+      else
+        return false;
     }
     function getKeyPath() {
-      return expandedKeys.join("/");
+      return expandedKeys.join(keyPathDelimiter);
     }
     function setKeyPath(keyPath) {
-      expandedKeys = keyPath.split("/");
+      expandedKeys = keyPath.split(keyPathDelimiter);
     }
     function getLevelIndex() {
       return expandedKeys.length;
+    }
+    function getLevelIndexOfPath(keyPath) {
+      return keyPath.split(keyPathDelimiter).length;
+    }
+    function addToKeyPath(key) {
+      expandedKeys.push(key);
     }
 
     /////////////////////////////////////
@@ -97,11 +118,11 @@ function cmd_chart(selection, metaData, appSettings ) {
   
     ////////////////
 
-    function loadDataAndRedraw(instant, stateData) { 
+    function loadDataAndRedraw(stateData) { 
       
       function queryAndDraw(query) {
         
-        var url = query.url(dateFrom, dateTo, currentLevel.grouping);
+        var url = query.url(dateFrom, dateTo, getLastKey());
        
         console.log ("AJAX Query: "+url);
         d3.json(url, function(data) {
@@ -144,6 +165,8 @@ function cmd_chart(selection, metaData, appSettings ) {
               });
           } 
            
+          var keyPath = getKeyPath();
+          var lastKey = getLastKey();
           for ( s in series ) {
             series[s].sort(function(a,b) { return a.date - b.date; } );
             if (!series[s].path) {
@@ -151,10 +174,11 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[s].color = (typeof(query.color) == "function") ? query.color(s) : query.color;
               series[s].styleName = (typeof(query.styleName) == "function") ? query.styleName(s) : query.styleName;
 
+              series[s].keyPath = keyPath;
               series[s].path = clippedArea.append("svg:path")
-                                  .attr("d", line(series[currentLevel.grouping ? currentLevel.grouping : s]))
+                                  .attr("d", line(series[lastKey ? lastKey : s]))
                                   .classed( series[s].styleName, true )
-                                  .style("stroke", currentLevel.grouping ? series[s].color : d3.rgb(255,255,255).toString());
+                                  .style("stroke", lastKey ? series[s].color : d3.rgb(255,255,255).toString());
                     
               bindEvents (s);
               
@@ -164,7 +188,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           if (numOfQueriesToPerform > 1)
             numOfQueriesToPerform--;
           else {
-            redraw(instant);
+            redraw(false);
             
             if (zoomTimer)
               clearTimeout(zoomTimer);
@@ -230,7 +254,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       else {
         var currentLevelIndex = getLevelIndex();
         for ( s in series ) {
-          var levelIndex = series[s].keyPath.length; //TODO
+          var levelIndex = getLevelIndexOfPath(series[s].keyPath);
           if (levelIndex == currentLevelIndex)
             series[s].path.classed("clicked", false).transition()
               .duration(appSettings.transitionSpeed)
@@ -244,7 +268,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           else if (levelIndex > currentLevelIndex) {
             series[s].path.transition()
               .duration(appSettings.transitionSpeed)
-              .attr("d", line(series[metaData.levels[currentLevelIndex+1].grouping])) //TODO??
+              .attr("d", line(series[getLastKeyOfPath(series[s].keyPath)])) 
               .remove();
               
             delete series[s];
@@ -357,6 +381,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       var nearestSerie = getNearestSerie();
       if (nearestSerie) {
+        /*
         if (series[nearestSerie].onClick < 0) {
           var previousLevelIndex = currentLevelIndex-1;
           if (previousLevelIndex >= 0) 
@@ -364,13 +389,15 @@ function cmd_chart(selection, metaData, appSettings ) {
           else
             console.log ("Error: Cannot access level: "+previousLevelIndex);          
         }  
-        else if (series[nearestSerie].onClick > 0){
-          var nextLevelIndex = currentLevelIndex+1;
-          if (metaData.levels.length > nextLevelIndex) {
+        else */
+        
+        if (series[nearestSerie].onClick > 0 ){
+          
+          if ( metaData.levels.length > getLevelIndex()+1) {
             series[nearestSerie].path.classed("clicked", true);
-            metaData.levels[nextLevelIndex].grouping = nearestSerie;
             console.log ("Clicked serie: "+nearestSerie);
-            changeState ( {"levelIndex" : nextLevelIndex , "isZoom" : false} );
+            addToKeyPath(nearestSerie);            
+            changeState (  false );
           }
           else
             console.log ("Error: Cannot access level: "+nextLevelIndex);
@@ -395,7 +422,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     
     function onZoomTimer() {
       zoomTimer = null;
-      changeState ( {"levelIndex" : currentLevelIndex , "isZoom" : true} );
+      changeState ( true );
     }
     function zoomStart() {
       if (zoomTimer === false)
@@ -514,7 +541,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     ///////////////////////////
 
 
-    loadDataAndRedraw(false, currentLevelIndex);
+    changeState("initial");
 
   });
     
