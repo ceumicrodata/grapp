@@ -133,7 +133,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             var key = table[i][query.serieKey];
             if (!series[key]) {
               series[key] = new Array();
-              series[key].keyPath = getExpandedKeyPath();
+              series[key].keyPath = getKeyPath();
               series[key].onClick = query.onClick;
               console.log ("Serie added:"+key);
   
