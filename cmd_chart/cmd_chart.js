@@ -1,4 +1,4 @@
-  
+t  
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
@@ -69,13 +69,13 @@ function cmd_chart(selection, metaData, appSettings ) {
       return expandedKeys.join(keyPathDelimiter);
     }
     function setKeyPath(keyPath) {
-      expandedKeys = keyPath.split(keyPathDelimiter);
+      expandedKeys = (keyPath == "") ? new Array() : keyPath.split(keyPathDelimiter);
     }
     function getLevelIndex() {
       return expandedKeys.length;
     }
     function getLevelIndexOfPath(keyPath) {
-      return keyPath.split(keyPathDelimiter).length;
+      return (keyPath == "") ? 0 : keyPath.split(keyPathDelimiter).length;
     }
     function addToKeyPath(key) {
       expandedKeys.push(key);
