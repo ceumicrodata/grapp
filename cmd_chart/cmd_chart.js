@@ -1,4 +1,3 @@
-t  
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
