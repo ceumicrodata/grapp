@@ -18,12 +18,54 @@ function cmd_chart(selection, metaData, appSettings ) {
       loadDataAndRedraw(false, state.data);
     });
 
+    function changeState(stateData) {
+      if (isHistoryEnabled) {
+        
+        var timeDomain = scalesTime.domain();
+        stateData.timeFrom = timeDomain[0];
+        stateData.timeTo   = timeDomain[1];
+ 
+        var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
+        var dateTo =   metaData.dateFormat(new Date(stateData.timeTo  )); 
+        var title = "L:"+stateData.levelIndex; 
+        var url = "?level="+stateData.levelIndex + "&dateFrom=""&dateFrom=" + dateFrom + "&dateTo=" + dateTo ); 
+        
+        var currentStateData = History.getState().data;
+        if (stateData.isZoom && currentStateData.isZoom && stateData.levelIndex == currentStateData.levelIndex) //zooms can be rodded back in one step
+          History.replaceState( stateData, title, url); 
+        else
+          History.pushState( stateData, title, url);
+          
+      }
+      else
+        loadDataAndRedraw(false,stateData);
+    }
+    
+    /////////////////////////////////////
+       
+    var expandedKeys = new Array();
+    function getLastKey() {
+      if (expandedKeys.length > 0)
+        return path[expandedKeys.length-1];
+      else
+        return "";
+    }
+    function getKeyPath() {
+      return expandedKeys.join("/");
+    }
+    function setKeyPath(keyPath) {
+      expandedKeys = keyPath.split("/");
+    }
+    function getLevelIndex() {
+      return expandedKeys.length;
+    }
+
     /////////////////////////////////////
     
     var series = new Object();
 
-    var currentLevelIndex = 0;
-    var currentLevel = metaData.levels[currentLevelIndex]; 
+    //var currentLevelIndex = 0;
+    var currentLevel = metaData.levels[0]; 
   
     var totalWidth  = $(this).width() ; 
     var totalHeight = $(this).height() ;
@@ -70,7 +112,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             var key = table[i][query.serieKey];
             if (!series[key]) {
               series[key] = new Array();
-              series[key].level = currentLevelIndex;
+              series[key].keyPath = getExpandedKeyPath();
               series[key].onClick = query.onClick;
               console.log ("Serie added:"+key);
   
@@ -137,20 +179,27 @@ function cmd_chart(selection, metaData, appSettings ) {
       
       zoomTimer = false;
            
-      var levelIndex = stateData.levelIndex ? stateData.levelIndex : 0;
-           
-      if (levelIndex != currentLevelIndex) {
+      var newKeyPath = stateData.keyPath ? stateData.keyPath : "";
+      var currentKeyPath = getKeyPath();
+          
+      if (newKeyPath != currentKeyPath) {
+      
+        var levelIndex = getLevelIndex();
         if (levelIndex < 0 && levelIndex >= metaData.levels.length) {
           console.log("Invalid level: "+levelIndex);
-          levelIndex = 0;
-        }
-        currentLevelIndex = levelIndex;
-        currentLevel = metaData.levels[currentLevelIndex];             
+          return;
+        } else {
+          setKeyPath(newKeyPath);
+          currentLevel = metaData.levels[levelIndex];    
+        }         
       }
                   
-      var timeDomain = scalesTime.domain();
-      var dateFrom = metaData.dateFormat(new Date(timeDomain[0]));
-      var dateTo =   metaData.dateFormat(new Date(timeDomain[1]));
+      //var timeDomain = scalesTime.domain();
+      //var dateFrom = metaData.dateFormat(new Date(timeDomain[0]));
+      //var dateTo =   metaData.dateFormat(new Date(timeDomain[1]));
+      
+      var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
+      var dateTo =   metaData.dateFormat(new Date(stateData.timeTo));
       
       var numOfQueriesToPerform = currentLevel.queries.length;
       for (q=0; q<currentLevel.queries.length; q++) {
@@ -179,21 +228,23 @@ function cmd_chart(selection, metaData, appSettings ) {
           series[s].path.attr("d", line(series[s]));
       }
       else {
+        var currentLevelIndex = getLevelIndex();
         for ( s in series ) {
-          if (series[s].level == currentLevelIndex)
+          var levelIndex = series[s].keyPath.length; //TODO
+          if (levelIndex == currentLevelIndex)
             series[s].path.classed("clicked", false).transition()
               .duration(appSettings.transitionSpeed)
               .attr("d", line(series[s]))
               .style("stroke", series[s].color );
-          else if (series[s].level < currentLevelIndex)
+          else if (levelIndex < currentLevelIndex)
             series[s].path.transition()
               .duration(appSettings.transitionSpeed)
               .attr("d", line(series[s]))
               .style("stroke", d3.rgb(240,240,240).toString());   
-          else if (series[s].level > currentLevelIndex) {
+          else if (levelIndex > currentLevelIndex) {
             series[s].path.transition()
               .duration(appSettings.transitionSpeed)
-              .attr("d", line(series[metaData.levels[currentLevelIndex+1].grouping]))
+              .attr("d", line(series[metaData.levels[currentLevelIndex+1].grouping])) //TODO??
               .remove();
               
             delete series[s];
@@ -239,8 +290,9 @@ function cmd_chart(selection, metaData, appSettings ) {
       var lowestDistance = (metaData.valueMax - metaData.valueMin) * appSettings.lineSenitiveWidth / width ;
       var nearestSerie = false;
          
+      var currentKeyPath = getKeyPath();
       for ( s in series ) {
-         if (series[s].level == currentLevelIndex) {
+         if (series[s].keyPath == currentKeyPath) {
          
             var pos = -1;
             for (var i = 0; i < series[s].length; i++ ) {
@@ -268,6 +320,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
       return nearestSerie;
     }
+    
     function onMouseMove() {
       if (zoomTimer !== null)
         return;
@@ -298,13 +351,6 @@ function cmd_chart(selection, metaData, appSettings ) {
         svgTooltipDot.style("display","none" );
         svgTooltipText.style("display","none" );
       }
-    }
-    
-    function changeState(stateData) {
-      if (isHistoryEnabled)
-        History.pushState(  stateData , "Level: "+stateData.levelIndex , "?level="+stateData.levelIndex ); 
-      else
-        loadDataAndRedraw(false,stateData);
     }
     
     function onClick() {
