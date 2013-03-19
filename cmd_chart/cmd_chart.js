@@ -61,7 +61,7 @@ function cmd_chart(selection, metaData, appSettings ) {
     function getLastKeyOfPath(keyPath) {
       var keys = keyPath.split(keyPathDelimiter);
       if (keys.length > 0)
-        return path[keys.length-1];
+        return keys[keys.length-1];
       else
         return false;
     }
