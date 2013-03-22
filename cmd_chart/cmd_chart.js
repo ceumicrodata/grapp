@@ -15,6 +15,7 @@ function cmd_chart(selection, metaData, appSettings ) {
   selection.select(".chartContainer").each(function () {
 
       // Prepare HIstory.js
+      var previousStateData = null;
       var History = window.History; // Note: We are using a capital H instead of a lower h
       var isHistoryEnabled = History.enabled;
       if (!isHistoryEnabled) {
@@ -25,10 +26,14 @@ function cmd_chart(selection, metaData, appSettings ) {
           console.log("History state changed: " + state.title);
 
           loadDataAndRedraw(state.data);
+
+          previousStateData = stateData;
       });
 
-      function changeState(stateData, isInitial) {
 
+      function changeState(stateData) {
+
+          var isInitial = (previousStateData == null);
 
           if (stateData.keyPath === undefined)
               stateData.keyPath = getKeyPath();
@@ -56,11 +61,16 @@ function cmd_chart(selection, metaData, appSettings ) {
               else
                   History.pushState(stateData, title, url);
 
-              if (isInitial && (currentStateUrl == History.getState().url))
+              if (isInitial && (currentStateUrl == History.getState().url)) {
                   loadDataAndRedraw(stateData); //statechange is not fired of the new url ewquals to the old one
+                  previousStateData = stateData;
+              }
           }
-          else
+          else {
               loadDataAndRedraw(stateData);
+              previousStateData = stateData;
+          }
+
       }
 
       /////////////////////////////////////
@@ -201,7 +211,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                   if (numOfQueriesToPerform > 1)
                       numOfQueriesToPerform--;
                   else {
-                      redraw(stateData.isZoom);
+                      var sameKeyPaths = stateData.keyPath == previousStateData.keyPath;
+                      redraw(sameKeyPaths);
 
                       if (zoomTimer)
                           clearTimeout(zoomTimer);
@@ -554,7 +565,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
 
       var urlSearchParams = getUrlSearchParams();
-      changeState(urlSearchParams, true);
+      changeState(urlSearchParams);
 
 
   });
