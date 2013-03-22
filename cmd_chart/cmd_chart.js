@@ -41,7 +41,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           if (isHistoryEnabled) {
               var currentStateData = History.getState().data;
-              var doReplace = (stateData.isInitial == "initial") || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
+              var doReplace = (stateData.isInitial) || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
               if (doReplace)
                   History.replaceState(stateData, title /*, url*/);
               else
