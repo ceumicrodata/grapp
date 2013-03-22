@@ -1,3 +1,13 @@
+function getUrlSearchParams() {
+    var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
+    for (i in pairs) {
+        if (pairs[i] === "") continue;
+        pair = pairs[i].split("=");
+        obj[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+    }
+    return obj;
+}
+
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
@@ -17,15 +27,13 @@ function cmd_chart(selection, metaData, appSettings ) {
           loadDataAndRedraw(state.data);
       });
 
-      function changeState(stateData) {
+      function changeState(stateData, isInitial) {
 
 
           if (stateData.keyPath === undefined)
               stateData.keyPath = getKeyPath();
           if (stateData.isZoom === undefined)
               stateData.isZoom = false;
-          if (stateData.isInitial === undefined)
-              stateData.isInitial = false;
 
           var timeDomain = scalesTime.domain();
 
@@ -41,11 +49,15 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           if (isHistoryEnabled) {
               var currentStateData = History.getState().data;
-              var doReplace = (stateData.isInitial) || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
+              var currentStateUrl = History.getState().url;
+              var doReplace = isInitial || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
               if (doReplace)
                   History.replaceState(stateData, title, url);
               else
                   History.pushState(stateData, title, url);
+
+              if (isInitial && (currentStateUrl == url))
+                  loadDataAndRedraw(stateData); //statechange is not fired of the new url ewquals to the old one
           }
           else
               loadDataAndRedraw(stateData);
@@ -209,11 +221,11 @@ function cmd_chart(selection, metaData, appSettings ) {
           if (stateData.keyPath != currentKeyPath) {
               var newLevelIndex = getLevelIndexOfPath(stateData.keyPath);
               if (newLevelIndex < 0 && newLevelIndex >= metaData.levels.length) {
-                  console.log("Invalid level: " + levelIndex);
+                  console.log("Invalid level: " + newLevelIndex);
                   return;
               } else {
                   setKeyPath(stateData.keyPath);
-                  currentLevel = metaData.levels[levelIndex];
+                  currentLevel = metaData.levels[newLevelIndex];
               }
           }
 
@@ -221,7 +233,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           var from = new Date(stateData.timeFrom);
           var to = new Date(stateData.timeTo);
           scalesTime.domain([from, to]);
-        
+
           var dateFrom = metaData.dateFormat(from);
           var dateTo = metaData.dateFormat(to);
           var numOfQueriesToPerform = currentLevel.queries.length;
@@ -541,7 +553,9 @@ function cmd_chart(selection, metaData, appSettings ) {
       ///////////////////////////
 
 
-      changeState({ "isInitial": true });
+      var urlSearchParams = getUrlSearchParams();
+      urlSearchParams.isInitial = true;
+      changeState(urlSearchParams);
 
 
   });
