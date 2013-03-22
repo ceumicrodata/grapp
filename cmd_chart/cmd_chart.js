@@ -211,7 +211,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                   if (numOfQueriesToPerform > 1)
                       numOfQueriesToPerform--;
                   else {
-                      var sameKeyPaths = stateData.keyPath == previousStateData.keyPath;
+                      var sameKeyPaths = (previousStateData != null) && (stateData.keyPath == previousStateData.keyPath);
                       redraw(sameKeyPaths);
 
                       if (zoomTimer)
