@@ -219,6 +219,10 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
           var dateTo = metaData.dateFormat(new Date(stateData.timeTo));
+          
+          var timeDomain = scalesTime.domain();
+          timeDomain[0] = stateData.timeFrom;
+          timeDomain[1] = stateData.timeTo;
 
           var numOfQueriesToPerform = currentLevel.queries.length;
           for (q = 0; q < currentLevel.queries.length; q++) {
