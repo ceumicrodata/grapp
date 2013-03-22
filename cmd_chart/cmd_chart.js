@@ -18,35 +18,34 @@ function cmd_chart(selection, metaData, appSettings ) {
       });
 
       function changeState(stateData) {
+
+
+          if (stateData.keyPath === undefined)
+              stateData.keyPath = getKeyPath();
+          if (stateData.isZoom === undefined)
+              stateData.isZoom = false;
+          if (stateData.isInitial === undefined)
+              stateData.isInitial = false;
+
+          var timeDomain = scalesTime.domain();
+
+          if (stateData.timeFrom === undefined)
+              stateData.timeFrom = timeDomain[0];
+          if (stateData.timeTo === undefined)
+              stateData.timeTo = timeDomain[1];
+
+          var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
+          var dateTo = metaData.dateFormat(new Date(stateData.timeTo));
+          var url = "?keyPath=" + stateData.keyPath + "&dateFrom=" + dateFrom + "&dateTo=" + dateTo;
+          var title = "CEU Microdata (testurl: " + url + ")";
+
           if (isHistoryEnabled) {
-
-
-              if (stateData.keyPath === undefined)
-                  stateData.keyPath = getKeyPath();
-              if (stateData.isZoom === undefined)
-                  stateData.isZoom = false;
-              if (stateData.isInitial === undefined)
-                  stateData.isInitial = false;
-
-              var timeDomain = scalesTime.domain();
-
-              if (stateData.timeFrom === undefined)
-                  stateData.timeFrom = timeDomain[0];
-              if (stateData.timeTo === undefined)
-                  stateData.timeTo = timeDomain[1];
-
-              var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
-              var dateTo = metaData.dateFormat(new Date(stateData.timeTo));
-              var url = "?keyPath=" + stateData.keyPath + "&dateFrom=" + dateFrom + "&dateTo=" + dateTo;
-              var title = "CEU Microdata (testurl: " + url + ")";
-
               var currentStateData = History.getState().data;
               var doReplace = (stateData.isInitial == "initial") || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
               if (doReplace)
                   History.replaceState(stateData, title /*, url*/);
               else
                   History.pushState(stateData, title /*, url */);
-
           }
           else
               loadDataAndRedraw(stateData);
