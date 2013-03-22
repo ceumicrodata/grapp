@@ -56,7 +56,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               else
                   History.pushState(stateData, title, url);
 
-              if (isInitial && (currentStateUrl == url))
+              if (isInitial && (currentStateUrl == History.getState().url))
                   loadDataAndRedraw(stateData); //statechange is not fired of the new url ewquals to the old one
           }
           else
