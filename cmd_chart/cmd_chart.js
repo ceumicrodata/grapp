@@ -43,9 +43,9 @@ function cmd_chart(selection, metaData, appSettings ) {
               var currentStateData = History.getState().data;
               var doReplace = (stateData.isInitial) || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
               if (doReplace)
-                  History.replaceState(stateData, title /*, url*/);
+                  History.replaceState(stateData, title, url);
               else
-                  History.pushState(stateData, title /*, url */);
+                  History.pushState(stateData, title, url);
           }
           else
               loadDataAndRedraw(stateData);
