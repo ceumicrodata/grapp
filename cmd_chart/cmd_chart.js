@@ -27,7 +27,6 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           loadDataAndRedraw(state.data);
 
-          previousStateData = state.data;
       });
 
 
@@ -63,12 +62,10 @@ function cmd_chart(selection, metaData, appSettings ) {
 
               if (isInitial && (previousStateData == null)) {
                   loadDataAndRedraw(stateData); //statechange not fired: the new url ewquals to the old one?
-                  previousStateData = stateData;
               }
           }
           else {
               loadDataAndRedraw(stateData);
-              previousStateData = stateData;
           }
 
       }
@@ -213,6 +210,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                   else {
                       var sameKeyPaths = (previousStateData != null) && (stateData.keyPath == previousStateData.keyPath);
                       redraw(sameKeyPaths);
+
+                      previousStateData = stateData;
 
                       if (zoomTimer)
                           clearTimeout(zoomTimer);
