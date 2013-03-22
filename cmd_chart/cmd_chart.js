@@ -85,13 +85,13 @@ function cmd_chart(selection, metaData, appSettings ) {
           return expandedKeys.join(keyPathDelimiter);
       }
       function setKeyPath(keyPath) {
-          expandedKeys = (keyPath == "") ? new Array() : keyPath.split(keyPathDelimiter);
+          expandedKeys = keyPath ? keyPath.split(keyPathDelimiter) : new Array();
       }
       function getLevelIndex() {
           return expandedKeys.length;
       }
       function getLevelIndexOfPath(keyPath) {
-          return (keyPath == "") ? 0 : keyPath.split(keyPathDelimiter).length;
+          return keyPath ? keyPath.split(keyPathDelimiter).length : 0;
       }
 
       /////////////////////////////////////
@@ -554,8 +554,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
 
       var urlSearchParams = getUrlSearchParams();
-      urlSearchParams.isInitial = true;
-      changeState(urlSearchParams);
+      changeState(urlSearchParams, true);
 
 
   });
