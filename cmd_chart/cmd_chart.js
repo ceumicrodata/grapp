@@ -45,7 +45,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               if (doReplace)
                   History.replaceState(stateData, title /*, url*/);
               else
-                  History.pushState(stateData, title, url);
+                  History.pushState(stateData, title /*, url */);
 
           }
           else
@@ -209,7 +209,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           if (stateData.keyPath != currentKeyPath) {
               var newLevelIndex = getLevelIndexOfPath(stateData.keyPath);
-              if (levelIndex < 0 && levelIndex >= metaData.levels.length) {
+              if (newLevelIndex < 0 && newLevelIndex >= metaData.levels.length) {
                   console.log("Invalid level: " + levelIndex);
                   return;
               } else {
