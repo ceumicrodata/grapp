@@ -217,11 +217,13 @@ function cmd_chart(selection, metaData, appSettings ) {
               }
           }
 
-          var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
-          var dateTo = metaData.dateFormat(new Date(stateData.timeTo));
-          
-          var timeDomain = scalesTime.domain( [stateData.timeFrom, stateData.timeTo] );
 
+          var from = new Date(stateData.timeFrom);
+          var to = new Date(stateData.timeTo);
+          scalesTime.domain([from, to]);
+        
+          var dateFrom = metaData.dateFormat(from);
+          var dateTo = metaData.dateFormat(to);
           var numOfQueriesToPerform = currentLevel.queries.length;
           for (q = 0; q < currentLevel.queries.length; q++) {
               queryAndDraw(currentLevel.queries[q], dateFrom, dateTo);
@@ -420,7 +422,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       function onZoomTimer() {
           zoomTimer = null;
-          changeState( { "isZoom": true } );
+          changeState({ "isZoom": true });
       }
       function zoomStart() {
           if (zoomTimer === false)
@@ -539,7 +541,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       ///////////////////////////
 
 
-      changeState( { "isInitial" : true } );
+      changeState({ "isInitial": true });
 
 
   });
