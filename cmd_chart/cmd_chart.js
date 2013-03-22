@@ -32,7 +32,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
               if (stateData.timeFrom === undefined)
                   stateData.timeFrom = timeDomain[0];
-              if (stateData.timeFrom === timeTo)
+              if (stateData.timeTo === undefined)
                   stateData.timeTo = timeDomain[1];
 
               var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
