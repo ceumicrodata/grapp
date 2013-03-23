@@ -1,17 +1,27 @@
-function getUrlSearchParams() {
-    var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
-    for (i in pairs) {
-        if (pairs[i] === "") continue;
-        pair = pairs[i].split("=");
-        obj[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-    }
-    return obj;
-}
+
 
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
-
+ 
+  function getUrlSearchParams() {
+      var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
+      for (i in pairs) {
+          pair = pairs[i].split("=");
+          if (pairs.length == 2) {
+            var key = obj[decodeURIComponent(pair[0])];
+            var val = decodeURIComponent(pair[1]);
+            if (key == "keyPath")
+              obj["keyPath"] = val;
+            else if (key == "dateFrom")
+              obj["timeFrom"] = metaData.dateFormat.parse(val).getTime();
+            else if (key == "dateTo")
+              obj["timeTo"] = metaData.dateFormat.parse(val).getTime();
+          }
+      }
+      return obj;
+  }
+ 
   selection.select(".chartContainer").each(function () {
 
       // Prepare HIstory.js
@@ -252,20 +262,29 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
       }
 
-      function redraw(instant) {
+      function redraw(instant, zoomMode) {
+      
+          svgTooltipDot.style("display", "none");
+          svgTooltipText.style("display", "none");
 
           var timeDomain = scalesTime.domain();
           var restricted = false;
           if (timeDomain[0] < timeMin) {
               restricted = true;
+              if (zoomMode == "pan")
+                timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
               timeDomain[0] = timeMin;
           }
           if (timeDomain[1] > timeMax) {
               restricted = true;
+              if (zoomMode == "pan")
+                timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
               timeDomain[1] = timeMax;
           }
-          if (restricted)
+          if (restricted) {
               scalesTime.domain(timeDomain);
+              zoomBehavior.x(scalesTime);  
+          }
 
           if (instant) {
               for (s in series)
@@ -277,20 +296,19 @@ function cmd_chart(selection, metaData, appSettings ) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
                   if (levelIndex == currentLevelIndex)
                       series[s].path.classed("clicked", false).transition()
-              .duration(appSettings.transitionSpeed)
-              .attr("d", line(series[s]))
-              .style("stroke", series[s].color);
+                      .duration(appSettings.transitionSpeed)
+                      .attr("d", line(series[s]))
+                      .style("stroke", series[s].color);
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
-              .duration(appSettings.transitionSpeed)
-              .attr("d", line(series[s]))
-              .style("stroke", d3.rgb(240, 240, 240).toString());
+                      .duration(appSettings.transitionSpeed)
+                      .attr("d", line(series[s]))
+                      .style("stroke", d3.rgb(240, 240, 240).toString());
                   else if (levelIndex > currentLevelIndex) {
                       series[s].path.transition()
-              .duration(appSettings.transitionSpeed)
-              .attr("d", line(series[getLastKeyOfPath(series[s].keyPath)]))
-              .remove();
-
+                      .duration(appSettings.transitionSpeed)
+                      .attr("d", line(series[getLastKeyOfPath(series[s].keyPath)]))
+                      .remove();
                       delete series[s];
                   }
               }
@@ -495,13 +513,18 @@ function cmd_chart(selection, metaData, appSettings ) {
       .classed("chartTitle", true)
       .text("");
 
-      svg.call(d3.behavior.zoom()
+      var zoomBehavior = svg.call(d3.behavior.zoom()
       .x(scalesTime)
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
-          redraw(true);
+          var mode = (d3.event.scale == zoomBehavior.previousScale) ? "pan" : "zoom";
+          redraw(true, mode);
           zoomStart();
+          zoomBehavior.previousTranslate = d3.event.translate;
+          zoomBehavior.previousScale = d3.event.scale;
       }));
+      zoomBehavior.previousTranslate = zoomBehavior.translate();
+      zoomBehavior.previousScale = zoomBehavior.scale();
 
       var svgXaxis = svg.append("g")
       .attr("class", "xaxis axis")
@@ -561,11 +584,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       .tickSubdivide(metaData.valueAxis.subdivide);
 
       ///////////////////////////
-
-
-      var urlSearchParams = getUrlSearchParams();
-      changeState(urlSearchParams);
-
+     
+      changeState(getUrlSearchParams());
 
   });
     
