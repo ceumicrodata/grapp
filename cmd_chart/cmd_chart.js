@@ -5,7 +5,7 @@ function cmd_chart(selection, metaData, appSettings ) {
   var chartDescription = selection.select(".chartDescription");
  
   function getUrlSearchParams() {
-      var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
+      var pair = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
       for (i in pairs) {
           pair = pairs[i].split("=");
           if (pairs.length == 2) {
@@ -31,11 +31,14 @@ function cmd_chart(selection, metaData, appSettings ) {
       if (!isHistoryEnabled) {
           console.log("Warning: History.js not supported!");
       }
+      
+      var statechangeFired;
       History.Adapter.bind(window, 'statechange', function () {
           var state = History.getState();
           console.log("History state changed: " + state.title);
 
           loadDataAndRedraw(state.data);
+          statechangeFired = true;
 
       });
 
@@ -64,13 +67,15 @@ function cmd_chart(selection, metaData, appSettings ) {
           if (isHistoryEnabled) {
               var currentStateData = History.getState().data;
               var currentStateUrl = History.getState().url;
-              var doReplace = isInitial || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
+              var doReplace = (previousStateData == null) || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
+              
+              statechangeFired = false;
               if (doReplace)
                   History.replaceState(stateData, title, url);
               else
                   History.pushState(stateData, title, url);
 
-              if (isInitial && (previousStateData == null)) {
+              if (!statechangeFired) {
                   loadDataAndRedraw(stateData); //statechange not fired: the new url ewquals to the old one?
               }
           }
@@ -283,7 +288,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
           if (restricted) {
               scalesTime.domain(timeDomain);
-              zoomBehavior.x(scalesTime);  
+              //zoomBehavior.x(scalesTime);  
           }
 
           if (instant) {
