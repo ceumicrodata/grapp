@@ -513,7 +513,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       .classed("chartTitle", true)
       .text("");
 
-      var zoomBehavior = svg.call(d3.behavior.zoom()
+      var zoomBehavior = d3.behavior.zoom();
+      svg.call(zoomBehavior)
       .x(scalesTime)
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
