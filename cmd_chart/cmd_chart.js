@@ -5,10 +5,10 @@ function cmd_chart(selection, metaData, appSettings ) {
   var chartDescription = selection.select(".chartDescription");
  
   function getUrlSearchParams() {
-      var pair = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
+      var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
       for (i in pairs) {
           pair = pairs[i].split("=");
-          if (pairs.length == 2) {
+          if (pair.length == 2) {
             var key = obj[decodeURIComponent(pair[0])];
             var val = decodeURIComponent(pair[1]);
             if (key == "keyPath")
