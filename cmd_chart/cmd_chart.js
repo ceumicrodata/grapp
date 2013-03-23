@@ -513,8 +513,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .classed("chartTitle", true)
       .text("");
 
-      var zoomBehavior = d3.behavior.zoom();
-      svg.call(zoomBehavior)
+      var zoomBehavior = d3.behavior.zoom()
       .x(scalesTime)
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
@@ -523,9 +522,13 @@ function cmd_chart(selection, metaData, appSettings ) {
           zoomStart();
           zoomBehavior.previousTranslate = d3.event.translate;
           zoomBehavior.previousScale = d3.event.scale;
-      }));
+      });
       zoomBehavior.previousTranslate = zoomBehavior.translate();
       zoomBehavior.previousScale = zoomBehavior.scale();
+     
+      svg.call(zoomBehavior);
+    
+
 
       var svgXaxis = svg.append("g")
       .attr("class", "xaxis axis")
