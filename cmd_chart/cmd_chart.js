@@ -523,7 +523,7 @@ function cmd_chart(selection, metaData, appSettings ) {
             restricted = true;
           }
           if (timeDomain[1] > timeMax) {
-             if (isPan)
+            if (isPan)
                 timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
             timeDomain[1] = timeMax;
             restricted = true;
@@ -539,8 +539,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           zoomBehavior.previousTranslate = currentTranslate;
           zoomBehavior.previousScale = currentScale;
       });
-      zoomBehavior.zoomTo = function (timeScale) {
-          var tRange = timeScale.domain().map(this.originalScale);
+      zoomBehavior.zoomTo = function (scaleDomain) {
+          var tRange = scaleDomain.map(this.originalScale);
           var tOriginalRange = this.originalScale.range();
           var tScale = (tOriginalRange[1] - tOriginalRange[0]) / (tRange[1] - tRange[0])
           var tTranslate = tOriginalRange[0] - tRange[0] * tScale;
