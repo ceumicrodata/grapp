@@ -226,6 +226,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       var sameKeyPaths = (previousStateData != null) && (stateData.keyPath == previousStateData.keyPath);
                       redraw(sameKeyPaths);
 
+                      zoomBehavior.zoomTo(scalesTime.domain());
                       previousStateData = stateData;
 
                       if (zoomTimer)
@@ -304,8 +305,8 @@ function cmd_chart(selection, metaData, appSettings ) {
               var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
               var timeTo = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
               svgShadedIntervals[si]
-        .attr("x", (scalesTime(timeFrom)) + "px")
-        .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
+                .attr("x", (scalesTime(timeFrom)) + "px")
+                .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
           }
 
           if (instant) {
@@ -382,16 +383,16 @@ function cmd_chart(selection, metaData, appSettings ) {
               var px = scalesTime(tooltipInfo.tooltipDate);
               var py = scalesValue(tooltipInfo.tooltipValue);
               svgTooltipDot.style("display", "block")
-          .attr("cx", px + "px")
-          .attr("cy", py + "px")
-          .style("stroke", series[nearestSerie].color)
-          .style("fill", series[nearestSerie].color);
+                  .attr("cx", px + "px")
+                  .attr("cy", py + "px")
+                  .style("stroke", series[nearestSerie].color)
+                  .style("fill", series[nearestSerie].color);
 
               svgTooltipText.text(metaData.tooltipText(nearestSerie, tooltipInfo.tooltipDate, tooltipInfo.tooltipValue))
-          .style("display", "block")
-          .attr("x", px + "px")
-          .attr("y", py + "px")
-          .style("text-anchor", px > width / 2 ? "end" : "start");
+                  .style("display", "block")
+                  .attr("x", px + "px")
+                  .attr("y", py + "px")
+                  .style("text-anchor", px > width / 2 ? "end" : "start");
 
 
           }
@@ -405,15 +406,6 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           var nearestSerie = getNearestSerie();
           if (nearestSerie) {
-              /*
-              if (series[nearestSerie].onClick < 0) {
-              var previousLevelIndex = currentLevelIndex-1;
-              if (previousLevelIndex >= 0) 
-              changeState ( {"levelIndex" : previousLevelIndex , "isZoom" : false} );
-              else
-              console.log ("Error: Cannot access level: "+previousLevelIndex);          
-              }  
-              else */
 
               if (series[nearestSerie].onClick > 0) {
 
@@ -428,6 +420,18 @@ function cmd_chart(selection, metaData, appSettings ) {
                   else
                       console.log("Error: Cannot access level: " + nextLevelIndex);
               }
+          } else {
+
+              if (getLevelIndex() > 0) {
+                  series[nearestSerie].path.classed("clicked", true);
+                  console.log("Clicked empty area: returning to the previous level.");
+
+                  var newKeyPath = getKeyPath().split(keyPathDelimiter,getLevelIndex()-1).join(keyPathDelimiter);
+                  changeState({ "keyPath": newKeyPath });
+              }
+              else
+                  console.log("Error: Cannot access level: " + nextLevelIndex);
+
           }
       }
       function onMouseOut() {
@@ -439,9 +443,66 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       ///////////////////////////////
       //
-      // TIMER FOR ZOOMING
+      // ZOOMING
       //
       ///////////////////////////////
+
+      var zoomBehavior = d3.behavior.zoom()
+      .scaleExtent([0.25, 4])
+      .on("zoom", function () {
+
+          var currentTranslate = translate();
+          var currentScale = scale();
+
+          var isPan = (currentScale == zoomBehavior.previousScale);
+
+          scalesTime.domain(zoomBehavior.originalScale.range()
+            .map(function (x) { return (x - currentTranslate[0]) / currentScale; })
+            .map(zoomBehavior.originalScale.invert));
+
+          var timeDomain = scalesTime.domain();
+          var restricted = false;
+          if (timeDomain[0] < timeMin) {
+              if (isPan)
+                  timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
+              if (timeDomain[1] > timeMax)
+                  timeDomain[1] = timeMax;
+              timeDomain[0] = timeMin;
+              restricted = true;
+          }
+          if (timeDomain[1] > timeMax) {
+              if (isPan)
+                  timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
+              if (timeDomain[0] < timeMin)
+                  timeDomain[0] = timeMin;
+              timeDomain[1] = timeMax;
+              restricted = true;
+          }
+          if (restricted) {
+              scalesTime.domain(timeDomain);
+              zoomBehavior.zoomTo(timeDomain);
+          }
+
+          redraw(true);
+          zoomStart();
+
+          zoomBehavior.previousTranslate = translate();
+          zoomBehavior.previousScale = sclae();
+      });
+      zoomBehavior.zoomTo = function (scaleDomain) {
+          var tRange = scaleDomain.map(this.originalScale);
+          var tOriginalRange = this.originalScale.range();
+          var tScale = (tOriginalRange[1] - tOriginalRange[0]) / (tRange[1] - tRange[0])
+          var tTranslate = tOriginalRange[0] - tRange[0] * tScale;
+
+          this.scale(tScale);
+          this.translate([tTranslate, 0]);
+      };
+      zoomBehavior.previousTranslate = zoomBehavior.translate();
+      zoomBehavior.previousScale = zoomBehavior.scale();
+      zoomBehavior.originalScale = scalesTime.copy();
+
+      /////////////
 
       var zoomTimer = null;
       var zoomTimeout = 300;
@@ -499,62 +560,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .classed("chartTitle", true)
       .text("");
 
-      var zoomBehavior = d3.behavior.zoom()
-      //.x(scalesTime)
-      .scaleExtent([0.25, 4])
-      .on("zoom", function () {
-
-
-          var currentTranslate = d3.event.translate;
-          var currentScale = d3.event.scale;
-
-          var isPan = (currentScale == zoomBehavior.previousScale);
-
-          scalesTime.domain(zoomBehavior.originalScale.range()
-            .map(function (x) { return (x - currentTranslate[0]) / currentScale; })
-            .map(zoomBehavior.originalScale.invert));
-
-          var timeDomain = scalesTime.domain();
-          var restricted = false;
-          if (timeDomain[0] < timeMin) {
-            if (isPan)
-                timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
-            timeDomain[0] = timeMin;
-            restricted = true;
-          }
-          if (timeDomain[1] > timeMax) {
-            if (isPan)
-                timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
-            timeDomain[1] = timeMax;
-            restricted = true;
-          }
-          if (restricted) {
-            scalesTime.domain(timeDomain);
-            zoomBehavior.zoomTo(timeDomain);
-          }
-
-          redraw(true);
-          zoomStart();
-
-          zoomBehavior.previousTranslate = currentTranslate;
-          zoomBehavior.previousScale = currentScale;
-      });
-      zoomBehavior.zoomTo = function (scaleDomain) {
-          var tRange = scaleDomain.map(this.originalScale);
-          var tOriginalRange = this.originalScale.range();
-          var tScale = (tOriginalRange[1] - tOriginalRange[0]) / (tRange[1] - tRange[0])
-          var tTranslate = tOriginalRange[0] - tRange[0] * tScale;
-
-          this.scale(tScale);
-          this.translate([tTranslate, 0]);
-      };
-      zoomBehavior.previousTranslate = zoomBehavior.translate();
-      zoomBehavior.previousScale = zoomBehavior.scale();
-      zoomBehavior.originalScale = scalesTime.copy();
-
       svg.call(zoomBehavior);
-
-
 
       var svgXaxis = svg.append("g")
       .attr("class", "xaxis axis")
