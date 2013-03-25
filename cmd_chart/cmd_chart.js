@@ -514,34 +514,24 @@ function cmd_chart(selection, metaData, appSettings ) {
             .map(function (x) { return (x - currentTranslate[0]) / currentScale; })
             .map(zoomBehavior.originalScale.invert));
 
-          /*var timeDomain = scalesTime.domain();
+          var timeDomain = scalesTime.domain();
           var restricted = false;
           if (timeDomain[0] < timeMin) {
-              restricted = true;
-              if (zoomMode == "pan")
-                  timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
-              timeDomain[0] = timeMin;
+            if (isPan)
+                timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
+            timeDomain[0] = timeMin;
+            restricted = true;
           }
           if (timeDomain[1] > timeMax) {
-              restricted = true;
-              if (zoomMode == "pan")
-                  timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
-              timeDomain[1] = timeMax;
+             if (isPan)
+                timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
+            timeDomain[1] = timeMax;
+            restricted = true;
           }
           if (restricted) {
-              scalesTime.domain(timeDomain);
-              //zoomBehavior.x(scalesTime);  
-          }*/
-
-          ///TEST
-          var tRange = scalesTime.domain().map(zoomBehavior.originalScale);
-          var tRangeSize = tRange[1] - tRange[0];
-          var tOriginalRange = zoomBehavior.originalScale.range();
-          var tOriginalRangeSize = tOriginalRange[1] - tOriginalRange[0];
-          var tScale = tOriginalRangeSize / tRangeSize;
-          var tTranslate = tRange[0] * tScale - tOriginalRange[0];
-
-          console.log(currentScale + "->" + tScale+ "     " + currentTranslate + "->" + tTranslate);
+            scalesTime.domain(timeDomain);
+            zoomBehavior.zoomTo(timeDomain);
+          }
 
           redraw(true);
           zoomStart();
@@ -549,6 +539,15 @@ function cmd_chart(selection, metaData, appSettings ) {
           zoomBehavior.previousTranslate = currentTranslate;
           zoomBehavior.previousScale = currentScale;
       });
+      zoomBehavior.zoomTo = function (timeScale) {
+          var tRange = timeScale.domain().map(this.originalScale);
+          var tOriginalRange = this.originalScale.range();
+          var tScale = (tOriginalRange[1] - tOriginalRange[0]) / (tRange[1] - tRange[0])
+          var tTranslate = tOriginalRange[0] - tRange[0] * tScale;
+
+          this.scale(tScale);
+          this.translate([tTranslate, 0]);
+      };
       zoomBehavior.previousTranslate = zoomBehavior.translate();
       zoomBehavior.previousScale = zoomBehavior.scale();
       zoomBehavior.originalScale = scalesTime.copy();
