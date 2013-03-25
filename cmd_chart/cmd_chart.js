@@ -504,16 +504,17 @@ function cmd_chart(selection, metaData, appSettings ) {
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
 
-          var zoomMode = (d3.event.scale == zoomBehavior.previousScale) ? "pan" : "zoom";
 
           var currentTranslate = d3.event.translate;
           var currentScale = d3.event.scale;
+
+          var isPan = (currentScale == zoomBehavior.previousScale);
 
           scalesTime.domain(zoomBehavior.originalScale.range()
             .map(function (x) { return (x - currentTranslate[0]) / currentScale; })
             .map(zoomBehavior.originalScale.invert));
 
-          var timeDomain = scalesTime.domain();
+          /*var timeDomain = scalesTime.domain();
           var restricted = false;
           if (timeDomain[0] < timeMin) {
               restricted = true;
@@ -530,15 +531,17 @@ function cmd_chart(selection, metaData, appSettings ) {
           if (restricted) {
               scalesTime.domain(timeDomain);
               //zoomBehavior.x(scalesTime);  
-          }
+          }*/
 
           ///TEST
           var tRange = scalesTime.domain().map(zoomBehavior.originalScale);
           var tRangeSize = tRange[1] - tRange[0];
           var tOriginalRange = zoomBehavior.originalScale.range();
           var tOriginalRangeSize = tOriginalRange[1] - tOriginalRange[0];
-          var tScale = tRangeSize / tOriginalRangeSize;
-          console.log(currentScale + "->" + tScale);
+          var tScale = tOriginalRangeSize / tRangeSize;
+          var tTranslate = tRange[0] * tScale - tOriginalRange[0];
+
+          console.log(currentScale + "->" + tScale+ "     " + currentTranslate + "->" + tTranslate);
 
           redraw(true);
           zoomStart();
