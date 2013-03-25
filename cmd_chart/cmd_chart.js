@@ -524,8 +524,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       .on("zoom", function () {
           var mode = (d3.event.scale == zoomBehavior.previousScale) ? "pan" : "zoom";
 
-          zoomBehavior.currentTranslate = d3.event.translate;
-          zoomBehavior.currentScale = d3.event.scale;
+          currentTranslate = d3.event.translate;
+          currentScale = d3.event.scale;
 
           scalesTime.domain(zoomBehavior.originalScale.range().map(function (x) { return (x - currentTranslate[0]) / currentScale; }).map(zoomBehavior.originalScale.invert));
           redraw(true, mode);
