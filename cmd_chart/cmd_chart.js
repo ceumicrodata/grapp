@@ -21,7 +21,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
       return obj;
   }
- 
+
   selection.select(".chartContainer").each(function () {
 
       // Prepare HIstory.js
@@ -31,7 +31,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       if (!isHistoryEnabled) {
           console.log("Warning: History.js not supported!");
       }
-      
+
       var statechangeFired;
       History.Adapter.bind(window, 'statechange', function () {
           var state = History.getState();
@@ -68,7 +68,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               var currentStateData = History.getState().data;
               var currentStateUrl = History.getState().url;
               var doReplace = (previousStateData == null) || (stateData.isZoom && currentStateData.isZoom && stateData.keyPath == currentStateData.keyPath);
-              
+
               statechangeFired = false;
               if (doReplace)
                   History.replaceState(stateData, title, url);
@@ -268,7 +268,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
 
       function redraw(instant, zoomMode) {
-      
+
           svgTooltipDot.style("display", "none");
           svgTooltipText.style("display", "none");
 
@@ -277,13 +277,13 @@ function cmd_chart(selection, metaData, appSettings ) {
           if (timeDomain[0] < timeMin) {
               restricted = true;
               if (zoomMode == "pan")
-                timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
+                  timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
               timeDomain[0] = timeMin;
           }
           if (timeDomain[1] > timeMax) {
               restricted = true;
               if (zoomMode == "pan")
-                timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
+                  timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
               timeDomain[1] = timeMax;
           }
           if (restricted) {
@@ -519,20 +519,27 @@ function cmd_chart(selection, metaData, appSettings ) {
       .text("");
 
       var zoomBehavior = d3.behavior.zoom()
-      .x(scalesTime)
+      //.x(scalesTime)
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
           var mode = (d3.event.scale == zoomBehavior.previousScale) ? "pan" : "zoom";
+
+          zoomBehavior.currentTranslate = d3.event.translate;
+          zoomBehavior.currentScale = d3.event.scale;
+
+          scalesTime.domain(zoomBehavior.originalScale.range().map(function (x) { return (x - currentTranslate[0]) / currentScale; }).map(zoomBehavior.originalScale.invert));
           redraw(true, mode);
           zoomStart();
-          zoomBehavior.previousTranslate = d3.event.translate;
-          zoomBehavior.previousScale = d3.event.scale;
+
+          zoomBehavior.previousTranslate = currentTranslate;
+          zoomBehavior.previousScale = currentScale;
       });
       zoomBehavior.previousTranslate = zoomBehavior.translate();
       zoomBehavior.previousScale = zoomBehavior.scale();
-     
+      zoomBehavior.originalScale = scalesTime.copy();
+
       svg.call(zoomBehavior);
-    
+
 
 
       var svgXaxis = svg.append("g")
@@ -593,7 +600,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .tickSubdivide(metaData.valueAxis.subdivide);
 
       ///////////////////////////
-     
+
       changeState(getUrlSearchParams());
 
   });
