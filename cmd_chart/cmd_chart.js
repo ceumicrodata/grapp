@@ -267,29 +267,10 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
       }
 
-      function redraw(instant, zoomMode) {
+      function redraw(instant) {
 
           svgTooltipDot.style("display", "none");
           svgTooltipText.style("display", "none");
-
-          var timeDomain = scalesTime.domain();
-          var restricted = false;
-          if (timeDomain[0] < timeMin) {
-              restricted = true;
-              if (zoomMode == "pan")
-                  timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
-              timeDomain[0] = timeMin;
-          }
-          if (timeDomain[1] > timeMax) {
-              restricted = true;
-              if (zoomMode == "pan")
-                  timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
-              timeDomain[1] = timeMax;
-          }
-          if (restricted) {
-              scalesTime.domain(timeDomain);
-              //zoomBehavior.x(scalesTime);  
-          }
 
           if (instant) {
               for (s in series)
@@ -522,13 +503,44 @@ function cmd_chart(selection, metaData, appSettings ) {
       //.x(scalesTime)
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
-          var mode = (d3.event.scale == zoomBehavior.previousScale) ? "pan" : "zoom";
 
-          currentTranslate = d3.event.translate;
-          currentScale = d3.event.scale;
+          var zoomMode = (d3.event.scale == zoomBehavior.previousScale) ? "pan" : "zoom";
 
-          scalesTime.domain(zoomBehavior.originalScale.range().map(function (x) { return (x - currentTranslate[0]) / currentScale; }).map(zoomBehavior.originalScale.invert));
-          redraw(true, mode);
+          var currentTranslate = d3.event.translate;
+          var currentScale = d3.event.scale;
+
+          scalesTime.domain(zoomBehavior.originalScale.range()
+            .map(function (x) { return (x - currentTranslate[0]) / currentScale; })
+            .map(zoomBehavior.originalScale.invert));
+
+          var timeDomain = scalesTime.domain();
+          var restricted = false;
+          if (timeDomain[0] < timeMin) {
+              restricted = true;
+              if (zoomMode == "pan")
+                  timeDomain[1] = timeMin + (timeDomain[1] - timeDomain[0]);
+              timeDomain[0] = timeMin;
+          }
+          if (timeDomain[1] > timeMax) {
+              restricted = true;
+              if (zoomMode == "pan")
+                  timeDomain[0] = timeMax - (timeDomain[1] - timeDomain[0]);
+              timeDomain[1] = timeMax;
+          }
+          if (restricted) {
+              scalesTime.domain(timeDomain);
+              //zoomBehavior.x(scalesTime);  
+          }
+
+          ///TEST
+          var tRange = scalesTime.domain().map(zoomBehavior.originalScale);
+          var tRangeSize = tRange[1] - tRange[0];
+          var tOriginalRange = originalScale.range();
+          var tOriginalRangeSize = tOriginalRange[1] - tOriginalRange[0];
+          var tScale = tRangeSize / tOriginalRangeSize;
+          console.log(currentScale + "->" + tScale);
+
+          redraw(true);
           zoomStart();
 
           zoomBehavior.previousTranslate = currentTranslate;
