@@ -3,13 +3,13 @@
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
- 
+
   function getUrlSearchParams() {
       var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
       for (i in pairs) {
           pair = pairs[i].split("=");
           if (pair.length == 2) {
-            var key = obj[decodeURIComponent(pair[0])];
+            var key = decodeURIComponent(pair[0]);
             var val = decodeURIComponent(pair[1]);
             if (key == "keyPath")
               obj["keyPath"] = val;
@@ -423,7 +423,6 @@ function cmd_chart(selection, metaData, appSettings ) {
           } else {
 
               if (getLevelIndex() > 0) {
-                  series[nearestSerie].path.classed("clicked", true);
                   console.log("Clicked empty area: returning to the previous level.");
 
                   var newKeyPath = getKeyPath().split(keyPathDelimiter,getLevelIndex()-1).join(keyPathDelimiter);
