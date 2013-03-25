@@ -451,8 +451,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
 
-          var currentTranslate = this.translate();
-          var currentScale = this.scale();
+          var currentTranslate = zoomBehavior.translate();
+          var currentScale = zoomBehavior.scale();
 
           var isPan = (currentScale == zoomBehavior.previousScale);
 
@@ -486,8 +486,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           redraw(true);
           zoomStart();
 
-          zoomBehavior.previousTranslate = translate();
-          zoomBehavior.previousScale = sclae();
+          zoomBehavior.previousTranslate = zoomBehavior.translate();
+          zoomBehavior.previousScale = zoomBehavior.scale();
       });
       zoomBehavior.zoomTo = function (scaleDomain) {
           var tRange = scaleDomain.map(this.originalScale);
