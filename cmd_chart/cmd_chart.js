@@ -202,6 +202,8 @@ function cmd_chart(selection, metaData, appSettings ) {
 
                   var keyPath = getKeyPath();
                   var lastKey = getLastKey();
+                  if (lastKey && !series[lastKey])
+                      lastKey = false;
                   for (s in series) {
                       series[s].sort(function (a, b) { return a.date - b.date; });
                       if (!series[s].path) {
@@ -425,7 +427,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               if (getLevelIndex() > 0) {
                   console.log("Clicked empty area: returning to the previous level.");
 
-                  var newKeyPath = getKeyPath().split(keyPathDelimiter,getLevelIndex()-1).join(keyPathDelimiter);
+                  var newKeyPath = getKeyPath().split(keyPathDelimiter, getLevelIndex() - 1).join(keyPathDelimiter);
                   changeState({ "keyPath": newKeyPath });
               }
               else
