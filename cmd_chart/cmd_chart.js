@@ -451,8 +451,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       .scaleExtent([0.25, 4])
       .on("zoom", function () {
 
-          var currentTranslate = translate();
-          var currentScale = scale();
+          var currentTranslate = this.translate();
+          var currentScale = this.scale();
 
           var isPan = (currentScale == zoomBehavior.previousScale);
 
