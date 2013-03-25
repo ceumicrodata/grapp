@@ -168,14 +168,11 @@ function cmd_chart(selection, metaData, appSettings ) {
                       var key = table[i][query.serieKey];
                       if (!series[key]) {
                           series[key] = new Array();
+                          series[key].keyPath = getKeyPath();
+                          series[key].onClick = query.onClick;
                           console.log("Serie added:" + key);
-                      }
-                      else {
-                        console.log("Serie added:" + key);
-                      }
 
-                      series[key].keyPath = getKeyPath();
-                      series[key].onClick = query.onClick;
+                      }
 
                       var date = metaData.dateFormat.parse(table[i][query.dateKey]).getTime();
                       var value = table[i][query.valueKey];
@@ -209,18 +206,19 @@ function cmd_chart(selection, metaData, appSettings ) {
                       lastKey = false;
                   for (s in series) {
                       series[s].sort(function (a, b) { return a.date - b.date; });
-
-                      series[s].color = (typeof (query.color) == "function") ? query.color(s) : query.color;
-                      series[s].styleName = (typeof (query.styleName) == "function") ? query.styleName(s) : query.styleName;
-                      series[s].keyPath = keyPath;               
-
                       if (!series[s].path) {
+
+                          series[s].color = (typeof (query.color) == "function") ? query.color(s) : query.color;
+                          series[s].styleName = (typeof (query.styleName) == "function") ? query.styleName(s) : query.styleName;
+
+                          series[s].keyPath = keyPath;
                           series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[lastKey ? lastKey : s]))
                                   .classed(series[s].styleName, true)
                                   .style("stroke", lastKey ? series[s].color : d3.rgb(255, 255, 255).toString());
 
                           bindEvents(s);
+
                       }
                   }
 
