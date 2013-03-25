@@ -535,7 +535,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           ///TEST
           var tRange = scalesTime.domain().map(zoomBehavior.originalScale);
           var tRangeSize = tRange[1] - tRange[0];
-          var tOriginalRange = originalScale.range();
+          var tOriginalRange = zoomBehavior.originalScale.range();
           var tOriginalRangeSize = tOriginalRange[1] - tOriginalRange[0];
           var tScale = tRangeSize / tOriginalRangeSize;
           console.log(currentScale + "->" + tScale);
