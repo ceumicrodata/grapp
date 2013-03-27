@@ -282,7 +282,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           else {
               var currentLevelIndex = getLevelIndex();
               var pos = 30;
-              svgLegend.each(function () { d3.select(this).remove(); });
+              svgLegend.select("text").remove(); 
+              svgLegend.select("line").remove();
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
                   if (levelIndex == currentLevelIndex) {
