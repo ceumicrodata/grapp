@@ -282,7 +282,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           else {
               var currentLevelIndex = getLevelIndex();
               var pos = 30;
-              svgLegend.html(null);
+              svgLegend.html("");
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
                   if (levelIndex == currentLevelIndex) {
