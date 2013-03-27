@@ -282,8 +282,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           else {
               var currentLevelIndex = getLevelIndex();
               var pos = 30;
-              svgLegend.select("text").remove(); 
-              svgLegend.select("line").remove();
+              svgLegend.selectAll("text").remove(); 
+              svgLegend.selectAll("line").remove();
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
                   if (levelIndex == currentLevelIndex) {
