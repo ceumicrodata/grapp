@@ -573,11 +573,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .on("mouseout", function () { onMouseOut(); });
 
       var svgLegend = svg.append("g")
-      .attr("class", "chartBackground")
-      .attr("width", appSettings.legendWidth + "px")
-      .attr("height", height + "px")
-      .attr("x", appSettings.margin + "px")
-      .attr("y", (appSettings.margin * 2 + width) + "px");
+      .attr("transform", "translate(" + (appSettings.margin * 2 + width) + "," + (appSettings.margin) + ")");
 
       var svgTitle = svg.append("text")
       .attr("transform", "translate(" + (appSettings.margin) + ",25)")
