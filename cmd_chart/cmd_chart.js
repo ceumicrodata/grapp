@@ -126,7 +126,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       var totalWidth = $(this).width();
       var totalHeight = $(this).height();
 
-      var width = totalWidth - 2 * appSettings.margin;
+      var width = totalWidth - 3 * appSettings.margin - appSettings.legendWidth;
       var height = totalHeight - 2 * appSettings.margin;
 
       var timeMin = metaData.dateFormat.parse(metaData.dateMin).getTime();
@@ -281,13 +281,29 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
           else {
               var currentLevelIndex = getLevelIndex();
+              var pos = 30;
+              svgLegend.html(null);
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
-                  if (levelIndex == currentLevelIndex)
+                  if (levelIndex == currentLevelIndex) {
                       series[s].path.classed("clicked", false).transition()
-                      .duration(appSettings.transitionSpeed)
-                      .attr("d", line(series[s]))
-                      .style("stroke", series[s].color);
+                        .duration(appSettings.transitionSpeed)
+                        .attr("d", line(series[s]))
+                        .style("stroke", series[s].color);
+
+                      svgLegend.append("text")
+                        .attr("transform", "translate(0," + pos + ")")
+                        .text(s);
+                      svgLegend.append("line")
+                        .attr("x1", 0)
+                        .attr("x2", appSettings.legendWidth)
+                        .attr("y1", pos)
+                        .attr("y2", pos)
+                        .style("stroke", series[s].color)
+                        .style("stroke-width", 3);
+
+                      pos += 20; //TODO
+                  }
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
@@ -555,6 +571,13 @@ function cmd_chart(selection, metaData, appSettings ) {
       .on("mousemove", function () { onMouseMove(); })
       .on("click", function () { onClick(); })
       .on("mouseout", function () { onMouseOut(); });
+
+      var svgLegend = svg.append("g")
+      .attr("class", "chartBackground")
+      .attr("width", appSettings.legendWidth + "px")
+      .attr("height", height + "px")
+      .attr("x", appSettings.margin + "px")
+      .attr("y", (appSettings.margin * 2 + width) + "px");
 
       var svgTitle = svg.append("text")
       .attr("transform", "translate(" + (appSettings.margin) + ",25)")
