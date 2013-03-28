@@ -414,7 +414,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           var tooltipInfo = new Object();
           var nearestSerie = getNearestSerie(tooltipInfo);
           for (s in series) {
-              var hidden = nearestSerie && (s == nearestSerie);
+              var hidden = nearestSerie && (s != nearestSerie);
               series[s].path.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color  );
               series[s].legendLine.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color  );
               series[s].legendText.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : d3.rgb(0, 0, 0).toString() );
@@ -471,8 +471,6 @@ function cmd_chart(selection, metaData, appSettings ) {
                   var newKeyPath = getKeyPath().split(keyPathDelimiter, getLevelIndex() - 1).join(keyPathDelimiter);
                   changeState({ "keyPath": newKeyPath });
               }
-              else
-                  console.log("Error: Cannot access level: " + nextLevelIndex);
 
           }
       }
