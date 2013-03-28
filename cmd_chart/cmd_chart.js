@@ -289,7 +289,6 @@ function cmd_chart(selection, metaData, appSettings ) {
               var pos = 20;
 
               updateMouseEnabled = false;
-              updateMouse();
               setTimeout(function () {
                   updateMouseEnabled = true;
                   updateMouse();
@@ -347,6 +346,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       delete series[s];
                   }
               }
+              updateMouse();
           }
 
           for (si = 0; si < metaData.shadedIntervals.length; si++) {
