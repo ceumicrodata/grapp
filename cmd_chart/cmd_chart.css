@@ -5,7 +5,7 @@
 }
 
 text {
-    stroke: none;
+    stroke-width: 0;
 }
 path {
     stroke-width: 2;
