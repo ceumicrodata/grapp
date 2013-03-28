@@ -288,7 +288,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                 .remove();
               svgLegend.selectAll("line")
                 .transition().duration(appSettings.transitionSpeed)
-                .style("stroke", d3.rgb(255, 255, 255).toString())
+                .attr("x1", 0)
                 .remove(); 
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
@@ -302,18 +302,23 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .attr("transform", "translate(0," + pos + ")")
                         .text(s)
                         .style("stroke", d3.rgb(255, 255, 255).toString())
-                        .transition().duration(appSettings.transitionSpeed)
+                        .transition()
+                        .delay(appSettings.transitionSpeed)
+                        .duration(appSettings.transitionSpeed)
                         .style("stroke", d3.rgb(0, 0, 0).toString());
 
                       svgLegend.append("line")
                         .attr("x1", 0)
-                        .attr("x2", appSettings.legendWidth)
+                        .attr("x2", 0)
                         .attr("y1", pos)
                         .attr("y2", pos)
                         .style("stroke", d3.rgb(255, 255, 255).toString())
                         .style("stroke-width", 3)
-                        .transition().duration(appSettings.transitionSpeed)
-                        .style("stroke", series[s].color);
+                        .transition()
+                        .delay(appSettings.transitionSpeed)
+                        .duration(appSettings.transitionSpeed)
+                        .attr("x2", appSettings.legendWidth)
+  
 
                       pos += 20; //TODO
                   }
