@@ -450,7 +450,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
           }
           if (nearestSerie)
-            clippedArea.append(series[nearestSerie].path);
+            clippedArea.node().appendChild(series[nearestSerie].path.node());
 
           if (nearestSerie && tooltipInfo.tooltipDate && tooltipInfo.tooltipValue) {
 
@@ -596,7 +596,6 @@ function cmd_chart(selection, metaData, appSettings ) {
       ///////////////////////////////
 
 
-      //svg init
       var svg = d3.select(this).append("svg:svg")
       .attr("width", totalWidth)
       .attr("height", totalHeight)
@@ -622,9 +621,6 @@ function cmd_chart(selection, metaData, appSettings ) {
       .attr("height", height + "px")
       .attr("x", appSettings.margin + "px")
       .attr("y", appSettings.margin + "px");
-      //.on("mousemove", function () { onMouseMove(); })
-      //.on("click", function () { onClick(); })
-      //.on("mouseout", function () { onMouseOut(); });
 
       var svgLegend = svg.append("g")
       .attr("transform", "translate(" + (appSettings.margin * 2 + width) + "," + (appSettings.margin) + ")");
@@ -664,23 +660,15 @@ function cmd_chart(selection, metaData, appSettings ) {
         .style("fill", metaData.shadedIntervals[si].color)
         .attr("y", "0px")
         .attr("height", height + "px");
-      //  .on("mousemove", function () { onMouseMove(); });
       }
 
       var svgTooltipDot = clippedArea.append("circle")
         .classed("tooltipDot", true)
         .attr("r", 4)
         .style("display", "none");
-       // .on("mousemove", function () { onMouseMove(); })
-       // .on("click", function () { onClick(); })
-       // .on("mouseout", function () { onMouseOut(); });
-
-
+ 
       var svgTooltipText = clippedArea.append("text")
         .classed("tooltipText", true);
-       // .on("mousemove", function () { onMouseMove(); })
-       // .on("click", function () { onClick(); })
-       // .on("mouseout", function () { onMouseOut(); });
 
       ///////////////////////////
 
@@ -698,8 +686,6 @@ function cmd_chart(selection, metaData, appSettings ) {
       changeState(getUrlSearchParams());
 
   });
-    
-  return this; //for method chaining
 }
   
   
