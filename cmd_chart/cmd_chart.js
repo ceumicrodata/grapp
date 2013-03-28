@@ -369,13 +369,15 @@ function cmd_chart(selection, metaData, appSettings ) {
       //////////////////////////////////
 
       function getNearestSerie(tooltipInfo) {
-          var coords = d3.mouse(clippedArea.node());
-          if (coords[0] < 0 || coords[0] > width + appSettings.margin + appSettings.legendWidth || coords[1] < 0 || coords[1] > height)
+          var coords = d3.mouse(svg.node());
+          if (coords[0] < appSettings.margin || coords[0] >= totalWidth - appSettings.margin || coords[1] < appSettings.margin || coords[1] >= totalHeight - appSettings.margin)
               return false;
-          if (coords[0] > width) {
+
+          if (coords[0] >= totalWidth - appSettings.margin - appSettings.legendWidth && coords[0] <= totalWidth - appSettings.margin) {
+              var relativeYCoord = coords[1] - appSettings.margin;
               var pos = appSettings.legendItemOffset;
               for (s in series) {
-                  if (coords[1] < pos)
+                  if (relativeYCoord < pos)
                       return s;
                   pos += appSettings.legendItemOffset;
               }
@@ -430,7 +432,6 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
               series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
           }
-          //series[s].path.classed("mouseover", (s == nearestSerie));
 
           if (nearestSerie && tooltipInfo.tooltipDate && tooltipInfo.tooltipValue) {
 
@@ -447,8 +448,6 @@ function cmd_chart(selection, metaData, appSettings ) {
                   .attr("x", px + "px")
                   .attr("y", py + "px")
                   .style("text-anchor", px > width / 2 ? "end" : "start");
-
-
           }
           else {
               svgTooltipDot.style("display", "none");
@@ -487,9 +486,8 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
       function onMouseOut() {
           var coords = d3.mouse(clippedArea.node());
-          if (coords[0] < 0 || coords[0] >= width || coords[1] < 0 || coords[1] >= height)
-              for (s in series)
-                  series[s].path.classed("mouseover", false);
+          if (coords[0] < 0 || coords[0] >= totalWidth || coords[1] < 0 || coords[1] >= totalHeight)
+              onMouseMove();
       }
 
       ///////////////////////////////
@@ -582,7 +580,10 @@ function cmd_chart(selection, metaData, appSettings ) {
       //svg init
       var svg = d3.select(this).append("svg:svg")
       .attr("width", totalWidth)
-      .attr("height", totalHeight);
+      .attr("height", totalHeight)
+      .on("mousemove", function () { onMouseMove(); })
+      .on("click", function () { onClick(); })
+      .on("mouseout", function () { onMouseOut(); });
 
       var line = d3.svg.line()
       .x(function (dataRecord) { return scalesTime(dataRecord["date"]); })
