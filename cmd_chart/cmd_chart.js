@@ -379,16 +379,21 @@ function cmd_chart(selection, metaData, appSettings ) {
       function getNearestSerie(tooltipInfo) {
           if (!updateMouseEnabled)
               return false;
+ 
           if (lastMouseX < appSettings.margin || lastMouseX >= totalWidth - appSettings.margin || lastMouseY < appSettings.margin || lastMouseY >= totalHeight - appSettings.margin)
               return false;
+
+          var currentKeyPath = getKeyPath();
 
           if (lastMouseX >= totalWidth - appSettings.margin - appSettings.legendWidth && lastMouseX <= totalWidth - appSettings.margin) {
               var relativeYCoord = lastMouseY - appSettings.margin;
               var pos = appSettings.legendItemOffset;
               for (s in series) {
-                  if (relativeYCoord < pos)
-                      return s;
-                  pos += appSettings.legendItemOffset;
+                  if (series[s].keyPath == currentKeyPath) {
+                      if (relativeYCoord < pos)
+                          return s;
+                      pos += appSettings.legendItemOffset;
+                  }
               }
               return false;
           }
@@ -399,7 +404,6 @@ function cmd_chart(selection, metaData, appSettings ) {
           var lowestDistance = (metaData.valueMax - metaData.valueMin) * appSettings.lineSenitiveWidth / width;
           var nearestSerie = false;
 
-          var currentKeyPath = getKeyPath();
           for (s in series) {
               if (series[s].keyPath == currentKeyPath) {
 
