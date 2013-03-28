@@ -303,8 +303,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .text(s)
                         .style("stroke-width", 1)
                         .style("stroke", d3.rgb(0, 0, 0).toString())
-                        .style("opacity", 0)
-                        .transition()
+                        .style("opacity", 0);
+                      legendText.transition()
                         .delay(appSettings.transitionSpeed)
                         .duration(appSettings.transitionSpeed)
                         .style("opacity", 1);
@@ -315,12 +315,11 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .attr("y1", pos + 7)
                         .attr("y2", pos + 7)
                         .style("stroke", series[s].color)
-                        .style("stroke-width", 3)
-                        .transition()
+                        .style("stroke-width", 3);
+                      legendLine.transition()
                         .delay(appSettings.transitionSpeed)
                         .duration(appSettings.transitionSpeed)
                         .attr("x2", appSettings.legendWidth)
-
 
                       pos += 30; //TODO
                   }
@@ -415,9 +414,9 @@ function cmd_chart(selection, metaData, appSettings ) {
           var nearestSerie = getNearestSerie(tooltipInfo);
           for (s in series) {
               var hidden = nearestSerie && (s != nearestSerie);
-              series[s].path.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color  );
-              series[s].legendLine.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color  );
-              series[s].legendText.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : d3.rgb(0, 0, 0).toString() );
+              series[s].path.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color);
+              series[s].legendLine.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color);
+              series[s].legendText.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : d3.rgb(0, 0, 0).toString());
           }
           //series[s].path.classed("mouseover", (s == nearestSerie));
 
