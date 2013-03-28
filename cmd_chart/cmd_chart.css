@@ -4,6 +4,9 @@
   fill: #006D9E;
 }
 
+text {
+    stroke: none;
+}
 path {
     stroke-width: 2;
     fill: none;

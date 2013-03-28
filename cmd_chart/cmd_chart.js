@@ -188,18 +188,6 @@ function cmd_chart(selection, metaData, appSettings ) {
                           series[key].push({ "date": date, "value": value });
                   }
 
-                  /*function bindEvents(ss) {
-                      series[ss].path.on("mousemove", function () {
-                          onMouseMove();
-                      });
-                      series[ss].path.on("click", function () {
-                          onClick();
-                      });
-                      series[ss].path.on("mouseout", function () {
-                          onMouseOut();
-                      });
-                  }*/
-
                   var keyPath = getKeyPath();
                   var lastKey = getLastKey();
                   if (lastKey && !series[lastKey])
@@ -215,9 +203,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                           series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[lastKey ? lastKey : s]))
                                   .classed(series[s].styleName, true)
-                                  .style("stroke", lastKey ? series[s].color : d3.rgb(255, 255, 255).toString());
-
-                          //bindEvents(s);
+                                  .style("stroke", lastKey ? series[s].color : appSettings.chartBackgroundColor);
 
                       }
                   }
@@ -332,7 +318,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
                       .attr("d", line(series[s]))
-                      .style("stroke", d3.rgb(240, 240, 240).toString());
+                      .style("stroke", appSettings.lineOnPreviousLevelColor);
                   else if (levelIndex > currentLevelIndex) {
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
@@ -443,11 +429,15 @@ function cmd_chart(selection, metaData, appSettings ) {
               return;
           var tooltipInfo = new Object();
           var nearestSerie = getNearestSerie(tooltipInfo);
+          var currentKeyPath = getKeyPath();
+
           for (s in series) {
-              var hidden = nearestSerie && (s != nearestSerie);
-              series[s].path.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
-              series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
-              series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
+              if (series[s].keyPath == currentKeyPath) {
+                var hidden = nearestSerie && (s != nearestSerie);
+                series[s].path.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
+                series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
+                series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
+              }
           }
           if (nearestSerie)
             clippedArea.node().appendChild(series[nearestSerie].path.node());

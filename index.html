@@ -52,13 +52,16 @@
   d3.text("chart1_metadata.json", function(metaDataText) {
      eval("var metaDataObj = "+ metaDataText +";"); //cannot use JSON.parse here... object has functions, too
      d3.select("#chart1").call(cmd_chart, metaDataObj, {
-          "transitionSpeed"   : 500,  //in msec
-          "lineSenitiveWidth" : 10,   //in pixels,
-          "legendWidth"       : 100,  //in pixels,
-          "margin"            : 40,   //chart margin for axes - in pixels
-          "hiddenLineColor"   : "#eeeeee",
-          "legendTextColor"   : "#000000",
-          "legendItemOffset"  : 30
+          "transitionSpeed"          : 500,  //in msec
+          "lineSenitiveWidth"        : 10,   //in pixels,
+          "legendWidth"              : 100,  //in pixels,
+          "margin"                   : 40,   //chart margin for axes - in pixels
+          "hiddenLineColor"          : "#eeeeee",
+          "legendTextColor"          : "#000000",
+          "legendItemOffset"         : 30,
+	  "chartBackgroundColor"     : "#F9F9F9",
+	  "lineOnPreviousLevelColor" : "#dddddd"
+
      });
   });
 
