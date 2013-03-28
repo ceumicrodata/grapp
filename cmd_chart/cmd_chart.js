@@ -2,12 +2,7 @@
 
 function cmd_chart(selection, metaData, appSettings ) {
 
-    var chartDescription = selection.select(".chartDescription");
-
-    //TODO
-    appSettings.hiddenLineColor = d3.rgb(230, 230, 230).toString();
-    appSettings.legendTextColor = d3.rgb(0, 0, 0).toString();
-    appSettings.legendItemOffset = 30;
+  var chartDescription = selection.select(".chartDescription");
 
   function getUrlSearchParams() {
       var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
