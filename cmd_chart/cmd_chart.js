@@ -449,6 +449,8 @@ function cmd_chart(selection, metaData, appSettings ) {
               series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
               series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
           }
+          if (nearestSerie)
+            clippedArea.append(series[nearestSerie].path);
 
           if (nearestSerie && tooltipInfo.tooltipDate && tooltipInfo.tooltipValue) {
 
