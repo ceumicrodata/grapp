@@ -282,8 +282,14 @@ function cmd_chart(selection, metaData, appSettings ) {
           else {
               var currentLevelIndex = getLevelIndex();
               var pos = 30;
-              svgLegend.selectAll("text").remove(); 
-              svgLegend.selectAll("line").remove();
+              svgLegend.selectAll("text")
+                .duration(appSettings.transitionSpeed)
+                .style("stroke", d3.rgb(255, 255, 255).toString())
+                .remove();
+              svgLegend.selectAll("line")
+                .duration(appSettings.transitionSpeed)
+                .style("stroke", d3.rgb(255, 255, 255).toString())
+                .remove(); 
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
                   if (levelIndex == currentLevelIndex) {
@@ -294,14 +300,20 @@ function cmd_chart(selection, metaData, appSettings ) {
 
                       svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
-                        .text(s);
+                        .text(s)
+                        .style("stroke", d3.rgb(255, 255, 255).toString())
+                        .duration(appSettings.transitionSpeed)
+                        .style("stroke", d3.rgb(0, 0, 0).toString());
+
                       svgLegend.append("line")
                         .attr("x1", 0)
                         .attr("x2", appSettings.legendWidth)
                         .attr("y1", pos)
                         .attr("y2", pos)
-                        .style("stroke", series[s].color)
-                        .style("stroke-width", 3);
+                        .style("stroke", d3.rgb(255, 255, 255).toString())
+                        .style("stroke-width", 3)
+                        .duration(appSettings.transitionSpeed)
+                        .style("stroke", series[s].color);
 
                       pos += 20; //TODO
                   }
