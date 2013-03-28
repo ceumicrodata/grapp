@@ -304,7 +304,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .style("stroke-width", 1)
                         .style("stroke", d3.rgb(0, 0, 0).toString())
                         .style("opacity", 0);
-                      legendText.transition()
+                      series[s].legendText.transition()
                         .delay(appSettings.transitionSpeed)
                         .duration(appSettings.transitionSpeed)
                         .style("opacity", 1);
@@ -316,7 +316,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .attr("y2", pos + 7)
                         .style("stroke", series[s].color)
                         .style("stroke-width", 3);
-                      legendLine.transition()
+                      series[s].legendLine.transition()
                         .delay(appSettings.transitionSpeed)
                         .duration(appSettings.transitionSpeed)
                         .attr("x2", appSettings.legendWidth)
