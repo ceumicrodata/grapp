@@ -284,12 +284,12 @@ function cmd_chart(selection, metaData, appSettings ) {
               var pos = 20;
               svgLegend.selectAll("text")
                 .transition().duration(appSettings.transitionSpeed)
-                .style("stroke", d3.rgb(255, 255, 255).toString())
+                .style("opacity", 0)
                 .remove();
               svgLegend.selectAll("line")
                 .transition().duration(appSettings.transitionSpeed)
                 .attr("x2", 0)
-                .remove(); 
+                .remove();
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
                   if (levelIndex == currentLevelIndex) {
@@ -302,24 +302,25 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .attr("transform", "translate(0," + pos + ")")
                         .text(s)
                         .style("stroke-width", 1)
-                        .style("stroke", d3.rgb(255, 255, 255).toString())
+                        .style("stroke", d3.rgb(0, 0, 0).toString())
+                        .style("opacity", 0)
                         .transition()
                         .delay(appSettings.transitionSpeed)
                         .duration(appSettings.transitionSpeed)
-                        .style("stroke", d3.rgb(0, 0, 0).toString());
+                        .style("opacity", 1);
 
                       svgLegend.append("line")
                         .attr("x1", 0)
                         .attr("x2", 0)
-                        .attr("y1", pos+7)
-                        .attr("y2", pos+7)
+                        .attr("y1", pos + 7)
+                        .attr("y2", pos + 7)
                         .style("stroke", series[s].color)
                         .style("stroke-width", 3)
                         .transition()
                         .delay(appSettings.transitionSpeed)
                         .duration(appSettings.transitionSpeed)
                         .attr("x2", appSettings.legendWidth)
-  
+
 
                       pos += 30; //TODO
                   }
