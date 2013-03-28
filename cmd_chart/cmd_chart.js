@@ -298,7 +298,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .attr("d", line(series[s]))
                         .style("stroke", series[s].color);
 
-                      svgLegend.append("text")
+                      series[s].legendText = svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
                         .text(s)
                         .style("stroke-width", 1)
@@ -309,7 +309,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .duration(appSettings.transitionSpeed)
                         .style("opacity", 1);
 
-                      svgLegend.append("line")
+                      series[s].legendLine = svgLegend.append("line")
                         .attr("x1", 0)
                         .attr("x2", 0)
                         .attr("y1", pos + 7)
@@ -413,8 +413,13 @@ function cmd_chart(selection, metaData, appSettings ) {
               return;
           var tooltipInfo = new Object();
           var nearestSerie = getNearestSerie(tooltipInfo);
-          for (s in series)
-              series[s].path.classed("mouseover", (s == nearestSerie));
+          for (s in series) {
+              var hidden = nearestSerie && (s == nearestSerie);
+              series[s].path.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color  );
+              series[s].legendLine.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color  );
+              series[s].legendText.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : d3.rgb(0, 0, 0).toString() );
+          }
+          //series[s].path.classed("mouseover", (s == nearestSerie));
 
           if (nearestSerie) {
 
