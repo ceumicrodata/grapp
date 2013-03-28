@@ -2,7 +2,12 @@
 
 function cmd_chart(selection, metaData, appSettings ) {
 
-  var chartDescription = selection.select(".chartDescription");
+    var chartDescription = selection.select(".chartDescription");
+
+    //TODO
+    appSettings.hiddenLineColor = d3.rgb(230, 230, 230).toString();
+    appSettings.legendTextColor = d3.rgb(0, 0, 0).toString();
+    appSettings.legendItemOffset = 30;
 
   function getUrlSearchParams() {
       var pairs = window.location.search.substring(1).split("&"),  obj = {}, pair, i;
@@ -297,12 +302,10 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .duration(appSettings.transitionSpeed)
                         .attr("d", line(series[s]))
                         .style("stroke", series[s].color);
-
                       series[s].legendText = svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
                         .text(s)
-                        .style("stroke-width", 1)
-                        .style("stroke", d3.rgb(0, 0, 0).toString())
+                        .style("stroke", appSettings.legendTextColor)
                         .style("opacity", 0);
                       series[s].legendText.transition()
                         .delay(appSettings.transitionSpeed)
@@ -321,7 +324,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .duration(appSettings.transitionSpeed)
                         .attr("x2", appSettings.legendWidth)
 
-                      pos += 30; //TODO
+                      pos += appSettings.legendItemOffset; //TODO
                   }
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
@@ -367,8 +370,17 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       function getNearestSerie(tooltipInfo) {
           var coords = d3.mouse(clippedArea.node());
-          if (coords[0] < 0 || coords[0] > width || coords[1] < 0 || coords[1] > height)
+          if (coords[0] < 0 || coords[0] > width + appSettings.margin + appSettings.legendWidth || coords[1] < 0 || coords[1] > height)
               return false;
+          if (coords[0] > width) {
+              var pos = appSettings.legendItemOffset;
+              for (s in series) {
+                  if (coords[1] < pos)
+                      return s;
+                  pos += appSettings.legendItemOffset;
+              }
+              return false;
+          }
 
           var currentTime = scalesTime.invert(coords[0]);
           var currentValue = scalesValue.invert(coords[1]);
@@ -414,13 +426,13 @@ function cmd_chart(selection, metaData, appSettings ) {
           var nearestSerie = getNearestSerie(tooltipInfo);
           for (s in series) {
               var hidden = nearestSerie && (s != nearestSerie);
-              series[s].path.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color);
-              series[s].legendLine.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : series[s].color);
-              series[s].legendText.style("stroke", hidden ? d3.rgb(200, 200, 200).toString() : d3.rgb(0, 0, 0).toString());
+              series[s].path.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
+              series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
+              series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
           }
           //series[s].path.classed("mouseover", (s == nearestSerie));
 
-          if (nearestSerie) {
+          if (nearestSerie && tooltipInfo.tooltipDate && tooltipInfo.tooltipValue) {
 
               var px = scalesTime(tooltipInfo.tooltipDate);
               var py = scalesValue(tooltipInfo.tooltipValue);
