@@ -287,12 +287,20 @@ function cmd_chart(selection, metaData, appSettings ) {
           else {
               var currentLevelIndex = getLevelIndex();
               var pos = 20;
+
+              updateMouseEnabled = false;
+              updateMouse();
+              setTimeout(function () {
+                  updateMouseEnabled = true;
+                  updateMouse();
+              }, appSettings.transitionSpeed);
+
               svgLegend.selectAll("text")
-                .transition().duration(appSettings.transitionSpeed)
+                .transition().duration(appSettings.transitionSpeed /2)
                 .style("opacity", 0)
                 .remove();
               svgLegend.selectAll("line")
-                .transition().duration(appSettings.transitionSpeed)
+                .transition().duration(appSettings.transitionSpeed /2)
                 .attr("x2", 0)
                 .remove();
               for (s in series) {
@@ -308,8 +316,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .style("stroke", appSettings.legendTextColor)
                         .style("opacity", 0);
                       series[s].legendText.transition()
-                        .delay(appSettings.transitionSpeed)
-                        .duration(appSettings.transitionSpeed)
+                        .delay(appSettings.transitionSpeed/2)
+                        .duration(appSettings.transitionSpeed/2)
                         .style("opacity", 1);
 
                       series[s].legendLine = svgLegend.append("line")
@@ -320,8 +328,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .style("stroke", series[s].color)
                         .style("stroke-width", 3);
                       series[s].legendLine.transition()
-                        .delay(appSettings.transitionSpeed)
-                        .duration(appSettings.transitionSpeed)
+                        .delay(appSettings.transitionSpeed/2)
+                        .duration(appSettings.transitionSpeed/2)
                         .attr("x2", appSettings.legendWidth)
 
                       pos += appSettings.legendItemOffset; //TODO
@@ -369,12 +377,13 @@ function cmd_chart(selection, metaData, appSettings ) {
       //////////////////////////////////
 
       function getNearestSerie(tooltipInfo) {
-          var coords = d3.mouse(svg.node());
-          if (coords[0] < appSettings.margin || coords[0] >= totalWidth - appSettings.margin || coords[1] < appSettings.margin || coords[1] >= totalHeight - appSettings.margin)
+          if (!updateMouseEnabled)
+              return false;
+          if (lastMouseX < appSettings.margin || lastMouseX >= totalWidth - appSettings.margin || lastMouseY < appSettings.margin || lastMouseY >= totalHeight - appSettings.margin)
               return false;
 
-          if (coords[0] >= totalWidth - appSettings.margin - appSettings.legendWidth && coords[0] <= totalWidth - appSettings.margin) {
-              var relativeYCoord = coords[1] - appSettings.margin;
+          if (lastMouseX >= totalWidth - appSettings.margin - appSettings.legendWidth && lastMouseX <= totalWidth - appSettings.margin) {
+              var relativeYCoord = lastMouseY - appSettings.margin;
               var pos = appSettings.legendItemOffset;
               for (s in series) {
                   if (relativeYCoord < pos)
@@ -384,8 +393,8 @@ function cmd_chart(selection, metaData, appSettings ) {
               return false;
           }
 
-          var currentTime = scalesTime.invert(coords[0]);
-          var currentValue = scalesValue.invert(coords[1]);
+          var currentTime = scalesTime.invert(lastMouseX - appSettings.margin);
+          var currentValue = scalesValue.invert(lastMouseY - appSettings.margin);
 
           var lowestDistance = (metaData.valueMax - metaData.valueMin) * appSettings.lineSenitiveWidth / width;
           var nearestSerie = false;
@@ -420,8 +429,17 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
           return nearestSerie;
       }
+      var lastMouseX = -1;
+      var lastMouseY = -1;
+      var updateMouseEnabled = true;
 
       function onMouseMove() {
+          var coords = d3.mouse(svg.node());
+          lastMouseX = coords[0];
+          lastMouseY = coords[1];
+          updateMouse();
+      }
+      function updateMouse() {
           if (zoomTimer !== null)
               return;
           var tooltipInfo = new Object();
@@ -485,7 +503,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
       }
       function onMouseOut() {
-          var coords = d3.mouse(clippedArea.node());
+          var coords = d3.mouse(svg.node());
           if (coords[0] < 0 || coords[0] >= totalWidth || coords[1] < 0 || coords[1] >= totalHeight)
               onMouseMove();
       }
