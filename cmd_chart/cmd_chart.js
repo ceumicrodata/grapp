@@ -288,7 +288,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                 .remove();
               svgLegend.selectAll("line")
                 .transition().duration(appSettings.transitionSpeed)
-                .attr("x1", 0)
+                .attr("x2", 0)
                 .remove(); 
               for (s in series) {
                   var levelIndex = getLevelIndexOfPath(series[s].keyPath);
