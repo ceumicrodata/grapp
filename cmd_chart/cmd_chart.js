@@ -293,7 +293,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       series[s].legendText = svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
                         .text(s)
-                        .style("stroke", appSettings.legendTextColor)
+                        .style("fill", appSettings.legendTextColor)
                         .style("opacity", 0);
                       series[s].legendText.transition()
                         .delay(appSettings.transitionSpeed/2)
@@ -436,7 +436,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                 var hidden = nearestSerie && (s != nearestSerie);
                 series[s].path.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
                 series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
-                series[s].legendText.style("stroke", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
+                series[s].legendText.style("fill", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
               }
           }
           if (nearestSerie)
