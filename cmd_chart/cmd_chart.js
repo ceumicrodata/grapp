@@ -188,7 +188,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                           series[key].push({ "date": date, "value": value });
                   }
 
-                  function bindEvents(ss) {
+                  /*function bindEvents(ss) {
                       series[ss].path.on("mousemove", function () {
                           onMouseMove();
                       });
@@ -198,7 +198,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       series[ss].path.on("mouseout", function () {
                           onMouseOut();
                       });
-                  }
+                  }*/
 
                   var keyPath = getKeyPath();
                   var lastKey = getLastKey();
@@ -217,7 +217,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                                   .classed(series[s].styleName, true)
                                   .style("stroke", lastKey ? series[s].color : d3.rgb(255, 255, 255).toString());
 
-                          bindEvents(s);
+                          //bindEvents(s);
 
                       }
                   }
@@ -619,10 +619,10 @@ function cmd_chart(selection, metaData, appSettings ) {
       .attr("width", width + "px")
       .attr("height", height + "px")
       .attr("x", appSettings.margin + "px")
-      .attr("y", appSettings.margin + "px")
-      .on("mousemove", function () { onMouseMove(); })
-      .on("click", function () { onClick(); })
-      .on("mouseout", function () { onMouseOut(); });
+      .attr("y", appSettings.margin + "px");
+      //.on("mousemove", function () { onMouseMove(); })
+      //.on("click", function () { onClick(); })
+      //.on("mouseout", function () { onMouseOut(); });
 
       var svgLegend = svg.append("g")
       .attr("transform", "translate(" + (appSettings.margin * 2 + width) + "," + (appSettings.margin) + ")");
@@ -661,24 +661,24 @@ function cmd_chart(selection, metaData, appSettings ) {
         .classed("shadedIntervals", true)
         .style("fill", metaData.shadedIntervals[si].color)
         .attr("y", "0px")
-        .attr("height", height + "px")
-        .on("mousemove", function () { onMouseMove(); });
+        .attr("height", height + "px");
+      //  .on("mousemove", function () { onMouseMove(); });
       }
 
       var svgTooltipDot = clippedArea.append("circle")
         .classed("tooltipDot", true)
         .attr("r", 4)
-        .style("display", "none")
-        .on("mousemove", function () { onMouseMove(); })
-        .on("click", function () { onClick(); })
-        .on("mouseout", function () { onMouseOut(); });
+        .style("display", "none");
+       // .on("mousemove", function () { onMouseMove(); })
+       // .on("click", function () { onClick(); })
+       // .on("mouseout", function () { onMouseOut(); });
 
 
       var svgTooltipText = clippedArea.append("text")
-        .classed("tooltipText", true)
-        .on("mousemove", function () { onMouseMove(); })
-        .on("click", function () { onClick(); })
-        .on("mouseout", function () { onMouseOut(); });
+        .classed("tooltipText", true);
+       // .on("mousemove", function () { onMouseMove(); })
+       // .on("click", function () { onClick(); })
+       // .on("mouseout", function () { onMouseOut(); });
 
       ///////////////////////////
 
