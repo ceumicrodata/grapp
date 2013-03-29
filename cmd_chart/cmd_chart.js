@@ -14,9 +14,9 @@ function cmd_chart(selection, metaData, appSettings ) {
             if (key == "keyPath")
               obj["keyPath"] = val;
             else if (key == "dateFrom")
-              obj["timeFrom"] = metaData.dateFormat.parse(val).getTime();
+              obj["timeFrom"] = metaData.dateFormat.parse(val);
             else if (key == "dateTo")
-              obj["timeTo"] = metaData.dateFormat.parse(val).getTime();
+              obj["timeTo"] = metaData.dateFormat.parse(val);
           }
       }
       return obj;
@@ -160,12 +160,12 @@ function cmd_chart(selection, metaData, appSettings ) {
       var width = totalWidth - 3 * appSettings.margin - appSettings.legendWidth;
       var height = totalHeight - 2 * appSettings.margin;
 
-      var timeMin = metaData.dateFormat.parse(metaData.dateMin).getTime();
-      var timeMax = metaData.dateFormat.parse(metaData.dateMax).getTime();
+      var timeMin = metaData.dateFormat.parse(metaData.dateMin);
+      var timeMax = metaData.dateFormat.parse(metaData.dateMax);
 
       var scalesTime = d3.time.scale()
       .range([0, width])
-      .domain([metaData.dateFormat.parse(metaData.dateFrom).getTime(), metaData.dateFormat.parse(metaData.dateTo).getTime()]);
+      .domain([metaData.dateFormat.parse(metaData.dateFrom), metaData.dateFormat.parse(metaData.dateTo)]);
       var scalesValue = d3.scale.linear()
       .range([height, 0])
       .domain([metaData.valueMin, metaData.valueMax]);
@@ -225,7 +225,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                           console.log("Serie added:" + key);
                       }
 
-                      var date = metaData.dateFormat.parse(table[i][query.dateKey]).getTime();
+                      var date = metaData.dateFormat.parse(table[i][query.dateKey]);
                       var value = table[i][query.valueKey];
 
                       var foundExisting = false;
@@ -397,8 +397,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
 
           for (si = 0; si < metaData.shadedIntervals.length; si++) {
-              var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
-              var timeTo = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
+              var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom);
+              var timeTo = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo);
               svgShadedIntervals[si]
                 .attr("x", (scalesTime(timeFrom)) + "px")
                 .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
