@@ -87,8 +87,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           if (stateData.timeTo === undefined)
               stateData.timeTo = timeDomain[1];
 
-          var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
-          var dateTo = metaData.dateFormat(new Date(stateData.timeTo));
+          var dateFrom = metaData.dateFormat(stateData.timeFrom);
+          var dateTo = metaData.dateFormat(stateData.timeTo);
           var url = "?keyPath=" + stateData.keyPath + "&dateFrom=" + dateFrom + "&dateTo=" + dateTo;
           var title = "CEU Microdata (testurl: " + url + ")";
 
@@ -284,13 +284,16 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
 
 
-          scalesTime.domain([new Date(stateData.timeFrom), new Date(stateData.timeTo)]);
+          scalesTime.domain([stateData.timeFrom, stateData.timeTo]);
 
           if (!currentLevel.intervals)
               currentLevel.intervals = new intervals();
               
-          var expand = (stateData.timeTo - stateData.timeFrom) / 4; 
-          var intervalToLoad = currentLevel.intervals.add(stateData.timeFrom - expand, stateData.timeTo + expand);
+          var from = stateData.timeFrom.getTime();
+          var to   = stateData.timeTo.getTime();
+          
+          var expand = (to - from) / 4; 
+          var intervalToLoad = currentLevel.intervals.add(from - expand, to + expand);
 
           if (intervalToLoad !== false) {
               var dateFrom = metaData.dateFormat(new Date(intervalToLoad[0]));
