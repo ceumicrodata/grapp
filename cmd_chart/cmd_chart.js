@@ -162,16 +162,19 @@ function cmd_chart(selection, metaData, appSettings ) {
               console.log("AJAX Query: " + url);
               d3.json(url, function (data) {
 
+                  var currentKeyPath = getKeyPath();
                   var table = data[query.tableName];
                   var newSeries = new Object();
                   for (var i = 0; i < table.length; i++) {
-                      var key = table[i][query.serieKey];
+                      var ID = table[i][query.serieKey];
+                      var key = currentKeyPath + "/" + ID;
                       if (!series[key]) {
                           series[key] = new Array();
-                          series[key].keyPath = getKeyPath();
+                          series[key].ID = ID;
+                          series[key].name = "["+ID+"]"; //TODO
+                          series[key].keyPath = currentKeyPath;
                           series[key].onClick = query.onClick;
                           console.log("Serie added:" + key);
-
                       }
 
                       var date = metaData.dateFormat.parse(table[i][query.dateKey]).getTime();
@@ -197,12 +200,12 @@ function cmd_chart(selection, metaData, appSettings ) {
                       if (!series[s].path) {
 
                           series[s].color = (typeof (query.color) == "function") ? query.color(s) : query.color;
-                          series[s].styleName = (typeof (query.styleName) == "function") ? query.styleName(s) : query.styleName;
+                          series[s].thickness = (typeof (query.thickness) == "function") ? query.thickness(s) : query.thickness;
 
                           series[s].keyPath = keyPath;
                           series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[lastKey ? lastKey : s]))
-                                  .classed(series[s].styleName, true)
+                                  .style("stroke-width", series[s].thickness )
                                   .style("stroke", lastKey ? series[s].color : appSettings.chartBackgroundColor);
 
                       }
@@ -267,7 +270,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
           else {
               var currentLevelIndex = getLevelIndex();
-              var pos = 20;
+              var pos = appSettings.legendItemOffset * 2/3; //baseline pos
 
               updateMouseEnabled = false;
               setTimeout(function () {
@@ -276,11 +279,11 @@ function cmd_chart(selection, metaData, appSettings ) {
               }, appSettings.transitionSpeed);
 
               svgLegend.selectAll("text")
-                .transition().duration(appSettings.transitionSpeed /2)
+                .transition().duration(appSettings.transitionSpeed / 2)
                 .style("opacity", 0)
                 .remove();
               svgLegend.selectAll("line")
-                .transition().duration(appSettings.transitionSpeed /2)
+                .transition().duration(appSettings.transitionSpeed / 2)
                 .attr("x2", 0)
                 .remove();
               for (s in series) {
@@ -292,14 +295,13 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .style("stroke", series[s].color);
                       series[s].legendText = svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
-                        .text(s)
+                        .text(series[s].name)
                         .style("fill", appSettings.legendTextColor)
                         .style("opacity", 0);
                       series[s].legendText.transition()
-                        .delay(appSettings.transitionSpeed/2)
-                        .duration(appSettings.transitionSpeed/2)
+                        .delay(appSettings.transitionSpeed / 2)
+                        .duration(appSettings.transitionSpeed / 2)
                         .style("opacity", 1);
-
                       series[s].legendLine = svgLegend.append("line")
                         .attr("x1", 0)
                         .attr("x2", 0)
@@ -308,11 +310,11 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .style("stroke", series[s].color)
                         .style("stroke-width", 3);
                       series[s].legendLine.transition()
-                        .delay(appSettings.transitionSpeed/2)
-                        .duration(appSettings.transitionSpeed/2)
+                        .delay(appSettings.transitionSpeed / 2)
+                        .duration(appSettings.transitionSpeed / 2)
                         .attr("x2", appSettings.legendWidth)
 
-                      pos += appSettings.legendItemOffset; //TODO
+                      pos += appSettings.legendItemOffset; 
                   }
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
@@ -360,7 +362,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       function getNearestSerie(tooltipInfo) {
           if (!updateMouseEnabled)
               return false;
- 
+
           if (lastMouseX < appSettings.margin || lastMouseX >= totalWidth - appSettings.margin || lastMouseY < appSettings.margin || lastMouseY >= totalHeight - appSettings.margin)
               return false;
 
@@ -433,14 +435,14 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           for (s in series) {
               if (series[s].keyPath == currentKeyPath) {
-                var hidden = nearestSerie && (s != nearestSerie);
-                series[s].path.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
-                series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
-                series[s].legendText.style("fill", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
+                  var hidden = nearestSerie && (s != nearestSerie);
+                  series[s].path.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
+                  series[s].legendLine.style("stroke", hidden ? appSettings.hiddenLineColor : series[s].color);
+                  series[s].legendText.style("fill", hidden ? appSettings.hiddenLineColor : appSettings.legendTextColor);
               }
           }
-          if (nearestSerie)
-            clippedArea.node().appendChild(series[nearestSerie].path.node());
+          if (nearestSerie) //brings selected line to front
+              clippedArea.node().appendChild(series[nearestSerie].path.node());
 
           if (nearestSerie && tooltipInfo.tooltipDate && tooltipInfo.tooltipValue) {
 
@@ -452,7 +454,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                   .style("stroke", series[nearestSerie].color)
                   .style("fill", series[nearestSerie].color);
 
-              svgTooltipText.text(metaData.tooltipText(nearestSerie, tooltipInfo.tooltipDate, tooltipInfo.tooltipValue))
+              svgTooltipText.text(metaData.tooltipText(series[nearestSerie].name, tooltipInfo.tooltipDate, tooltipInfo.tooltipValue))
                   .style("display", "block")
                   .attr("x", px + "px")
                   .attr("y", py + "px")
@@ -476,7 +478,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       console.log("Clicked serie: " + nearestSerie);
 
                       var currentKeyPath = getKeyPath();
-                      var newKeyPath = currentKeyPath == "" ? nearestSerie : currentKeyPath + "/" + nearestSerie;
+                      var newKeyPath = currentKeyPath == "" ? nearestSerie : currentKeyPath + "/" + series[nearestSerie].ID;
                       changeState({ "keyPath": newKeyPath });
                   }
                   else
@@ -656,7 +658,7 @@ function cmd_chart(selection, metaData, appSettings ) {
         .classed("tooltipDot", true)
         .attr("r", 4)
         .style("display", "none");
- 
+
       var svgTooltipText = clippedArea.append("text")
         .classed("tooltipText", true);
 

@@ -75,7 +75,7 @@
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
           "color" : function(serieKey) { return d3.hsl(Math.random()*360, 1, 0.5).toString(); }, //color of the line (null: random)
-          "styleName" : "regionLine", //css style name, can be a function(serieKey)
+          "thickness" : 2; //thickness of the line, in pixels
           "onClick" : +1          //go to next level on click
         },
         {
@@ -90,7 +90,7 @@
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
           "color" : "#ff0000",    //color of the line, can be a function(serieKey)
-          "styleName" : "referenceCountryLine", //css style name, can be a function(serieKey)
+          "thickness" : 4; //thickness of the line, in pixels
           "onClick" : 0           //not clickable
         }
       ]
@@ -119,7 +119,7 @@
           "dateKey" : "date",     //value on the X axis
           "valueKey" : "growth",  //value on the Y axis
           "color" : function(serieKey) { return d3.hsl(Math.random()*360, 1, 0.5).toString(); }, //color of the line (null: random)
-          "styleName" : "countryLine", //css style name, can be a function(serieKey)
+          "thickness" : 2;      //thickness of the line, in pixels
           "onClick" : 0                //not clickable
         }
       ]
