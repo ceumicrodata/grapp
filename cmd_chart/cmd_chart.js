@@ -219,8 +219,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                           series[key].name = "[" + ID + "]"; //TODO
                           series[key].keyPath = currentKeyPath;
                           series[key].onClick = query.onClick;
-                          series[key].color = (typeof (query.color) == "function") ? query.color(s) : query.color;
-                          series[key].thickness = (typeof (query.thickness) == "function") ? query.thickness(s) : query.thickness;
+                          series[key].color = (typeof (query.color) == "function") ? query.color(key) : query.color;
+                          series[key].thickness = (typeof (query.thickness) == "function") ? query.thickness(key) : query.thickness;
 
                           console.log("Serie added:" + key);
                       }
