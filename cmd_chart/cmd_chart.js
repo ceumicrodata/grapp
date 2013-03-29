@@ -22,6 +22,34 @@ function cmd_chart(selection, metaData, appSettings ) {
       return obj;
   }
 
+  function intervals() {
+      this.ints = new Array();
+      this.add = function (from, to) {
+          var newInts = new Array();
+          var reFrom = from;
+          var reTo = to;
+          for (var i = 0; i < intervals.length; i++) {
+              var iFrom = this.ints[i][0];
+              var iTo = this.ints[i][1];
+              if (iFrom > to || from > iTo)
+                  newInts.push(ints[i]); //no overlapping
+              else {
+                  if (reFrom >= iFrom) //subtracting the
+                      reFrom = Math.max(reFrom, iTo);
+                  if (reTo <= iTo)
+                      reTo = Math.min(reTo, iFrom);
+ 
+                  from = Math.min(iFrom, from); //union of the two intervals
+                  to = Math.max(iTo, to);
+              }
+          }
+          newInts.push([from, to]);
+          this.ints = newInts; 
+          return reTo > reFrom ? [reFrom, reTo] : false;
+      }
+      return this;
+  }
+
   selection.select(".chartContainer").each(function () {
 
       // Prepare HIstory.js
@@ -88,6 +116,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       /////////////////////////////////////
 
       var expandedKeys = new Array();
+      var keyPathCache = "";
       var keyPathDelimiter = "/";
 
       function getLastKey() {
@@ -104,9 +133,11 @@ function cmd_chart(selection, metaData, appSettings ) {
               return false;
       }
       function getKeyPath() {
-          return expandedKeys.join(keyPathDelimiter);
+          return keyPathCache;
+          //return expandedKeys.join(keyPathDelimiter);
       }
       function setKeyPath(keyPath) {
+          keyPathCache = keyPath;
           expandedKeys = keyPath ? keyPath.split(keyPathDelimiter) : new Array();
       }
       function getLevelIndex() {
@@ -155,6 +186,19 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       function loadDataAndRedraw(stateData) {
 
+          function updateGraph() {
+
+              var sameKeyPaths = (previousStateData != null) && (stateData.keyPath == previousStateData.keyPath);
+              redraw(sameKeyPaths);
+
+              zoomBehavior.zoomTo(scalesTime.domain());
+              previousStateData = stateData;
+
+              if (zoomTimer)
+                  clearTimeout(zoomTimer);
+              zoomTimer = null;
+          }
+
           function queryAndDraw(query) {
 
               var url = query.url(dateFrom, dateTo, getLastKey());
@@ -162,9 +206,10 @@ function cmd_chart(selection, metaData, appSettings ) {
               console.log("AJAX Query: " + url);
               d3.json(url, function (data) {
 
+                  //loading data
                   var currentKeyPath = getKeyPath();
                   var table = data[query.tableName];
-                  var newSeries = new Object();
+                  var processedSeries = new Object();
                   for (var i = 0; i < table.length; i++) {
                       var ID = table[i][query.serieKey];
                       var key = currentKeyPath == "" ? ID : currentKeyPath + "/" + ID;
@@ -174,6 +219,9 @@ function cmd_chart(selection, metaData, appSettings ) {
                           series[key].name = "[" + ID + "]"; //TODO
                           series[key].keyPath = currentKeyPath;
                           series[key].onClick = query.onClick;
+                          series[key].color = (typeof (query.color) == "function") ? query.color(s) : query.color;
+                          series[key].thickness = (typeof (query.thickness) == "function") ? query.thickness(s) : query.thickness;
+
                           console.log("Serie added:" + key);
                       }
 
@@ -189,42 +237,29 @@ function cmd_chart(selection, metaData, appSettings ) {
                           }
                       if (!foundExisting)
                           series[key].push({ "date": date, "value": value });
+
+                      processedSeries[key] = true;
                   }
 
-                  var keyPath = getKeyPath();
-                  var lastKey = getLastKey();
+                  //adding path 
+                  var lastKey = getLastKey();  //last key: animate from this key
                   if (lastKey && !series[lastKey])
-                      lastKey = false;
-                  for (s in series) {
+                      lastKey = false;  //not loaded? starting the app on a higher path level
+                  for (s in processedSeries) {
                       series[s].sort(function (a, b) { return a.date - b.date; });
                       if (!series[s].path) {
 
-                          series[s].color = (typeof (query.color) == "function") ? query.color(s) : query.color;
-                          series[s].thickness = (typeof (query.thickness) == "function") ? query.thickness(s) : query.thickness;
-
-                          series[s].keyPath = keyPath;
                           series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[lastKey ? lastKey : s]))
                                   .style("stroke-width", series[s].thickness)
-                                  .style("stroke", lastKey ? series[s].color : appSettings.chartBackgroundColor);
-
+                                  .style("stroke", lastKey ? series[lastKey].color : appSettings.chartBackgroundColor);
                       }
                   }
 
                   if (numOfQueriesToPerform > 1)
                       numOfQueriesToPerform--;
-                  else {
-                      var sameKeyPaths = (previousStateData != null) && (stateData.keyPath == previousStateData.keyPath);
-                      redraw(sameKeyPaths);
-
-                      zoomBehavior.zoomTo(scalesTime.domain());
-                      previousStateData = stateData;
-
-                      if (zoomTimer)
-                          clearTimeout(zoomTimer);
-                      zoomTimer = null;
-
-                  }
+                  else
+                      updateGraph();
 
               });
           }
@@ -251,11 +286,20 @@ function cmd_chart(selection, metaData, appSettings ) {
           var to = new Date(stateData.timeTo);
           scalesTime.domain([from, to]);
 
-          var dateFrom = metaData.dateFormat(from);
-          var dateTo = metaData.dateFormat(to);
-          var numOfQueriesToPerform = currentLevel.queries.length;
-          for (q = 0; q < currentLevel.queries.length; q++) {
-              queryAndDraw(currentLevel.queries[q], dateFrom, dateTo);
+          if (!currentLevel.intervals)
+              currentLevel.intervals = new intervals();
+          var intervalToLoad = currentLevel.intervals.add(from, to);
+
+          if (intervalToLoad !== false) {
+              var dateFrom = metaData.dateFormat(intervalToLoad[0]);
+              var dateTo = metaData.dateFormat(intervalToLoad[1]);
+              var numOfQueriesToPerform = currentLevel.queries.length;
+              for (q = 0; q < currentLevel.queries.length; q++) {
+                  queryAndDraw(currentLevel.queries[q], dateFrom, dateTo);
+              }
+          } else {
+              console.log("AJAX Query: SKIPPED (no missing data)");
+              updateGraph();
           }
       }
 
@@ -264,9 +308,25 @@ function cmd_chart(selection, metaData, appSettings ) {
           svgTooltipDot.style("display", "none");
           svgTooltipText.style("display", "none");
 
+          /*.defined(function (dataRecord) {
+          var domain = scalesTime.domain();
+          return dataRecord["date"] >= domain[0]
+          && dataRecord["date"] <= domain[1];
+          });*/
+
+          var visibleSeries = new Array();
+          var domain = scalesTime.domain();
+          for (s in series) {
+              var lastIndex = series[s].length - 1;
+              for (var i = 0; i < series[s].length; i++) {
+                  if (series[s][i > 0 ? i - 1 : i].date >= domain[0] && series[s][i < lastIndex ? i + 1 : i].date <= domain[1])
+                      visibleSeries[s].push(series[s][i]);
+              }
+          }
+
           if (instant) {
               for (s in series)
-                  series[s].path.attr("d", line(series[s]));
+                  series[s].path.attr("d", line(visibleSeries[s]));
           }
           else {
               var currentLevelIndex = getLevelIndex();
@@ -291,7 +351,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                   if (levelIndex == currentLevelIndex) {
                       series[s].path.classed("clicked", false).transition()
                         .duration(appSettings.transitionSpeed)
-                        .attr("d", line(series[s]))
+                        .attr("d", line(visibleSeries[s]))
                         .style("stroke", series[s].color);
                       series[s].legendText = svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
@@ -319,12 +379,12 @@ function cmd_chart(selection, metaData, appSettings ) {
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
-                      .attr("d", line(series[s]))
+                      .attr("d", line(visibleSeries[s]))
                       .style("stroke", appSettings.lineOnPreviousLevelColor);
                   else if (levelIndex > currentLevelIndex) {
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
-                      .attr("d", line(series[getLastKeyOfPath(series[s].keyPath)]))
+                      .attr("d", line(visibleSeries[getLastKeyOfPath(series[s].keyPath)]))
                       .remove();
                       delete series[s];
                   }
@@ -597,13 +657,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       var line = d3.svg.line()
       .x(function (dataRecord) { return scalesTime(dataRecord["date"]); })
-      .y(function (dataRecord) { return scalesValue(dataRecord["value"]); })
-      .defined(function (dataRecord) {
-          var domain = scalesTime.domain();
-          return dataRecord["date"] >= domain[0]
-               && dataRecord["date"] <= domain[1];
-      });
-
+      .y(function (dataRecord) { return scalesValue(dataRecord["value"]); });
 
       ////////////////
 
