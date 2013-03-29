@@ -167,11 +167,11 @@ function cmd_chart(selection, metaData, appSettings ) {
                   var newSeries = new Object();
                   for (var i = 0; i < table.length; i++) {
                       var ID = table[i][query.serieKey];
-                      var key = currentKeyPath + "/" + ID;
+                      var key = currentKeyPath == "" ? ID : currentKeyPath + "/" + ID;
                       if (!series[key]) {
                           series[key] = new Array();
                           series[key].ID = ID;
-                          series[key].name = "["+ID+"]"; //TODO
+                          series[key].name = "[" + ID + "]"; //TODO
                           series[key].keyPath = currentKeyPath;
                           series[key].onClick = query.onClick;
                           console.log("Serie added:" + key);
@@ -205,7 +205,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                           series[s].keyPath = keyPath;
                           series[s].path = clippedArea.append("svg:path")
                                   .attr("d", line(series[lastKey ? lastKey : s]))
-                                  .style("stroke-width", series[s].thickness )
+                                  .style("stroke-width", series[s].thickness)
                                   .style("stroke", lastKey ? series[s].color : appSettings.chartBackgroundColor);
 
                       }
@@ -270,7 +270,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
           else {
               var currentLevelIndex = getLevelIndex();
-              var pos = appSettings.legendItemOffset * 2/3; //baseline pos
+              var pos = appSettings.legendItemOffset * 2 / 3; //baseline pos
 
               updateMouseEnabled = false;
               setTimeout(function () {
@@ -314,7 +314,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                         .duration(appSettings.transitionSpeed / 2)
                         .attr("x2", appSettings.legendWidth)
 
-                      pos += appSettings.legendItemOffset; 
+                      pos += appSettings.legendItemOffset;
                   }
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
@@ -478,7 +478,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                       console.log("Clicked serie: " + nearestSerie);
 
                       var currentKeyPath = getKeyPath();
-                      var newKeyPath = currentKeyPath == "" ? nearestSerie : currentKeyPath + "/" + series[nearestSerie].ID;
+                      var newKeyPath = nearestSerie;
                       changeState({ "keyPath": newKeyPath });
                   }
                   else
