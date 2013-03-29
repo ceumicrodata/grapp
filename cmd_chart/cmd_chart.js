@@ -284,17 +284,17 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
 
 
-          var from = new Date(stateData.timeFrom);
-          var to = new Date(stateData.timeTo);
-          scalesTime.domain([from, to]);
+          scalesTime.domain([new Date(stateData.timeFrom), new Date(stateData.timeTo)]);
 
           if (!currentLevel.intervals)
               currentLevel.intervals = new intervals();
-          var intervalToLoad = currentLevel.intervals.add(from, to);
+              
+          var expand = (stateData.timeTo - stateData.timeFrom) / 4; 
+          var intervalToLoad = currentLevel.intervals.add(stateData.timeFrom - expand, stateData.timeTo + expand);
 
           if (intervalToLoad !== false) {
-              var dateFrom = metaData.dateFormat(intervalToLoad[0]);
-              var dateTo = metaData.dateFormat(intervalToLoad[1]);
+              var dateFrom = metaData.dateFormat(new Date(intervalToLoad[0]));
+              var dateTo = metaData.dateFormat(new Date(intervalToLoad[1]));
               var numOfQueriesToPerform = currentLevel.queries.length;
               for (q = 0; q < currentLevel.queries.length; q++) {
                   queryAndDraw(currentLevel.queries[q], dateFrom, dateTo);
