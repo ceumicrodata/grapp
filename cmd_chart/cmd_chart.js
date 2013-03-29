@@ -317,6 +317,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           var visibleSeries = new Array();
           var domain = scalesTime.domain();
           for (s in series) {
+              visibleSeries[s] = new Array();
               var lastIndex = series[s].length - 1;
               for (var i = 0; i < series[s].length; i++) {
                   if (series[s][i > 0 ? i - 1 : i].date >= domain[0] && series[s][i < lastIndex ? i + 1 : i].date <= domain[1])
