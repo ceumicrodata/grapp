@@ -83,12 +83,12 @@ function cmd_chart(selection, metaData, appSettings ) {
           var timeDomain = scalesTime.domain();
 
           if (stateData.timeFrom === undefined)
-              stateData.timeFrom = timeDomain[0];
+              stateData.timeFrom = timeDomain[0].getTime();
           if (stateData.timeTo === undefined)
-              stateData.timeTo = timeDomain[1];
+              stateData.timeTo = timeDomain[1].getTime();
 
-          var dateFrom = metaData.dateFormat(stateData.timeFrom);
-          var dateTo = metaData.dateFormat(stateData.timeTo);
+          var dateFrom = metaData.dateFormat(new Date(stateData.timeFrom));
+          var dateTo = metaData.dateFormat(new Date(stateData.timeTo));
           var url = "?keyPath=" + stateData.keyPath + "&dateFrom=" + dateFrom + "&dateTo=" + dateTo;
           var title = "CEU Microdata (testurl: " + url + ")";
 
@@ -165,7 +165,7 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       var scalesTime = d3.time.scale()
       .range([0, width])
-      .domain([metaData.dateFormat.parse(metaData.dateFrom).getTime(), metaData.dateFormat.parse(metaData.dateTo).getTime()]);
+      .domain([metaData.dateFormat.parse(metaData.dateFrom), metaData.dateFormat.parse(metaData.dateTo)]);
       var scalesValue = d3.scale.linear()
       .range([height, 0])
       .domain([metaData.valueMin, metaData.valueMax]);
@@ -284,13 +284,13 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
 
 
-          scalesTime.domain([stateData.timeFrom, stateData.timeTo]);
+          scalesTime.domain([new Date(stateData.timeFrom), new Date(stateData.timeTo)]);
 
           if (!currentLevel.intervals)
               currentLevel.intervals = new intervals();
               
-          var from = stateData.timeFrom.getTime();
-          var to   = stateData.timeTo.getTime();
+          var from = stateData.timeFrom;
+          var to   = stateData.timeTo;
           
           var expand = (to - from) / 4; 
           var intervalToLoad = currentLevel.intervals.add(from - expand, to + expand);
@@ -310,10 +310,12 @@ function cmd_chart(selection, metaData, appSettings ) {
 
       function getVisibleSerie(fullSerie) {
           var domain = scalesTime.domain();
+          var d0 = domain[0].getTime();
+          var d1 = domain[1].getTime();
           var visibleSerie = new Array();
           var lastIndex = fullSerie.length - 1;
           for (var i = 0; i <= lastIndex; i++) {
-              if (fullSerie[(i<lastIndex) ? (i+1) : i].date >= domain[0] && fullSerie[ (i>0) ? (i-1) : i].date <= domain[1])
+              if (fullSerie[(i<lastIndex) ? (i+1) : i].date >= d0 && fullSerie[ (i>0) ? (i-1) : i].date <= d1)
                   visibleSerie.push(fullSerie[i]);
           }
           return visibleSerie;
@@ -397,8 +399,8 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
 
           for (si = 0; si < metaData.shadedIntervals.length; si++) {
-              var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom).getTime();
-              var timeTo = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo).getTime();
+              var timeFrom = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateFrom);
+              var timeTo = metaData.dateFormat.parse(metaData.shadedIntervals[si].dateTo);
               svgShadedIntervals[si]
                 .attr("x", (scalesTime(timeFrom)) + "px")
                 .attr("width", (scalesTime(timeTo) - scalesTime(timeFrom)) + "px");
@@ -445,7 +447,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               return false;
           }
 
-          var currentTime = scalesTime.invert(lastMouseX - appSettings.margin);
+          var currentTime = scalesTime.invert(lastMouseX - appSettings.margin).getTime();
           var currentValue = scalesValue.invert(lastMouseY - appSettings.margin);
 
           var lowestDistance = (metaData.valueMax - metaData.valueMin) * appSettings.lineSenitiveWidth / width;
