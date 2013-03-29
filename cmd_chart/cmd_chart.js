@@ -314,7 +314,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               visibleSeries[s] = new Array();
               var lastIndex = series[s].length - 1;
               for (var i = 0; i < series[s].length; i++) {
-                  if (series[s][(i>0) ? (i-1) : i].date >= domain[0] && series[s][(i<lastIndex) ? (i+1) : i].date <= domain[1])
+                  if (series[s][(i<lastIndex) ? (i+1) : i].date >= domain[0] && series[s][ (i>0) ? (i-1) : i].date <= domain[1])
                       visibleSeries[s].push(series[s][i]);
               }
           }
