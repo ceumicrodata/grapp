@@ -28,7 +28,7 @@ function cmd_chart(selection, metaData, appSettings ) {
           var newInts = new Array();
           var reFrom = from;
           var reTo = to;
-          for (var i = 0; i < intervals.length; i++) {
+          for (var i = 0; i < this.ints.length; i++) {
               var iFrom = this.ints[i][0];
               var iTo = this.ints[i][1];
               if (iFrom > to || from > iTo)
@@ -249,8 +249,10 @@ function cmd_chart(selection, metaData, appSettings ) {
                       series[s].sort(function (a, b) { return a.date - b.date; });
                       if (!series[s].path) {
 
+                          var visibleSerie = getVisibleSerie(series[lastKey ? lastKey : s]);
+                          
                           series[s].path = clippedArea.append("svg:path")
-                                  .attr("d", line(series[lastKey ? lastKey : s]))
+                                  .attr("d", line(visibleSerie))
                                   .style("stroke-width", series[s].thickness)
                                   .style("stroke", lastKey ? series[lastKey].color : appSettings.chartBackgroundColor);
                       }
@@ -303,22 +305,26 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
       }
 
+      function getVisibleSerie(fullSerie) {
+          var domain = scalesTime.domain();
+          var visibleSerie = new Array();
+          var lastIndex = fullSerie.length - 1;
+          for (var i = 0; i <= lastIndex; i++) {
+              if (fullSerie[(i<lastIndex) ? (i+1) : i].date >= domain[0] && fullSerie[ (i>0) ? (i-1) : i].date <= domain[1])
+                  visibleSerie.push(fullSerie[i]);
+          }
+          return visibleSerie;
+      } 
+      
       function redraw(instant) {
 
           svgTooltipDot.style("display", "none");
           svgTooltipText.style("display", "none");
 
-          var visibleSeries = new Array();
-          var domain = scalesTime.domain();
-          for (s in series) {
-              visibleSeries[s] = new Array();
-              var lastIndex = series[s].length - 1;
-              for (var i = 0; i < series[s].length; i++) {
-                  if (series[s][(i<lastIndex) ? (i+1) : i].date >= domain[0] && series[s][ (i>0) ? (i-1) : i].date <= domain[1])
-                      visibleSeries[s].push(series[s][i]);
-              }
-          }
-
+          var visibleSeries = new Object();
+          for (s in series)
+              visibleSeries[s] = getVisibleSerie(series[s]);
+  
           if (instant) {
               for (s in series)
                   series[s].path.attr("d", line(visibleSeries[s]));
