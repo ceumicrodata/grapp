@@ -26,6 +26,12 @@
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
   <script src="includes/history.js/scripts/bundled/html4+html5/jquery.history.js"></script>  <!-- history.js -->
 
+  <!-- base64 encoding --> 
+  <script src="includes/base64/base64.js"></script> 
+
+  <!-- svg downloadb --> 
+  <script src="includes/SVG/svgDownload.js"></script> 
+  
   <!-- cmd_chart --> 
   <link media="all" rel="stylesheet" href="cmd_chart/cmd_chart.css" type="text/css">
   <SCRIPT type="text/javascript" src="cmd_chart/cmd_chart.js"></SCRIPT>   
@@ -40,7 +46,14 @@
       <h4>CEU Microdata</h4>
       <h1>Graphing App</h1>    
     </div>
-    
+    <div class = "chartTabs" >
+     <div class = "chartTab" id="tab1"> TAB1 </div>
+     <div class = "chartTab" id="tab2"> TAB2 </div>
+    </div>
+    <div class = "chartShareButtons" >
+     <a class = "chartShareButton" id="downloadSVG" href = "#" > SVG download </a>
+    </div>
+   
     <div class = "chartContainer" ></div>
     <div class = "chartDescription" ></div>
   
@@ -48,6 +61,11 @@
 </div>
 
 <script type="text/javascript">
+
+  var svg = $(".chartContainer").html();
+  alert(svg);
+  encode_as_img_and_link(svg, ".chartShareButtons");
+  
 
   d3.text("chart1_metadata.json", function(metaDataText) {
      eval("var metaDataObj = "+ metaDataText +";"); //cannot use JSON.parse here... object has functions, too
