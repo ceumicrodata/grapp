@@ -1,5 +1,4 @@
 
-
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
@@ -22,13 +21,14 @@ function cmd_chart(selection, metaData, appSettings ) {
       return obj;
   }
 
-  function intervals() {
+  function Intervals() {
       this.ints = new Array();
       this.add = function (from, to) {
           var newInts = new Array();
           var reFrom = from;
           var reTo = to;
           for (var i = 0; i < this.ints.length; i++) {
+
               var iFrom = this.ints[i][0];
               var iTo = this.ints[i][1];
               if (iFrom > to || from > iTo)
@@ -49,6 +49,16 @@ function cmd_chart(selection, metaData, appSettings ) {
       }
       return this;
   }
+  function KeyPathIntervals() {
+    var storage = new Object();
+    this.add = function (keyPath, from, to) {
+        if (!storage[keyPath])
+            storage[keyPath] = new Intervals();
+        return storage[keyPath].add(from, to);
+    }
+  }
+
+  var keyPathIntervals = new KeyPathIntervals();
 
   selection.select(".chartContainer").each(function () {
 
@@ -249,10 +259,10 @@ function cmd_chart(selection, metaData, appSettings ) {
                       series[s].sort(function (a, b) { return a.date - b.date; });
                       if (!series[s].path) {
 
-                          var visibleSerie = getVisibleSerie(series[lastKey ? lastKey : s]);
+                          var visibleParts = getVisiblePart(series[lastKey ? lastKey : s]);
                           
                           series[s].path = clippedArea.append("svg:path")
-                                  .attr("d", line(visibleSerie))
+                                  .attr("d", line(visibleParts))
                                   .style("stroke-width", series[s].thickness)
                                   .style("stroke", lastKey ? series[lastKey].color : appSettings.chartBackgroundColor);
                       }
@@ -286,14 +296,15 @@ function cmd_chart(selection, metaData, appSettings ) {
 
           scalesTime.domain([new Date(stateData.timeFrom), new Date(stateData.timeTo)]);
 
-          if (!currentLevel.intervals)
-              currentLevel.intervals = new intervals();
+
+
               
           var from = stateData.timeFrom;
           var to   = stateData.timeTo;
           
           var expand = (to - from) / 4; 
-          var intervalToLoad = currentLevel.intervals.add(from - expand, to + expand);
+
+          var intervalToLoad = keyPathIntervals.add(getKeyPath(),from, to);
 
           if (intervalToLoad !== false) {
               var dateFrom = metaData.dateFormat(new Date(intervalToLoad[0]));
@@ -308,17 +319,17 @@ function cmd_chart(selection, metaData, appSettings ) {
           }
       }
 
-      function getVisibleSerie(fullSerie) {
+      function getVisiblePart(fullSerie) {
           var domain = scalesTime.domain();
           var d0 = domain[0].getTime();
           var d1 = domain[1].getTime();
-          var visibleSerie = new Array();
+          var visiblePart = new Array();
           var lastIndex = fullSerie.length - 1;
           for (var i = 0; i <= lastIndex; i++) {
               if (fullSerie[(i<lastIndex) ? (i+1) : i].date >= d0 && fullSerie[ (i>0) ? (i-1) : i].date <= d1)
-                  visibleSerie.push(fullSerie[i]);
+                  visiblePart.push(fullSerie[i]);
           }
-          return visibleSerie;
+          return visiblePart;
       } 
       
       function redraw(instant) {
@@ -326,13 +337,12 @@ function cmd_chart(selection, metaData, appSettings ) {
           svgTooltipDot.style("display", "none");
           svgTooltipText.style("display", "none");
 
-          var visibleSeries = new Object();
           for (s in series)
-              visibleSeries[s] = getVisibleSerie(series[s]);
+            series[s].visiblePart = getVisiblePart(series[s]);
   
           if (instant) {
               for (s in series)
-                  series[s].path.attr("d", line(visibleSeries[s]));
+                  series[s].path.attr("d", line(series[s].visiblePart));
           }
           else {
               var currentLevelIndex = getLevelIndex();
@@ -357,7 +367,7 @@ function cmd_chart(selection, metaData, appSettings ) {
                   if (levelIndex == currentLevelIndex) {
                       series[s].path.classed("clicked", false).transition()
                         .duration(appSettings.transitionSpeed)
-                        .attr("d", line(visibleSeries[s]))
+                        .attr("d", line(series[s].visiblePart))
                         .style("stroke", series[s].color);
                       series[s].legendText = svgLegend.append("text")
                         .attr("transform", "translate(0," + pos + ")")
@@ -385,12 +395,12 @@ function cmd_chart(selection, metaData, appSettings ) {
                   else if (levelIndex < currentLevelIndex)
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
-                      .attr("d", line(visibleSeries[s]))
+                      .attr("d", line(series[s].visiblePart))
                       .style("stroke", appSettings.lineOnPreviousLevelColor);
                   else if (levelIndex > currentLevelIndex) {
                       series[s].path.transition()
                       .duration(appSettings.transitionSpeed)
-                      .attr("d", line(visibleSeries[getLastKeyOfPath(series[s].keyPath)]))
+                      .attr("d", line(series[getLastKeyOfPath(series[s].keyPath)].visiblePart))
                       .remove();
                       delete series[s];
                   }
@@ -457,15 +467,15 @@ function cmd_chart(selection, metaData, appSettings ) {
               if (series[s].keyPath == currentKeyPath) {
 
                   var pos = -1;
-                  for (var i = 0; i < series[s].length; i++) {
-                      if (currentTime < series[s][i].date) {
+                  for (var i = 0; i < series[s].visiblePart.length; i++) {
+                      if (currentTime < series[s].visiblePart[i].date) {
                           pos = i - 1;
                           break;
                       }
                   }
                   if (pos >= 0) {
-                      var f = (currentTime - series[s][pos].date) / (series[s][pos + 1].date - series[s][pos].date);
-                      var v = series[s][pos].value * (1 - f) + series[s][pos + 1].value * f;
+                      var f = (currentTime - series[s].visiblePart[pos].date) / (series[s].visiblePart[pos + 1].date - series[s].visiblePart[pos].date);
+                      var v = series[s].visiblePart[pos].value * (1 - f) + series[s].visiblePart[pos + 1].value * f;
 
                       var currentDistance = Math.abs(v - currentValue);
                       if (currentDistance < lowestDistance) {
@@ -473,8 +483,8 @@ function cmd_chart(selection, metaData, appSettings ) {
                           nearestSerie = s;
 
                           if (tooltipInfo) {
-                              tooltipInfo.tooltipDate = (f > 0.5) ? series[s][pos + 1].date : series[s][pos].date;
-                              tooltipInfo.tooltipValue = (f > 0.5) ? series[s][pos + 1].value : series[s][pos].value;
+                              tooltipInfo.tooltipDate = (f > 0.5) ? series[s].visiblePart[pos + 1].date : series[s].visiblePart[pos].date;
+                              tooltipInfo.tooltipValue = (f > 0.5) ? series[s].visiblePart[pos + 1].value : series[s].visiblePart[pos].value;
                           }
                       }
                   }
@@ -739,7 +749,3 @@ function cmd_chart(selection, metaData, appSettings ) {
 
   });
 }
-  
-  
-  
-
