@@ -49,7 +49,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       return this;
   }
   function KeyPathIntervals() {
-    var storage = new Object();
+    this.storage = new Object();
     this.add = function (keyPath, from, to) {
         if (!this.storage[keyPath])
             this.storage[keyPath] = new Intervals();
