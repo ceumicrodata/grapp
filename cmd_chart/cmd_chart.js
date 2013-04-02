@@ -1,4 +1,3 @@
-
 function cmd_chart(selection, metaData, appSettings ) {
 
   var chartDescription = selection.select(".chartDescription");
@@ -302,9 +301,11 @@ function cmd_chart(selection, metaData, appSettings ) {
           var from = stateData.timeFrom;
           var to   = stateData.timeTo;
           
-          var expand = (to - from) / 4; 
+          var expand = (to - from) * appSettings.preloadInvisibleArea; 
 
-          var intervalToLoad = keyPathIntervals.add(getKeyPath(),from, to);
+          var intervalToLoad = keyPathIntervals.add(getKeyPath(),
+            Math.max (timeMin, from - expand),
+            Math.min (timeMax, to + expand));
 
           if (intervalToLoad !== false) {
               var dateFrom = metaData.dateFormat(new Date(intervalToLoad[0]));
@@ -564,6 +565,8 @@ function cmd_chart(selection, metaData, appSettings ) {
 
               if (getLevelIndex() > 0) {
                   console.log("Clicked empty area: returning to the previous level.");
+                  
+                  keyPathIntervals.storage[getKeyPath()] = undefined; //TODO
 
                   var newKeyPath = getKeyPath().split(keyPathDelimiter, getLevelIndex() - 1).join(keyPathDelimiter);
                   changeState({ "keyPath": newKeyPath });
