@@ -51,7 +51,6 @@
      <div class = "chartTab" id="tab2"> TAB2 </div>
     </div> -->
     <div class = "chartShareButtons" >
-     <a class = "chartShareButton" id="downloadSVG" href = "#" > SVG download </a>
     </div>
    
     <div class = "chartContainer" ></div>
@@ -61,8 +60,6 @@
 </div>
 
 <script type="text/javascript">
-
-  
 
   d3.text("chart1_metadata.json", function(metaDataText) {
      eval("var metaDataObj = "+ metaDataText +";"); //cannot use JSON.parse here... object has functions, too
@@ -80,10 +77,6 @@
 
      });
   });
-  
-  /*var svg = $(".chartContainer").html();
-  alert(svg);
-  encode_as_img_and_link(svg, ".chartShareButtons");*/
 
 </script>
 
