@@ -717,7 +717,7 @@ path {\
 }";
               var css = "<defs><style type=\"text/css\"><![CDATA["+ css + "]]></style></defs>";
                     
-              html.replace("svg\">","svg\">"+css);
+              html = html.replace("svg\">","svg\">"+css);
               
               console.log("SVG:" + html);
               downloadSVGbutton.attr("href", "data:image/svg+xml;base64,\n" + btoa(html));
