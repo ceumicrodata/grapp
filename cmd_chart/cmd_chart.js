@@ -688,59 +688,32 @@ function cmd_chart(selection, metaData, appSettings ) {
                         
               var html = svg.node().parentNode.innerHTML;
               
-var css = "
-
-.chartTitle {
-  font-size: 11pt;
-  font-weight: bold;
-  fill: #006D9E;
-}
-text {
-    stroke-width: 0;
-}
-path {
-    stroke-width: 2;
-    fill: none;
-}
-
-.mouseover {
-    stroke-width: 4;
-}
-.clicked {
-    stroke-width: 8;
-    stroke-dasharray: 5,5;
-}
-
-.axis path,
-.axis line {
-
-    fill: none;
-    stroke: #E1E1E1;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
-}
-
-.axis text {
-    font-size: 9pt;
-    fill: #818181;
-}
-
-.chartBackground {
-    fill: #F9F9F9;
-}
-.hairCross {
-    fill: none;
-    stroke: #006D9E;
-    stroke-width: 1px;
-    shape-rendering: crispEdges; 
-}
-.tooltipRect {
-    fill: #ffffff; 
-    stroke: #818181;
-}
-.tooltipText {
-    font-size: 9pt;
-    fill: #818181;
+var css = "\
+.chartTitle {\
+  font-size: 11pt;\
+  font-weight: bold;\
+  fill: #006D9E;\
+}\
+text {\
+    stroke-width: 0;\
+}\
+path {\
+    stroke-width: 2;\
+    fill: none;\
+}\
+.axis path,\
+.axis line {\
+    fill: none;\
+    stroke: #E1E1E1;\
+    stroke-width: 1px;\
+    shape-rendering: crispEdges;\
+}\
+.axis text {\
+    font-size: 9pt;\
+    fill: #818181;\
+}\
+.chartBackground {\
+    fill: #F9F9F9;\
 }";
               var css = "<defs><style type=\"text/css\"><![CDATA["+ css + "]]></style></defs>";
                     
