@@ -685,7 +685,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       var downloladSVGbutton = d3.select("chartShareButtons").append("a")
           .attr("title", "file.svg")
           .attr("href-lang", "image/svg+xml")
-          .attr("href", "data:image/svg+xml;base64,\n" + btoa(html))
+          .attr("href", "#") //filled in redraw()
           .text("Download SVG");
       
       var line = d3.svg.line()
