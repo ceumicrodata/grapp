@@ -428,9 +428,6 @@ function cmd_chart(selection, metaData, appSettings ) {
               svgTitle.text(currentLevel.title);
               chartDescription.text(currentLevel.description);
               
-              
-              var html = svg.node().parentNode.innerHTML;
-              downloadSVGbutton.attr("href", "data:image/svg+xml;base64,\n" + btoa(html));
           }
           
 
@@ -680,13 +677,20 @@ function cmd_chart(selection, metaData, appSettings ) {
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .on("mousemove", function () { onMouseMove(); })
       .on("click", function () { onClick(); })
-      .on("mouseout", function () { onMouseOut(); });
+ 
       
       var downloadSVGbutton = d3.select(".chartShareButtons").append("a")
           .attr("title", "file.svg")
           .attr("href-lang", "image/svg+xml")
           .attr("href", "#") //filled in redraw()
-          .text("Download SVG");
+          .text("Download SVG")
+          .on("mouseover", function () { 
+                        
+              var html = svg.node().parentNode.innerHTML;
+              console.log("SVG:" + html);
+              downloadSVGbutton.attr("href", "data:image/svg+xml;base64,\n" + btoa(html));
+          
+          });
       
       var line = d3.svg.line()
       .x(function (dataRecord) { return scalesTime(dataRecord["date"]); })
