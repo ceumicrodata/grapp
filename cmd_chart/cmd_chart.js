@@ -719,7 +719,6 @@ path {\
                     
               html.replace("svg\">","svg\">"+css);
               
-              <svg width="703" height="490" version="1.1" xmlns="http://www.w3.org/2000/svg">        
               console.log("SVG:" + html);
               downloadSVGbutton.attr("href", "data:image/svg+xml;base64,\n" + btoa(html));
           
