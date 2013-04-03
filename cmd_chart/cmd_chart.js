@@ -430,7 +430,7 @@ function cmd_chart(selection, metaData, appSettings ) {
               
               
               var html = svg.node().parentNode.innerHTML;
-              downloladSVGbutton.attr("href", "data:image/svg+xml;base64,\n" + btoa(html));
+              downloadSVGbutton.attr("href", "data:image/svg+xml;base64,\n" + btoa(html));
           }
           
 
@@ -682,7 +682,7 @@ function cmd_chart(selection, metaData, appSettings ) {
       .on("click", function () { onClick(); })
       .on("mouseout", function () { onMouseOut(); });
       
-      var downloladSVGbutton = d3.select("chartShareButtons").append("a")
+      var downloadSVGbutton = d3.select(".chartShareButtons").append("a")
           .attr("title", "file.svg")
           .attr("href-lang", "image/svg+xml")
           .attr("href", "#") //filled in redraw()
